@@ -646,6 +646,9 @@ function runAutomations() {
         el._t = setTimeout(() => { el.className = ""; el.onclick = null; }, 10000);
 
       }, 2000);
+    }
+    localStorage.setItem(K_LAST_BACKUP, currentMonthKey);
+  } // <--- THIS WAS MISSING BEFORE! Fixed now.
 
   // 2. Auto-Cleanup (Deletes entries older than 90 days)
   const cutoffDate = new Date();
@@ -661,6 +664,7 @@ function runAutomations() {
     setTimeout(() => slToast(t("🗑️ Old logs >3 months auto-cleaned", "🗑️ Log lama >3 bulan dibersihkan automatik"), false), 4000);
   }
 }
+
 function shiftLogCleanOldData() {
   if (!confirm(t("This will delete entries older than 3 months. Proceed?", "Ini akan memadam entri lebih 3 bulan. Teruskan?"))) return;
   const cutoffDate = new Date();
