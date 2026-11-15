@@ -628,24 +628,28 @@ function runAutomations() {
         el.innerHTML = t("📥 Click here to save last month's backup!", "📥 Klik sini untuk simpan backup bulan lepas!");
         el.className = "show";
         
-        // Create the actual download link
-        const blob = new Blob([backupData], {type:"application/json"});
-        const url = URL.createObjectURL(blob);
-        const fileName = `AutoBackup_ShiftLog_${prevMonthKey}.json`;
-
-        // Put a REAL link inside the green bar
-        el.innerHTML = `<a href="${url}" download="${fileName}" style="color:inherit; text-decoration:none; display:block;">` + 
-                       t("📥 Click here to save last month's backup!", "📥 Klik sini untuk simpan backup bulan lepas!") + 
-                       `</a>`;
+        // Make the toast clickable
+        el.innerHTML = t("📥 Click here to save last month's backup!", "📥 Klik sini untuk simpan backup bulan lepas!");
         el.className = "show";
-
-        // Hide the toast when you click the link
+        
+        // When clicked, pop up a native browser confirmation
         el.onclick = () => {
+          // This confirm popup is the secret key to bypass Chrome's strict download block!
+          if (confirm(t("Click OK to download last month's backup.", "Klik OK untuk muat turun backup bulan lepas."))) {
+            const blob = new Blob([backupData], {type:"application/json"});
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = `AutoBackup_ShiftLog_${prevMonthKey}.json`;
+            a.click();
+            URL.revokeObjectURL(url);
+          }
+          // Hide the bar after clicking
           el.className = "";
           el.onclick = null;
         };
 
-        // Safety timer (disappears after 10s)
+        // Safety timer
         clearTimeout(el._t);
         el._t = setTimeout(() => { el.className = ""; el.onclick = null; }, 10000);
 
