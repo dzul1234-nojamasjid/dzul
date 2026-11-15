@@ -17,7 +17,6 @@
   .top-bar{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px;flex-wrap:wrap;gap:10px}
   .btn-group{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
   
-  /* Language Switch Styling */
   .lang-switch { display: flex; background: var(--border); border-radius: 8px; overflow: hidden; }
   .lang-switch button { background: transparent; border: none; color: var(--muted); padding: 6px 12px; font-weight: bold; font-size: 0.8rem; cursor: pointer; transition: 0.2s; }
   .lang-switch button.active { background: var(--accent2); color: #0f172a; }
@@ -37,14 +36,13 @@
     background:linear-gradient(135deg,#166534,#065f46);border-radius:16px;box-shadow:0 4px 15px rgba(0,0,0,0.3)}
   header h1{margin:0;font-size:1.4rem;letter-spacing:0.5px}
   
-  /* Ramadhan Countdown - FULL YELLOW & BLINKING */
   .ramadhan-countdown {
     margin-top: 15px;
     padding: 12px;
     background: rgba(0, 0, 0, 0.25);
     border-radius: 10px;
     border: 1px solid rgba(251, 191, 36, 0.4);
-    color: var(--gold); /* All text yellow */
+    color: var(--gold);
   }
   .ramadhan-countdown h3 {
     margin: 0 0 6px 0;
@@ -209,7 +207,6 @@
 <div class="top-bar">
   <div style="display:flex; flex-direction:column; gap:8px;">
     <div style="font-weight:bold;font-size:1.1rem">🕌 Noja Masjid</div>
-    <!-- LANGUAGE SWITCH -->
     <div class="lang-switch">
       <button id="btnLangEN" onclick="setLang('en')" class="active">ENG</button>
       <button id="btnLangBM" onclick="setLang('bm')">BM</button>
@@ -355,10 +352,17 @@
     <div id="shiftLogSummary" style="background:var(--card);border:1px solid var(--border);
       border-radius:10px;padding:14px;margin-bottom:14px"></div>
 
-    <div style="display:flex;gap:8px;flex-wrap:wrap">
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px">
       <button class="btn-tool btn-sync" id="btnSlPrint" style="flex:1;padding:10px" onclick="shiftLogPrint()">🖨️ Print / PDF</button>
       <button class="btn-tool" style="flex:1;padding:10px" onclick="shiftLogCSV()">📄 CSV</button>
       <button class="btn-tool" style="flex:1;padding:10px" onclick="shiftLogExportJSON()">📥 Export JSON</button>
+    </div>
+    
+    <!-- Auto/Manual Cleanup Button -->
+    <div style="margin-top:10px; text-align:center;">
+      <button class="btn-sm" id="btnSlClean" style="background:transparent; color:var(--warn); border:1px solid var(--warn); padding:8px 12px; width:100%" onclick="shiftLogCleanOldData()">
+        🗑️ Clean >3 Months Data
+      </button>
     </div>
   </div>
 </div>
@@ -471,13 +475,10 @@ function schedulePush() {
 // ==========================================
 // BILINGUAL SUPPORT & SAFE TEXT
 // ==========================================
-let currentLang = localStorage.getItem("noja_lang") || "en"; // default to English
+let currentLang = localStorage.getItem("noja_lang") || "en"; 
 
-function t(en, bm) {
-  return currentLang === "en" ? en : bm;
-}
+function t(en, bm) { return currentLang === "en" ? en : bm; }
 
-// Gracefully handle string or object formatting
 function safeText(val) {
   if (val === null || val === undefined) return "";
   if (typeof val === "object") {
@@ -572,6 +573,7 @@ let isEditMode = false;
 const K_TASKS_M="noja_tasks_m_v7", K_TASKS_E="noja_tasks_e_v7";
 const K_CHECKS="noja_checks_v7", K_ADHOC="noja_adhoc_v7";
 const K_NOTES="noja_notes_v7", K_GALLERY="noja_gallery_v7", K_SHIFTLOG="noja_shiftlog_v2";
+const K_LAST_BACKUP="noja_last_backup_month";
 
 function cleanOldData(data) {
   if (!Array.isArray(data)) return data;
@@ -600,41 +602,92 @@ const getCurrentTasks = () => currentShift === "morning" ? tasksMorning : tasksE
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 
 // ==========================================
+// AUTOMATIONS: BACKUP & CLEANUP
+// ==========================================
+function runAutomations() {
+  const now = new Date();
+  const currentMonthKey = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,"0")}`;
+  const lastBackup = localStorage.getItem(K_LAST_BACKUP);
+
+  // 1. Auto-Backup (Runs on the 1st of the month or later if not done yet)
+  if (lastBackup !== currentMonthKey) {
+    // Find entries from the previous month
+    let prevMonthDate = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+    const prevMonthKey = `${prevMonthDate.getFullYear()}-${String(prevMonthDate.getMonth()+1).padStart(2,"0")}`;
+    
+    const prevEntries = shiftLogData.filter(e => e.date.startsWith(prevMonthKey));
+    
+    if (prevEntries.length > 0) {
+      const blob = new Blob([JSON.stringify({month: prevMonthKey, entries: prevEntries}, null, 2)], {type:"application/json"});
+      const url = URL.createObjectURL(blob), a = document.createElement("a");
+      a.href = url; a.download = `AutoBackup_ShiftLog_${prevMonthKey}.json`;
+      a.click(); URL.revokeObjectURL(url);
+      
+      setTimeout(() => slToast(t("📥 Auto-backup of last month downloaded", "📥 Backup automatik bulan lepas dimuat turun"), false), 1000);
+    }
+    localStorage.setItem(K_LAST_BACKUP, currentMonthKey);
+  }
+
+  // 2. Auto-Cleanup (Deletes entries older than 90 days)
+  const cutoffDate = new Date();
+  cutoffDate.setDate(cutoffDate.getDate() - 90);
+  const cutoffStr = cutoffDate.toISOString().slice(0,10);
+  
+  const initialCount = shiftLogData.length;
+  shiftLogData = shiftLogData.filter(e => e.date >= cutoffStr);
+  
+  if (shiftLogData.length < initialCount) {
+    localStorage.setItem(K_SHIFTLOG, JSON.stringify(shiftLogData));
+    schedulePush();
+    setTimeout(() => slToast(t("🗑️ Old logs >3 months auto-cleaned", "🗑️ Log lama >3 bulan dibersihkan automatik"), false), 2000);
+  }
+}
+
+function shiftLogCleanOldData() {
+  if (!confirm(t("This will delete entries older than 3 months. Proceed?", "Ini akan memadam entri lebih 3 bulan. Teruskan?"))) return;
+  const cutoffDate = new Date();
+  cutoffDate.setDate(cutoffDate.getDate() - 90);
+  const cutoffStr = cutoffDate.toISOString().slice(0,10);
+  
+  const initialCount = shiftLogData.length;
+  shiftLogData = shiftLogData.filter(e => e.date >= cutoffStr);
+  
+  if (shiftLogData.length < initialCount) {
+    slSaveStorage(); renderShiftLog();
+    slToast(t("🗑️ Cleared " + (initialCount - shiftLogData.length) + " old entries", "🗑️ Dipadam " + (initialCount - shiftLogData.length) + " entri lama"), true);
+  } else {
+    slToast(t("No entries older than 3 months", "Tiada entri lebih 3 bulan"), false);
+  }
+}
+
+// ==========================================
 // TRANSLATIONS
 // ==========================================
 function translateUI() {
   document.getElementById("appTitle").textContent = t("Noja Daily Checklist", "Senarai Semak Harian Noja");
   
-  // Ramadhan
   document.getElementById("ramadhanTitle").textContent = t("🌙 Countdown to Ramadhan", "🌙 Detik Kehadiran Ramadhan");
   document.getElementById("ramadhanDate").textContent = t("Estimated: 8 Feb 2027", "Anggaran: 8 Feb 2027");
 
-  // Shift Toggles
   document.getElementById("shiftMorningBtn").textContent = t("🌅 Morning Shift", "🌅 Syif Pagi");
   document.getElementById("shiftEveningBtn").textContent = t("🌙 Evening Shift", "🌙 Syif Petang");
 
-  // Headers
   document.getElementById("lblWeeklyTasks").textContent = t("📌 Weekly Tasks", "📌 Tugasan Mingguan");
   document.getElementById("lblNotes").textContent = t("📝 Personal Notes", "📝 Nota Peribadi");
   document.getElementById("mainNotes").placeholder = t("Write notes here...", "Tulis nota di sini...");
 
-  // Footer
   document.getElementById("btnExpandAll").textContent = t(
     isAllExpanded ? "Collapse All" : "Expand All", 
     isAllExpanded ? "Tutup Semua" : "Buka Semua"
   );
-  document.getElementById("btnEdit").textContent = isEditMode 
-    ? t("💾 Save", "💾 Simpan") 
-    : t("✏️ Edit", "✏️ Edit");
+  document.getElementById("btnEdit").textContent = isEditMode ? t("💾 Save", "💾 Simpan") : t("✏️ Edit", "✏️ Edit");
   document.getElementById("btnReset").textContent = t("Reset", "Set Semula");
 
-  // Modals
   document.getElementById("galTitle").textContent = t("📸 Reference Gallery", "📸 Galeri Rujukan");
   document.getElementById("btnGalClose").textContent = t("Close", "Tutup");
   document.getElementById("btnGalCam").textContent = t("📷 Camera", "📷 Kamera");
   document.getElementById("btnGalUpload").textContent = t("🖼️ Gallery", "🖼️ Galeri");
 
-  // Shift Log
   document.getElementById("slTitle").textContent = t("📅 Shift Log", "📅 Log Syif");
   document.getElementById("lblSlDate").textContent = t("Date", "Tarikh");
   document.getElementById("lblSlType").textContent = t("Shift Type", "Jenis Syif");
@@ -650,6 +703,7 @@ function translateUI() {
   document.getElementById("btnSlSave").textContent = t("💾 Save", "💾 Simpan");
   document.getElementById("btnSlCancel").textContent = t("✖ Cancel", "✖ Batal");
   document.getElementById("btnSlPrint").textContent = t("🖨️ Print / PDF", "🖨️ Cetak / PDF");
+  document.getElementById("btnSlClean").textContent = t("🗑️ Clean >3 Months Data", "🗑️ Padam Data >3 Bulan");
 }
 
 function setLang(lang) {
@@ -659,13 +713,8 @@ function setLang(lang) {
   document.getElementById("btnLangEN").className = lang === "en" ? "active" : "";
   document.getElementById("btnLangBM").className = lang === "bm" ? "active" : "";
   
-  translateUI(); 
-  renderTexts();
-  renderTasks(); 
-  renderAdhoc(); 
-  if(document.getElementById("shiftLogModal").style.display === "flex"){
-    renderShiftLog();
-  }
+  translateUI(); renderTexts(); renderTasks(); renderAdhoc(); 
+  if(document.getElementById("shiftLogModal").style.display === "flex") renderShiftLog();
 }
 
 // ==========================================
@@ -766,13 +815,8 @@ function renderAdhoc() {
   const grid = document.getElementById("adhocGrid");
   grid.innerHTML = "";
   const days = [
-    {en:"Monday", bm:"Isnin"},
-    {en:"Tuesday", bm:"Selasa"},
-    {en:"Wednesday", bm:"Rabu"},
-    {en:"Thursday", bm:"Khamis"},
-    {en:"Friday", bm:"Jumaat"},
-    {en:"Saturday", bm:"Sabtu"},
-    {en:"Sunday", bm:"Ahad"}
+    {en:"Monday", bm:"Isnin"}, {en:"Tuesday", bm:"Selasa"}, {en:"Wednesday", bm:"Rabu"},
+    {en:"Thursday", bm:"Khamis"}, {en:"Friday", bm:"Jumaat"}, {en:"Saturday", bm:"Sabtu"}, {en:"Sunday", bm:"Ahad"}
   ];
   
   for (let i=0;i<7;i++) {
@@ -1245,7 +1289,6 @@ setInterval(tick,1000);
 // INIT
 // ==========================================
 async function init(){
-  // Set language buttons correctly
   document.getElementById("btnLangEN").className = currentLang === "en" ? "active" : "";
   document.getElementById("btnLangBM").className = currentLang === "bm" ? "active" : "";
 
@@ -1253,7 +1296,12 @@ async function init(){
   translateUI();
   renderTexts(); renderTasks(); renderAdhoc(); tick();
   initSupabase();
-  if (sbReady) await pullFromCloud(false);
+  
+  if (sbReady) {
+    await pullFromCloud(false);
+    runAutomations(); // <--- Runs the Auto-Backup and Auto-Cleanup
+  }
+  
   setInterval(()=>{ if (sbReady && !isEditMode) pullFromCloud(false); }, 60000);
 }
 init();
