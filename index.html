@@ -4,204 +4,191 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Noja Masjid App</title>
-<!-- Supabase JS Client CDN -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
   :root {
-    --bg: #0f172a; --card: #1e293b; --accent: #22c55e; --accent2: #38bdf8;
-    --text: #e2e8f0; --muted: #94a3b8; --warn: #f59e0b; --danger: #ef4444;
-    --border: #334155; --input-bg: #0b1220;
+    --bg:#0f172a; --card:#1e293b; --accent:#22c55e; --accent2:#38bdf8;
+    --text:#e2e8f0; --muted:#94a3b8; --warn:#f59e0b; --danger:#ef4444;
+    --border:#334155; --input-bg:#0b1220;
   }
-  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-  body {
-    margin: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-    background: var(--bg); color: var(--text); padding: 16px; padding-bottom: 120px;
-    line-height: 1.5;
-  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    background:var(--bg);color:var(--text);padding:16px;padding-bottom:120px;line-height:1.5}
 
-  /* Top Bar */
-  .top-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; flex-wrap: wrap; gap: 10px; }
-  .btn-group { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
-  .btn-lang, .btn-tool {
-    background: var(--border); color: var(--text); border: none;
-    padding: 6px 12px; border-radius: 6px; font-weight: 700;
-    font-size: 0.8rem; cursor: pointer; width: auto;
-  }
-  .btn-lang { background: var(--accent2); color: #0f172a; }
-  .btn-gallery { background: #8b5cf6; color: white; }
-  .btn-log { background: #f97316; color: white; }
+  .top-bar{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:10px}
+  .btn-group{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+  .btn-lang,.btn-tool{background:var(--border);color:var(--text);border:none;padding:6px 12px;
+    border-radius:6px;font-weight:700;font-size:0.8rem;cursor:pointer;width:auto}
+  .btn-lang{background:var(--accent2);color:#0f172a}
+  .btn-gallery{background:#8b5cf6;color:#fff}
+  .btn-log{background:#f97316;color:#fff}
+  .btn-sync{background:var(--accent);color:#0f172a}
+  .btn-settings{background:#64748b;color:#fff}
 
-  /* Shift Toggle */
-  .shift-toggle { display: flex; gap: 10px; margin-bottom: 12px; justify-content: center; }
-  .shift-btn {
-    background: var(--card); border: 2px solid var(--border); color: var(--text);
-    padding: 10px 20px; border-radius: 10px; font-weight: bold; cursor: pointer; transition: 0.2s;
-  }
-  .shift-btn.active { background: var(--accent2); color: #0f172a; border-color: var(--accent2); }
+  .shift-toggle{display:flex;gap:10px;margin-bottom:12px;justify-content:center}
+  .shift-btn{background:var(--card);border:2px solid var(--border);color:var(--text);
+    padding:10px 20px;border-radius:10px;font-weight:bold;cursor:pointer;transition:.2s}
+  .shift-btn.active{background:var(--accent2);color:#0f172a;border-color:var(--accent2)}
 
-  header {
-    text-align: center; margin-bottom: 20px; padding: 16px;
-    background: linear-gradient(135deg, #166534, #065f46); border-radius: 16px;
-  }
-  header h1 { margin: 0; font-size: 1.3rem; }
-  header p { margin: 6px 0 0; color: #bbf7d0; font-size: 0.85rem; }
-  .date-display { font-size: 0.95rem; font-weight: bold; color: #fff; margin-top: 8px; }
-  .clock { font-size: 1.5rem; font-weight: 700; margin-top: 4px; color: #fff; font-variant-numeric: tabular-nums; }
+  header{text-align:center;margin-bottom:20px;padding:16px;
+    background:linear-gradient(135deg,#166534,#065f46);border-radius:16px}
+  header h1{margin:0;font-size:1.3rem}
+  header p{margin:6px 0 0;color:#bbf7d0;font-size:0.85rem}
+  .date-display{font-size:0.95rem;font-weight:bold;color:#fff;margin-top:8px}
+  .clock{font-size:1.5rem;font-weight:700;margin-top:4px;color:#fff;font-variant-numeric:tabular-nums}
 
-  /* Progress */
-  .progress-wrap { position: sticky; top: 0; z-index: 10; background: var(--bg); padding: 10px 0; margin-bottom: 8px; }
-  .progress-bar { height: 10px; background: var(--border); border-radius: 99px; overflow: hidden; }
-  .progress-fill { height: 100%; width: 0%; background: linear-gradient(90deg, var(--accent), var(--accent2)); border-radius: 99px; transition: width 0.3s; }
-  .progress-text { text-align: center; font-size: 0.8rem; color: var(--muted); margin-top: 6px; }
+  .progress-wrap{position:sticky;top:0;z-index:10;background:var(--bg);padding:10px 0;margin-bottom:8px}
+  .progress-bar{height:10px;background:var(--border);border-radius:99px;overflow:hidden}
+  .progress-fill{height:100%;width:0%;background:linear-gradient(90deg,var(--accent),var(--accent2));
+    border-radius:99px;transition:width .3s}
+  .progress-text{text-align:center;font-size:0.8rem;color:var(--muted);margin-top:6px}
 
-  /* Sections */
-  .section { background: var(--card); border-radius: 14px; margin-bottom: 14px; overflow: hidden; border: 1px solid var(--border); }
-  .section-head { display: flex; align-items: center; gap: 10px; padding: 14px 16px; cursor: pointer; user-select: none; background: #243447; flex-wrap: wrap; }
-  .section-head .time { background: var(--accent2); color: #0f172a; font-weight: 700; font-size: 0.72rem; padding: 3px 8px; border-radius: 6px; white-space: nowrap; }
-  .section-head h2 { margin: 0; font-size: 0.95rem; flex: 1; }
-  .section-head .arrow { transition: transform 0.25s; color: var(--muted); }
-  .section.open .arrow { transform: rotate(90deg); }
-  .section-body { display: none; padding: 6px 16px 14px; }
-  .section.open .section-body { display: block; }
+  .section{background:var(--card);border-radius:14px;margin-bottom:14px;overflow:hidden;border:1px solid var(--border)}
+  .section-head{display:flex;align-items:center;gap:10px;padding:14px 16px;cursor:pointer;
+    user-select:none;background:#243447;flex-wrap:wrap}
+  .section-head .time{background:var(--accent2);color:#0f172a;font-weight:700;font-size:0.72rem;
+    padding:3px 8px;border-radius:6px;white-space:nowrap}
+  .section-head h2{margin:0;font-size:0.95rem;flex:1}
+  .section-head .arrow{transition:transform .25s;color:var(--muted)}
+  .section.open .arrow{transform:rotate(90deg)}
+  .section-body{display:none;padding:6px 16px 14px}
+  .section.open .section-body{display:block}
 
-  /* Tasks */
-  .task { display: flex; gap: 10px; align-items: flex-start; padding: 10px 0; border-bottom: 1px solid #2d3b4f; }
-  .task:last-child { border-bottom: none; }
-  .task input[type="checkbox"] {
-    appearance: none; width: 22px; height: 22px; min-width: 22px;
-    border: 2px solid var(--muted); border-radius: 6px; margin-top: 2px;
-    cursor: pointer; position: relative; transition: 0.2s;
-  }
-  .task input[type="checkbox"]:checked { background: var(--accent); border-color: var(--accent); }
-  .task input[type="checkbox"]:checked::after { content: "✓"; position: absolute; color: #0f172a; font-weight: 900; font-size: 15px; left: 4px; top: -2px; }
-  .task label { flex: 1; font-size: 0.95rem; cursor: pointer; }
-  .task input:checked + label { color: var(--muted); text-decoration: line-through; }
-  .note { font-size: 0.8rem; color: var(--warn); margin-top: 4px; display: block; }
+  .task{display:flex;gap:10px;align-items:flex-start;padding:10px 0;border-bottom:1px solid #2d3b4f}
+  .task:last-child{border-bottom:none}
+  .task input[type="checkbox"]{appearance:none;width:22px;height:22px;min-width:22px;
+    border:2px solid var(--muted);border-radius:6px;margin-top:2px;cursor:pointer;position:relative;transition:.2s}
+  .task input[type="checkbox"]:checked{background:var(--accent);border-color:var(--accent)}
+  .task input[type="checkbox"]:checked::after{content:"✓";position:absolute;color:#0f172a;
+    font-weight:900;font-size:15px;left:4px;top:-2px}
+  .task label{flex:1;font-size:0.95rem;cursor:pointer}
+  .task input:checked + label{color:var(--muted);text-decoration:line-through}
+  .note{font-size:0.8rem;color:var(--warn);margin-top:4px;display:block}
 
-  /* Edit Mode */
-  .edit-input { width: 100%; padding: 8px; background: var(--input-bg); border: 1px solid var(--border); color: var(--text); border-radius: 6px; font-family: inherit; margin-bottom: 4px; }
-  .btn-sm { padding: 6px 10px; font-size: 0.75rem; border-radius: 6px; cursor: pointer; border: none; font-weight: bold; }
-  .btn-delete { background: var(--danger); color: white; margin-left: 8px; }
-  .btn-add { background: var(--accent); color: #0f172a; margin-top: 10px; width: 100%; }
-  .btn-del-sec { background: transparent; color: var(--danger); border: 1px solid var(--danger); padding: 2px 6px; border-radius: 4px; font-size: 0.7rem; margin-left: auto; }
-  .btn-check-all { background: var(--accent2); color: #0f172a; margin-bottom: 8px; width: 100%; padding: 8px; border-radius: 6px; font-weight: bold; border: none; cursor: pointer; }
+  .edit-input{width:100%;padding:8px;background:var(--input-bg);border:1px solid var(--border);
+    color:var(--text);border-radius:6px;font-family:inherit;margin-bottom:4px}
+  .btn-sm{padding:6px 10px;font-size:0.75rem;border-radius:6px;cursor:pointer;border:none;font-weight:bold}
+  .btn-delete{background:var(--danger);color:#fff;margin-left:8px}
+  .btn-add{background:var(--accent);color:#0f172a;margin-top:10px;width:100%}
+  .btn-del-sec{background:transparent;color:var(--danger);border:1px solid var(--danger);
+    padding:2px 6px;border-radius:4px;font-size:0.7rem;margin-left:auto}
+  .btn-check-all{background:var(--accent2);color:#0f172a;margin-bottom:8px;width:100%;
+    padding:8px;border-radius:6px;font-weight:bold;border:none;cursor:pointer}
 
-  /* Adhoc Grid & Notes */
-  .adhoc-section { margin-top: 24px; }
-  .adhoc-section h3 { margin-bottom: 12px; font-size: 1.05rem; color: var(--accent2); }
-  .adhoc-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 12px; }
-  .adhoc-card { background: var(--card); padding: 12px; border-radius: 12px; border: 1px solid var(--border); }
-  .adhoc-card h4 { margin: 0 0 8px 0; font-size: 0.95rem; color: var(--text); }
-  .adhoc-textarea { width: 100%; min-height: 80px; background: var(--input-bg); border: 1px solid var(--border); color: var(--text); border-radius: 8px; padding: 10px; font-family: inherit; resize: vertical; }
-  .notes-section { background: var(--card); padding: 16px; border-radius: 14px; border: 1px solid var(--border); margin-top: 24px; }
-  .notes-section h3 { margin: 0 0 10px 0; font-size: 1.05rem; color: var(--accent2); }
-  .notes-textarea { width: 100%; min-height: 100px; background: var(--input-bg); border: 1px solid var(--border); color: var(--text); border-radius: 8px; padding: 12px; font-family: inherit; resize: vertical; }
+  .adhoc-section{margin-top:24px}
+  .adhoc-section h3{margin-bottom:12px;font-size:1.05rem;color:var(--accent2)}
+  .adhoc-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:12px}
+  .adhoc-card{background:var(--card);padding:12px;border-radius:12px;border:1px solid var(--border)}
+  .adhoc-card h4{margin:0 0 8px 0;font-size:0.95rem;color:var(--text)}
+  .adhoc-textarea{width:100%;min-height:80px;background:var(--input-bg);border:1px solid var(--border);
+    color:var(--text);border-radius:8px;padding:10px;font-family:inherit;resize:vertical}
+  .notes-section{background:var(--card);padding:16px;border-radius:14px;border:1px solid var(--border);margin-top:24px}
+  .notes-section h3{margin:0 0 10px 0;font-size:1.05rem;color:var(--accent2)}
+  .notes-textarea{width:100%;min-height:100px;background:var(--input-bg);border:1px solid var(--border);
+    color:var(--text);border-radius:8px;padding:12px;font-family:inherit;resize:vertical}
 
-  /* Footer */
-  footer { position: fixed; bottom: 0; left: 0; right: 0; background: #0b1220; padding: 12px 16px; display: flex; gap: 10px; border-top: 1px solid var(--border); z-index: 20; flex-wrap: wrap; }
-  button.main-btn { flex: 1; padding: 12px; border: none; border-radius: 10px; font-weight: 600; font-size: 0.9rem; cursor: pointer; background: var(--border); color: var(--text); transition: 0.2s; }
-  button.main-btn:active { opacity: 0.8; }
-  .btn-primary { background: var(--accent2) !important; color: #0f172a !important; }
-  .btn-danger { background: var(--danger) !important; color: white !important; }
-  .badge-done { font-size: 0.7rem; background: var(--accent); color: #0f172a; padding: 2px 6px; border-radius: 5px; font-weight: 700; display: none; }
-  .section.complete .badge-done { display: inline-block; }
+  footer{position:fixed;bottom:0;left:0;right:0;background:#0b1220;padding:12px 16px;display:flex;
+    gap:10px;border-top:1px solid var(--border);z-index:20;flex-wrap:wrap}
+  button.main-btn{flex:1;padding:12px;border:none;border-radius:10px;font-weight:600;font-size:0.9rem;
+    cursor:pointer;background:var(--border);color:var(--text);transition:.2s}
+  button.main-btn:active{opacity:.8}
+  .btn-primary{background:var(--accent2)!important;color:#0f172a!important}
+  .btn-danger{background:var(--danger)!important;color:#fff!important}
+  .badge-done{font-size:0.7rem;background:var(--accent);color:#0f172a;padding:2px 6px;border-radius:5px;
+    font-weight:700;display:none}
+  .section.complete .badge-done{display:inline-block}
 
-  /* MODAL */
-  .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 100; flex-direction: column; }
-  .modal-header { display: flex; justify-content: space-between; align-items: center; padding: 16px; background: var(--card); border-bottom: 1px solid var(--border); }
-  .modal-header h2 { margin: 0; font-size: 1.2rem; }
-  .modal-body { padding: 16px; overflow-y: auto; flex: 1; }
-  .btn-close { background: var(--danger); color: white; border: none; padding: 8px 12px; border-radius: 6px; font-weight: bold; cursor: pointer; }
+  .modal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.9);
+    z-index:100;flex-direction:column}
+  .modal-header{display:flex;justify-content:space-between;align-items:center;padding:16px;
+    background:var(--card);border-bottom:1px solid var(--border)}
+  .modal-header h2{margin:0;font-size:1.2rem}
+  .modal-body{padding:16px;overflow-y:auto;flex:1}
+  .btn-close{background:var(--danger);color:#fff;border:none;padding:8px 12px;border-radius:6px;
+    font-weight:bold;cursor:pointer}
 
-  /* Gallery Grid */
-  .gallery-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 12px; }
-  .gallery-item { background: var(--card); border-radius: 10px; overflow: hidden; border: 1px solid var(--border); display: flex; flex-direction: column; }
-  .gallery-item img { width: 100%; height: 120px; object-fit: cover; cursor: pointer; }
-  .gallery-item-info { padding: 8px; flex: 1; display: flex; flex-direction: column; justify-content: space-between; }
-  .gallery-item-title { font-size: 0.85rem; font-weight: bold; margin-bottom: 8px; word-wrap: break-word; }
-  .gallery-item-actions { display: flex; gap: 6px; }
-  .gallery-item-actions button { flex: 1; font-size: 0.7rem; padding: 4px; }
+  .gallery-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:12px}
+  .gallery-item{background:var(--card);border-radius:10px;overflow:hidden;border:1px solid var(--border);
+    display:flex;flex-direction:column}
+  .gallery-item img{width:100%;height:120px;object-fit:cover;cursor:pointer}
+  .gallery-item-info{padding:8px;flex:1;display:flex;flex-direction:column;justify-content:space-between}
+  .gallery-item-title{font-size:0.85rem;font-weight:bold;margin-bottom:8px;word-wrap:break-word}
+  .gallery-item-actions{display:flex;gap:6px}
+  .gallery-item-actions button{flex:1;font-size:0.7rem;padding:4px}
 
-  /* ==== SHIFT LOG ==== */
-  #shiftLogTable { width: 100%; border-collapse: collapse; font-size: 0.82rem; }
-  #shiftLogTable th, #shiftLogTable td {
-    padding: 8px 6px; border-bottom: 1px solid var(--border); text-align: left;
-    vertical-align: top; white-space: nowrap;
-  }
-  #shiftLogTable th {
-    background: #243447; font-size: 0.72rem; color: var(--muted);
-    text-transform: uppercase; letter-spacing: 0.03em;
-  }
-  #shiftLogTable tr:hover td { background: #1a2538; }
-  #shiftLogTable td.notes-cell { white-space: normal; max-width: 180px; font-size: 0.78rem; color: var(--muted); }
-  #shiftLogTable td.num { font-variant-numeric: tabular-nums; text-align: right; }
-  .sl-ph-badge { display:inline-block; font-size:0.65rem; background:var(--warn); color:#0f172a; padding:1px 5px; border-radius:4px; font-weight:700; }
-  .sl-overnight { color: var(--accent2); font-size: 0.7rem; }
-  .sl-summary-row { display:flex; justify-content:space-between; padding:3px 0; font-size:0.88rem; }
-  .sl-summary-row.total { border-top:1px solid var(--border); margin-top:8px; padding-top:8px; font-weight:bold; color:var(--accent); font-size:1rem; }
-  .sl-summary-row .val { font-variant-numeric: tabular-nums; }
+  #shiftLogTable{width:100%;border-collapse:collapse;font-size:0.82rem}
+  #shiftLogTable th,#shiftLogTable td{padding:8px 6px;border-bottom:1px solid var(--border);
+    text-align:left;vertical-align:top;white-space:nowrap}
+  #shiftLogTable th{background:#243447;font-size:0.72rem;color:var(--muted);
+    text-transform:uppercase;letter-spacing:.03em}
+  #shiftLogTable tr:hover td{background:#1a2538}
+  #shiftLogTable td.notes-cell{white-space:normal;max-width:180px;font-size:0.78rem;color:var(--muted)}
+  #shiftLogTable td.num{font-variant-numeric:tabular-nums;text-align:right}
+  .sl-ph-badge{display:inline-block;font-size:0.65rem;background:var(--warn);color:#0f172a;
+    padding:1px 5px;border-radius:4px;font-weight:700}
+  .sl-overnight{color:var(--accent2);font-size:0.7rem}
+  .sl-summary-row{display:flex;justify-content:space-between;padding:3px 0;font-size:0.88rem}
+  .sl-summary-row.total{border-top:1px solid var(--border);margin-top:8px;padding-top:8px;
+    font-weight:bold;color:var(--accent);font-size:1rem}
+  .sl-summary-row .val{font-variant-numeric:tabular-nums}
 
-  /* Print */
-  @media print {
-    body { background: white; color: black; padding: 0; }
-    header, .progress-wrap, footer, .top-bar, .adhoc-section, .notes-section, .btn-sm, .btn-delete, .btn-add, .btn-del-sec, .arrow, .shift-toggle, .btn-check-all { display: none !important; }
-    .section { border: 1px solid #ccc; page-break-inside: avoid; margin-bottom: 15px; background: white; }
-    .section-head { background: #eee !important; color: black; }
-    .section-body { display: block !important; }
-    .task label { color: black !important; text-decoration: none !important; }
-    .note { color: #555 !important; }
-    input[type="checkbox"] { border: 2px solid black !important; }
-    input[type="checkbox"]:checked::after { color: black !important; }
-
-    /* Shift Log print mode */
-    body.sl-printing > *:not(#shiftLogModal) { display: none !important; }
-    body.sl-printing #shiftLogModal { display: block !important; position: static; background: white; padding: 16px; }
+  @media print{
+    body{background:#fff;color:#000;padding:0}
+    header,.progress-wrap,footer,.top-bar,.adhoc-section,.notes-section,.btn-sm,.btn-delete,
+    .btn-add,.btn-del-sec,.arrow,.shift-toggle,.btn-check-all{display:none!important}
+    .section{border:1px solid #ccc;page-break-inside:avoid;margin-bottom:15px;background:#fff}
+    .section-head{background:#eee!important;color:#000}
+    .section-body{display:block!important}
+    .task label{color:#000!important;text-decoration:none!important}
+    .note{color:#555!important}
+    input[type="checkbox"]{border:2px solid #000!important}
+    input[type="checkbox"]:checked::after{color:#000!important}
+    body.sl-printing > *:not(#shiftLogModal){display:none!important}
+    body.sl-printing #shiftLogModal{display:block!important;position:static;background:#fff;padding:16px}
     body.sl-printing #shiftLogModal .modal-header .btn-close,
     body.sl-printing #shiftLogModal .btn-tool,
-    body.sl-printing #shiftLogModal #shiftLogForm { display: none !important; }
-    body.sl-printing #shiftLogModal * { color: black !important; }
-    body.sl-printing #shiftLogTable th { background: #eee !important; }
+    body.sl-printing #shiftLogModal #shiftLogForm{display:none!important}
+    body.sl-printing #shiftLogModal *{color:#000!important}
+    body.sl-printing #shiftLogTable th{background:#eee!important}
     body.sl-printing #shiftLogTable td,
-    body.sl-printing #shiftLogTable th { border: 1px solid #ccc !important; }
-    body.sl-printing #shiftLogSummary { border: 1px solid #ccc; }
-    body.sl-printing .sl-summary-row.total { color: black; }
-    body.sl-printing .sl-ph-badge { background: #eee !important; border: 1px solid #999; }
-    @page { margin: 12mm; }
-  }
-  /* Toast notification */
-  #slToast {
-    position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%) translateY(20px);
-    background: var(--accent); color: #0f172a; padding: 12px 24px; border-radius: 10px;
-    font-weight: 700; font-size: 0.95rem; box-shadow: 0 6px 20px rgba(0,0,0,0.4);
-    opacity: 0; pointer-events: none; transition: opacity 0.25s, transform 0.25s;
-    z-index: 200; white-space: nowrap;
-  }
-  #slToast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
-  #slToast.error { background: var(--danger); color: white; }
-
-  /* Hide edit/delete columns when printing */
-  @media print {
+    body.sl-printing #shiftLogTable th{border:1px solid #ccc!important}
+    body.sl-printing #shiftLogSummary{border:1px solid #ccc}
+    body.sl-printing .sl-summary-row.total{color:#000}
+    body.sl-printing .sl-ph-badge{background:#eee!important;border:1px solid #999}
     body.sl-printing #shiftLogTable th:nth-last-child(-n+2),
-    body.sl-printing #shiftLogTable td:nth-last-child(-n+2) { display: none !important; }
+    body.sl-printing #shiftLogTable td:nth-last-child(-n+2){display:none!important}
+    @page{margin:12mm}
   }
+  #slToast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(20px);
+    background:var(--accent);color:#0f172a;padding:12px 24px;border-radius:10px;font-weight:700;
+    font-size:0.95rem;box-shadow:0 6px 20px rgba(0,0,0,.4);opacity:0;pointer-events:none;
+    transition:opacity .25s,transform .25s;z-index:200;white-space:nowrap}
+  #slToast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+  #slToast.error{background:var(--danger);color:#fff}
+
+  .sync-status{font-size:0.7rem;padding:2px 8px;border-radius:10px;background:var(--border);color:var(--muted)}
+  .sync-status.ok{background:var(--accent);color:#0f172a}
+  .sync-status.err{background:var(--danger);color:#fff}
 </style>
 </head>
 <body>
 
 <div class="top-bar">
-  <div style="font-weight: bold; font-size: 1.1rem;">🕌 Noja Masjid</div>
+  <div style="font-weight:bold;font-size:1.1rem">🕌 Noja Masjid</div>
   <div class="btn-group">
-    <button class="btn-tool btn-log" id="btnShiftLog" onclick="openShiftLog()">📅 Log Syif</button>
-    <button class="btn-tool btn-gallery" id="btnGallery" onclick="openGallery()">📸 Galeri Rujukan</button>
-    <button class="btn-tool" id="btnBackup" onclick="backupJSON()" title="Backup">📥 Backup</button>
-    <button class="btn-tool" id="btnRestore" onclick="document.getElementById('restoreFile').click()" title="Restore">📤 Restore</button>
-    <button class="btn-tool" id="btnPrint" onclick="window.print()" title="Print PDF">🖨️ Print</button>
-    <button class="btn-lang" id="langBtn" onclick="toggleLang()">EN</button>
+    <span class="sync-status" id="syncStatus">local</span>
+    <button class="btn-tool btn-log" onclick="openShiftLog()">📅 Log Syif</button>
+    <button class="btn-tool btn-gallery" onclick="openGallery()">📸 Galeri</button>
+    <button class="btn-tool btn-sync" onclick="pushToCloud(true)" title="Hantar ke Supabase">☁️ Sync</button>
+    <button class="btn-tool" onclick="backupJSON()" title="Backup">📥</button>
+    <button class="btn-tool" onclick="document.getElementById('restoreFile').click()" title="Restore">📤</button>
+    <button class="btn-tool" onclick="window.print()" title="Print PDF">🖨️</button>
+    <button class="btn-tool btn-settings" onclick="openSettings()" title="Tetapan">⚙️</button>
+    <button class="btn-lang" onclick="toggleLang()">EN</button>
   </div>
   <input type="file" id="restoreFile" accept=".json" style="display:none" onchange="restoreJSON(this)">
 </div>
 
-<!-- Shift Toggle -->
 <div class="shift-toggle">
   <button class="shift-btn active" id="shiftMorningBtn" onclick="setShift('morning')">🌅 Shift Pagi</button>
   <button class="shift-btn" id="shiftEveningBtn" onclick="setShift('evening')">🌙 Shift Petang</button>
@@ -244,20 +231,48 @@
     <button class="btn-close" id="btnCloseGallery" onclick="closeGallery()">Tutup</button>
   </div>
   <div class="modal-body">
-    <div style="display: flex; gap: 10px; margin-bottom: 16px; width: 100%;">
-      <button class="btn-tool btn-primary" id="btnAddGalleryCamera" style="flex: 1; padding: 12px; font-size: 0.9rem;" onclick="triggerGalleryUpload(true)">📷 Camera</button>
-      <button class="btn-tool btn-primary" id="btnAddGalleryFolder" style="flex: 1; padding: 12px; font-size: 0.9rem;" onclick="triggerGalleryUpload(false)">🖼️ Gallery</button>
+    <div style="display:flex;gap:10px;margin-bottom:16px">
+      <button class="btn-tool btn-sync" style="flex:1;padding:12px;font-size:.9rem"
+        id="btnAddGalleryCamera" onclick="triggerGalleryUpload(true)">📷 Camera</button>
+      <button class="btn-tool btn-sync" style="flex:1;padding:12px;font-size:.9rem"
+        id="btnAddGalleryFolder" onclick="triggerGalleryUpload(false)">🖼️ Gallery</button>
     </div>
     <div class="gallery-grid" id="galleryGrid"></div>
   </div>
 </div>
 
 <!-- Full Image Viewer -->
-<div id="imgModal" class="modal" style="justify-content: center; align-items: center; background: rgba(0,0,0,0.95);" onclick="if(event.target===this) this.style.display='none'">
-  <img id="imgModalSrc" style="max-width: 100%; max-height: 100%; object-fit: contain;">
+<div id="imgModal" class="modal" style="justify-content:center;align-items:center;background:rgba(0,0,0,.95)"
+  onclick="if(event.target===this) this.style.display='none'">
+  <img id="imgModalSrc" style="max-width:100%;max-height:100%;object-fit:contain">
 </div>
 
-<!-- ==== SHIFT LOG MODAL — START ==== -->
+<!-- Settings Modal -->
+<div id="settingsModal" class="modal">
+  <div class="modal-header">
+    <h2>⚙️ Tetapan Supabase</h2>
+    <button class="btn-close" onclick="closeSettings()">✖</button>
+  </div>
+  <div class="modal-body">
+    <p style="color:var(--muted);font-size:.85rem">
+      Masukkan URL & Anon Key projek Supabase anda. Disimpan dalam localStorage peranti ini.
+    </p>
+    <label style="font-size:.8rem;color:var(--muted)">Project URL</label>
+    <input type="text" id="cfgUrl" class="edit-input" placeholder="https://xxxx.supabase.co">
+    <label style="font-size:.8rem;color:var(--muted)">Anon Key</label>
+    <input type="text" id="cfgKey" class="edit-input" placeholder="eyJhbGciOi...">
+    <div style="display:flex;gap:8px;margin-top:12px">
+      <button class="btn-tool btn-sync" style="flex:1;padding:10px" onclick="saveSettings()">💾 Simpan</button>
+      <button class="btn-tool" style="flex:1;padding:10px" onclick="clearSettings()">🗑️ Buang</button>
+    </div>
+    <div style="margin-top:16px;font-size:.8rem;color:var(--muted)">
+      Status: <span id="cfgStatus">-</span><br>
+      Data disimpan di table <code>noja_state</code> (row id: <code>main</code>),
+      gambar di bucket <code>gallery</code>.
+    </div>
+  </div>
+</div>
+
 <div id="slToast"></div>
 <div id="shiftLogModal" class="modal">
   <div class="modal-header">
@@ -265,353 +280,391 @@
     <button class="btn-close" onclick="closeShiftLog()">✖</button>
   </div>
   <div class="modal-body">
-
-    <!-- Month navigator -->
-    <div style="display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:14px;">
-      <button class="btn-tool" id="btnPrevMonth" onclick="shiftLogPrevMonth()" style="font-size:1rem; padding:8px 14px;">◀</button>
-      <div id="shiftLogMonthLabel" style="font-weight:bold; font-size:1.05rem; text-align:center; flex:1;"></div>
-      <button class="btn-tool" id="btnNextMonth" onclick="shiftLogNextMonth()" style="font-size:1rem; padding:8px 14px;">▶</button>
+    <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:14px">
+      <button class="btn-tool" onclick="shiftLogPrevMonth()" style="font-size:1rem;padding:8px 14px">◀</button>
+      <div id="shiftLogMonthLabel" style="font-weight:bold;font-size:1.05rem;text-align:center;flex:1"></div>
+      <button class="btn-tool" onclick="shiftLogNextMonth()" style="font-size:1rem;padding:8px 14px">▶</button>
     </div>
 
-    <!-- Add / Edit form -->
-    <div id="shiftLogForm" style="background:var(--input-bg); border:1px solid var(--border); border-radius:10px; padding:12px; margin-bottom:14px;">
-      <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(130px,1fr)); gap:8px;">
-        <div>
-          <label style="font-size:0.75rem; color:var(--muted);" id="lblDate">Tarikh</label>
-          <input type="date" id="slDate" class="edit-input" style="margin-bottom:0;">
-        </div>
-        <div>
-          <label style="font-size:0.75rem; color:var(--muted);" id="lblType">Jenis Syif</label>
-          <select id="slType" class="edit-input" style="margin-bottom:0;" onchange="shiftLogOnTypeChange()">
+    <div id="shiftLogForm" style="background:var(--input-bg);border:1px solid var(--border);
+      border-radius:10px;padding:12px;margin-bottom:14px">
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px">
+        <div><label style="font-size:.75rem;color:var(--muted)" id="lblDate">Tarikh</label>
+          <input type="date" id="slDate" class="edit-input" style="margin-bottom:0"></div>
+        <div><label style="font-size:.75rem;color:var(--muted)" id="lblType">Jenis Syif</label>
+          <select id="slType" class="edit-input" style="margin-bottom:0" onchange="shiftLogOnTypeChange()">
             <option value="morning">Pagi</option>
             <option value="evening" selected>Petang</option>
             <option value="adhoc">Adhoc</option>
-          </select>
-        </div>
-        <div>
-          <label style="font-size:0.75rem; color:var(--muted);" id="lblStart">Mula</label>
-          <input type="time" id="slStart" class="edit-input" style="margin-bottom:0;" value="17:30">
-        </div>
-        <div>
-          <label style="font-size:0.75rem; color:var(--muted);" id="lblEnd">Tamat</label>
-          <input type="time" id="slEnd" class="edit-input" style="margin-bottom:0;" value="22:30">
-        </div>
-        <div>
-          <label style="font-size:0.75rem; color:var(--muted);" id="lblOT">OT (jam)</label>
-          <input type="number" id="slOT" class="edit-input" style="margin-bottom:0;" min="0" step="0.25" value="0">
-        </div>
-        <div style="display:flex; align-items:flex-end; padding-bottom:4px;">
-          <label style="display:flex; align-items:center; gap:6px; font-size:0.85rem;">
-            <input type="checkbox" id="slPH" style="width:18px; height:18px;">
+          </select></div>
+        <div><label style="font-size:.75rem;color:var(--muted)" id="lblStart">Mula</label>
+          <input type="time" id="slStart" class="edit-input" style="margin-bottom:0" value="17:30"></div>
+        <div><label style="font-size:.75rem;color:var(--muted)" id="lblEnd">Tamat</label>
+          <input type="time" id="slEnd" class="edit-input" style="margin-bottom:0" value="22:30"></div>
+        <div><label style="font-size:.75rem;color:var(--muted)" id="lblOT">OT (jam)</label>
+          <input type="number" id="slOT" class="edit-input" style="margin-bottom:0" min="0" step="0.25" value="0"></div>
+        <div style="display:flex;align-items:flex-end;padding-bottom:4px">
+          <label style="display:flex;align-items:center;gap:6px;font-size:.85rem">
+            <input type="checkbox" id="slPH" style="width:18px;height:18px">
             <span id="lblPH">Cuti Umum</span>
-          </label>
-        </div>
+          </label></div>
       </div>
-      <div style="margin-top:8px;">
-        <label style="font-size:0.75rem; color:var(--muted);" id="lblReason">Sebab</label>
-        <input type="text" id="slReason" class="edit-input" style="margin-bottom:0;" placeholder="">
+      <div style="margin-top:8px">
+        <label style="font-size:.75rem;color:var(--muted)" id="lblReason">Sebab</label>
+        <input type="text" id="slReason" class="edit-input" style="margin-bottom:0">
       </div>
-      <div style="margin-top:8px;">
-        <label style="font-size:0.75rem; color:var(--muted);" id="lblNotes">Nota</label>
-        <input type="text" id="slNotes" class="edit-input" style="margin-bottom:0;" placeholder="">
+      <div style="margin-top:8px">
+        <label style="font-size:.75rem;color:var(--muted)" id="lblNotes">Nota</label>
+        <input type="text" id="slNotes" class="edit-input" style="margin-bottom:0">
       </div>
-      <div style="display:flex; gap:8px; margin-top:10px;">
-        <button class="btn-sm" style="flex:1; background:var(--accent); color:#0f172a; padding:10px; font-size:0.9rem;" id="btnSaveEntry" onclick="shiftLogSaveEntry()">💾 Simpan</button>
-        <button class="btn-sm" style="flex:1; background:var(--border); color:var(--text); padding:10px; font-size:0.9rem; display:none;" id="btnCancelEdit" onclick="shiftLogCancelEdit()">✖ Batal</button>
+      <div style="display:flex;gap:8px;margin-top:10px">
+        <button class="btn-sm" style="flex:1;background:var(--accent);color:#0f172a;padding:10px;font-size:.9rem"
+          id="btnSaveEntry" onclick="shiftLogSaveEntry()">💾 Simpan</button>
+        <button class="btn-sm" style="flex:1;background:var(--border);color:var(--text);padding:10px;
+          font-size:.9rem;display:none" id="btnCancelEdit" onclick="shiftLogCancelEdit()">✖ Batal</button>
       </div>
     </div>
 
-    <!-- Table -->
-    <div style="overflow-x:auto; margin-bottom:14px;">
+    <div style="overflow-x:auto;margin-bottom:14px">
       <table id="shiftLogTable">
         <thead id="shiftLogThead"></thead>
         <tbody id="shiftLogTbody"></tbody>
       </table>
     </div>
 
-    <!-- Summary -->
-    <div id="shiftLogSummary" style="background:var(--card); border:1px solid var(--border); border-radius:10px; padding:14px; margin-bottom:14px;"></div>
+    <div id="shiftLogSummary" style="background:var(--card);border:1px solid var(--border);
+      border-radius:10px;padding:14px;margin-bottom:14px"></div>
 
-    <!-- Export bar -->
-    <div style="display:flex; gap:8px; flex-wrap:wrap;">
-      <button class="btn-tool btn-primary" style="flex:1; padding:10px;" onclick="shiftLogPrint()" id="btnLogPrint">🖨️ Print / PDF</button>
-      <button class="btn-tool" style="flex:1; padding:10px;" onclick="shiftLogCSV()" id="btnLogCSV">📄 CSV</button>
-      <button class="btn-tool" style="flex:1; padding:10px;" onclick="shiftLogExportJSON()" id="btnLogExport">📥 Export Log JSON</button>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <button class="btn-tool btn-sync" style="flex:1;padding:10px" onclick="shiftLogPrint()" id="btnLogPrint">🖨️ Print / PDF</button>
+      <button class="btn-tool" style="flex:1;padding:10px" onclick="shiftLogCSV()" id="btnLogCSV">📄 CSV</button>
+      <button class="btn-tool" style="flex:1;padding:10px" onclick="shiftLogExportJSON()" id="btnLogExport">📥 Export JSON</button>
     </div>
-
   </div>
 </div>
-<!-- ==== SHIFT LOG MODAL — END ==== -->
 
 <script>
 // ==========================================
-// SUPABASE CONFIG (Secure Client Prompt)
+// SUPABASE CONFIG
 // ==========================================
+const SB_URL_KEY = "noja_sb_url";
+const SB_KEY_KEY = "noja_sb_key";
 let sbClient = null;
+let sbReady = false;
+let pushTimer = null;
 
-try {
-  let SUPABASE_URL = localStorage.getItem("noja_sb_url");
-  let SUPABASE_KEY = localStorage.getItem("noja_sb_key");
-
-  if (!SUPABASE_URL || !SUPABASE_KEY) {
-    SUPABASE_URL = prompt("Sila masukkan Supabase Project URL:");
-    SUPABASE_KEY = prompt("Sila masukkan Supabase Anon Key:");
-    if (SUPABASE_URL && SUPABASE_KEY) {
-      localStorage.setItem("noja_sb_url", SUPABASE_URL.trim());
-      localStorage.setItem("noja_sb_key", SUPABASE_KEY.trim());
+function initSupabase() {
+  const url = localStorage.getItem(SB_URL_KEY);
+  const key = localStorage.getItem(SB_KEY_KEY);
+  if (url && key && window.supabase) {
+    try {
+      sbClient = window.supabase.createClient(url, key);
+      sbReady = true;
+      setSyncStatus("ok", "cloud");
+    } catch (e) {
+      console.error("Supabase init fail:", e);
+      setSyncStatus("err", "err");
     }
+  } else {
+    setSyncStatus("", "local");
   }
+}
 
-  if (SUPABASE_URL && SUPABASE_KEY && window.supabase) {
-    sbClient = window.supabase.createClient(SUPABASE_URL.trim(), SUPABASE_KEY.trim());
-  }
-} catch (err) {
-  console.error("Gagal sambung ke Supabase:", err);
+function setSyncStatus(cls, text) {
+  const el = document.getElementById("syncStatus");
+  if (!el) return;
+  el.className = "sync-status " + cls;
+  el.textContent = text;
+}
+
+function openSettings() {
+  document.getElementById("cfgUrl").value = localStorage.getItem(SB_URL_KEY) || "";
+  document.getElementById("cfgKey").value = localStorage.getItem(SB_KEY_KEY) || "";
+  document.getElementById("cfgStatus").textContent = sbReady ? "✅ Bersambung" : "❌ Tidak bersambung";
+  document.getElementById("settingsModal").style.display = "flex";
+}
+function closeSettings() {
+  document.getElementById("settingsModal").style.display = "none";
+}
+function saveSettings() {
+  const u = document.getElementById("cfgUrl").value.trim();
+  const k = document.getElementById("cfgKey").value.trim();
+  if (!u || !k) return alert("Isi kedua-dua medan.");
+  localStorage.setItem(SB_URL_KEY, u);
+  localStorage.setItem(SB_KEY_KEY, k);
+  initSupabase();
+  closeSettings();
+  if (sbReady) pullFromCloud(true);
+}
+function clearSettings() {
+  if (!confirm("Buang tetapan Supabase dari peranti ini?")) return;
+  localStorage.removeItem(SB_URL_KEY);
+  localStorage.removeItem(SB_KEY_KEY);
+  sbClient = null; sbReady = false;
+  setSyncStatus("", "local");
+  closeSettings();
 }
 
 // ==========================================
-// TRANSLATIONS (LANGUAGE DICTIONARY)
+// CLOUD SYNC
+// ==========================================
+function buildStatePayload() {
+  return {
+    tasksMorning, tasksEvening, checks: checksData, adhoc: adhocData,
+    notes: notesData, gallery: galleryData, shiftLog: shiftLogData,
+    lang: currentLang, shift: currentShift,
+    _savedAt: new Date().toISOString()
+  };
+}
+
+function applyStatePayload(d) {
+  if (!d) return;
+  if (Array.isArray(d.tasksMorning)) tasksMorning = d.tasksMorning;
+  if (Array.isArray(d.tasksEvening)) tasksEvening = d.tasksEvening;
+  if (d.checks) checksData = d.checks;
+  if (d.adhoc) adhocData = d.adhoc;
+  if (typeof d.notes === "string") notesData = d.notes;
+  if (Array.isArray(d.gallery)) galleryData = d.gallery;
+  if (Array.isArray(d.shiftLog)) shiftLogData = d.shiftLog;
+
+  localStorage.setItem(K_TASKS_M, JSON.stringify(tasksMorning));
+  localStorage.setItem(K_TASKS_E, JSON.stringify(tasksEvening));
+  localStorage.setItem(K_CHECKS, JSON.stringify(checksData));
+  localStorage.setItem(K_ADHOC, JSON.stringify(adhocData));
+  localStorage.setItem(K_NOTES, notesData);
+  localStorage.setItem(K_GALLERY, JSON.stringify(galleryData));
+  localStorage.setItem(K_SHIFTLOG, JSON.stringify(shiftLogData));
+}
+
+async function pullFromCloud(showToast) {
+  if (!sbReady) { if (showToast) slToast("Supabase belum diset", true); return false; }
+  try {
+    setSyncStatus("", "syncing…");
+    const { data, error } = await sbClient
+      .from("noja_state").select("data").eq("id", "main").maybeSingle();
+    if (error) throw error;
+    if (data && data.data) {
+      applyStatePayload(data.data);
+      document.getElementById("mainNotes").value = notesData;
+      renderTexts(); renderTasks(); renderAdhoc(); renderGallery();
+      setSyncStatus("ok", "cloud ✓");
+      if (showToast) slToast("☁️ Data dimuat dari Supabase");
+      return true;
+    } else {
+      setSyncStatus("ok", "cloud (empty)");
+      if (showToast) slToast("Supabase kosong — tekan ☁️ Sync untuk hantar", true);
+      return false;
+    }
+  } catch (e) {
+    console.error("Pull fail:", e);
+    setSyncStatus("err", "err");
+    if (showToast) slToast("❌ Gagal tarik: " + e.message, true);
+    return false;
+  }
+}
+
+async function pushToCloud(showToast) {
+  if (!sbReady) { if (showToast) slToast("Tetapan Supabase kosong", true); return; }
+  try {
+    setSyncStatus("", "saving…");
+    const { error } = await sbClient.from("noja_state").upsert({
+      id: "main", data: buildStatePayload(), updated_at: new Date().toISOString()
+    });
+    if (error) throw error;
+    setSyncStatus("ok", "cloud ✓");
+    if (showToast) slToast("✅ Data dihantar ke Supabase");
+  } catch (e) {
+    console.error("Push fail:", e);
+    setSyncStatus("err", "err");
+    if (showToast) slToast("❌ Gagal hantar: " + e.message, true);
+  }
+}
+
+function schedulePush() {
+  if (!sbReady) return;
+  clearTimeout(pushTimer);
+  pushTimer = setTimeout(() => pushToCloud(false), 1500);
+}
+
+// ==========================================
+// TRANSLATIONS
 // ==========================================
 const i18n = {
   ms: {
-    title: "Prosedur Kerja Noja Masjid", subtitle: "Rutin Harian",
-    expand: "Buka Semua", edit: "✏️ Edit", save: "💾 Simpan", reset: "Reset",
-    progress: "selesai", adhocTitle: "📌 Tugasan Mingguan",
-    notesTitle: "📝 Nota Peribadi", notesPlc: "Tulis nota di sini...",
-    days: ["Isnin", "Selasa", "Rabu", "Khamis", "Jumaat", "Sabtu", "Ahad"],
-    adhocPlc: "Contoh: Sedekah roti, tambah mic...",
-    resetConfirm: "Padam semua checklist, adhoc, dan nota?",
-    addTask: "+ Tambah Tugasan", delTask: "Padam", delSec: "Padam Kotak",
-    addSec: "+ Tambah Kotak Baru", checkAll: "✓ Semak Semua",
-    backupBtn: "📥 Backup", restoreBtn: "📤 Restore", printBtn: "🖨️ Print",
-    galleryBtn: "📸 Galeri Rujukan", galleryTitle: "📸 Galeri Rujukan",
-    cameraBtn: "📷 Kamera", folderBtn: "🖼️ Galeri",
-    addImgBtn: "+ Tambah Gambar Baru", closeBtn: "Tutup",
-    editImgBtn: "Edit", delImgBtn: "Padam",
-    noImgText: "Tiada gambar lagi. Tekan butang di atas untuk tambah.",
-    promptTitle: "Masukkan tajuk/keterangan gambar (contoh: Panel Aircon Daikin):",
-    promptEditTitle: "Edit tajuk gambar:",
-    confirmDelImg: "Padam gambar ini dari galeri?",
-    confirmDelTask: "Padam tugasan ini?",
-    confirmDelSec: "Padam kotak ini?",
-    backupDone: "Backup berjaya dimuat turun!", restoreSuccess: "Data berjaya dipulihkan! Sila refresh page.", restoreError: "Fail tidak sah.",
-    shiftMorning: "🌅 Shift Pagi", shiftEvening: "🌙 Shift Petang",
-    // ==== SHIFT LOG (ms) ====
-    shiftLogBtn: "📅 Log Syif",
-    shiftLogTitle: "📅 Log Syif",
-    addEntry: "+ Tambah Entri", editEntry: "✏️ Edit", delEntry: "🗑️ Padam",
-    saveBtn: "💾 Simpan", cancelBtn: "✖ Batal",
-    dateLabel: "Tarikh", typeLabel: "Jenis Syif",
-    startLabel: "Mula", endLabel: "Tamat",
-    otLabel: "OT (jam)", phLabel: "Cuti Umum",
-    reasonLabel: "Sebab", notesLabel: "Nota",
-    morning: "Pagi", evening: "Petang", adhoc: "Adhoc",
-    reasonPh: "Cth: Bos minta OT, Ramadhan, Qiam",
-    notesPh: "Nota tambahan...",
-    dateCol: "Tarikh", dayCol: "Hari", shiftCol: "Syif",
-    startCol: "Mula", endCol: "Tamat", baseCol: "Jam Asas",
-    otCol: "Jam OT", totalCol: "Jumlah", phCol: "CU",
-    reasonCol: "Sebab", notesCol: "Nota",
-    workingDays: "Hari bekerja", shiftsLabel: "syif", avgLabel: "purata",
-    totalBase: "Jumlah jam asas", totalOT: "Jumlah jam OT",
-    totalHours: "JUMLAH JAM", avgPerDay: "Purata jam/hari",
-    phShifts: "Syif Cuti Umum",
-    printBtnLog: "🖨️ Print / PDF", csvBtn: "📄 CSV", exportBtn: "📥 Export Log JSON",
-    confirmDelEntry: "Padam entri ini?",
-    emptyMonth: "Tiada entri bulan ini. Isi borang di atas untuk tambah.",
-    ytdLine: "YTD", ytdShifts: "syif",
-    fillRequired: "Sila isi tarikh, mula dan tamat."
+    title:"Prosedur Kerja Noja Masjid", subtitle:"Rutin Harian",
+    expand:"Buka Semua", edit:"✏️ Edit", save:"💾 Simpan", reset:"Reset",
+    progress:"selesai", adhocTitle:"📌 Tugasan Mingguan",
+    notesTitle:"📝 Nota Peribadi", notesPlc:"Tulis nota di sini...",
+    days:["Isnin","Selasa","Rabu","Khamis","Jumaat","Sabtu","Ahad"],
+    adhocPlc:"Contoh: Sedekah roti, tambah mic...",
+    resetConfirm:"Padam semua checklist, adhoc, dan nota?",
+    addTask:"+ Tambah Tugasan", delTask:"Padam", delSec:"Padam Kotak",
+    addSec:"+ Tambah Kotak Baru", checkAll:"✓ Semak Semua",
+    backupBtn:"📥 Backup", restoreBtn:"📤 Restore", printBtn:"🖨️ Print",
+    galleryBtn:"📸 Galeri", galleryTitle:"📸 Galeri Rujukan",
+    cameraBtn:"📷 Kamera", folderBtn:"🖼️ Galeri", closeBtn:"Tutup",
+    editImgBtn:"Edit", delImgBtn:"Padam",
+    noImgText:"Tiada gambar lagi. Tekan butang di atas untuk tambah.",
+    promptTitle:"Masukkan tajuk gambar:", promptEditTitle:"Edit tajuk gambar:",
+    confirmDelImg:"Padam gambar ini?", confirmDelTask:"Padam tugasan ini?",
+    confirmDelSec:"Padam kotak ini?",
+    backupDone:"Backup dimuat turun!", restoreSuccess:"Data dipulihkan! Sila refresh.",
+    restoreError:"Fail tidak sah.",
+    shiftMorning:"🌅 Shift Pagi", shiftEvening:"🌙 Shift Petang",
+    shiftLogTitle:"📅 Log Syif",
+    saveBtn:"💾 Simpan", cancelBtn:"✖ Batal",
+    dateLabel:"Tarikh", typeLabel:"Jenis Syif", startLabel:"Mula", endLabel:"Tamat",
+    otLabel:"OT (jam)", phLabel:"Cuti Umum", reasonLabel:"Sebab", notesLabel:"Nota",
+    morning:"Pagi", evening:"Petang", adhoc:"Adhoc",
+    reasonPh:"Cth: Bos minta OT", notesPh:"Nota tambahan...",
+    dateCol:"Tarikh", dayCol:"Hari", shiftCol:"Syif", startCol:"Mula", endCol:"Tamat",
+    baseCol:"Jam Asas", otCol:"Jam OT", totalCol:"Jumlah", phCol:"CU",
+    reasonCol:"Sebab", notesCol:"Nota",
+    workingDays:"Hari bekerja", shiftsLabel:"syif", avgLabel:"purata",
+    totalBase:"Jumlah jam asas", totalOT:"Jumlah jam OT", totalHours:"JUMLAH JAM",
+    avgPerDay:"Purata jam/hari", phShifts:"Syif Cuti Umum",
+    printBtnLog:"🖨️ Print / PDF", csvBtn:"📄 CSV", exportBtn:"📥 Export JSON",
+    confirmDelEntry:"Padam entri ini?", emptyMonth:"Tiada entri bulan ini.",
+    ytdLine:"YTD", ytdShifts:"syif", fillRequired:"Sila isi tarikh, mula dan tamat."
   },
   en: {
-    title: "Mosque Maintenance Procedure", subtitle: "Daily Routine",
-    expand: "Expand All", edit: "✏️ Edit", save: "💾 Save", reset: "Reset",
-    progress: "done", adhocTitle: "📌 Weekly Tasks",
-    notesTitle: "📝 Personal Notes", notesPlc: "Write notes here...",
-    days: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"],
-    adhocPlc: "E.g: Bread donation, extra mic...",
-    resetConfirm: "Clear all checklists, adhoc, and notes?",
-    addTask: "+ Add Task", delTask: "Delete", delSec: "Delete Box",
-    addSec: "+ Add New Box", checkAll: "✓ Check All",
-    backupBtn: "📥 Backup", restoreBtn: "📤 Restore", printBtn: "🖨️ Print",
-    galleryBtn: "📸 Ref Gallery", galleryTitle: "📸 Reference Gallery",
-    cameraBtn: "📷 Camera", folderBtn: "🖼️ Gallery",
-    addImgBtn: "+ Add New Image", closeBtn: "Close",
-    editImgBtn: "Edit", delImgBtn: "Delete",
-    noImgText: "No images yet. Click the button above to add.",
-    promptTitle: "Enter image title/description (e.g: Daikin Aircon Panel):",
-    promptEditTitle: "Edit image title:",
-    confirmDelImg: "Delete this image from gallery?",
-    confirmDelTask: "Delete this task?",
-    confirmDelSec: "Delete this box?",
-    backupDone: "Backup downloaded successfully!", restoreSuccess: "Data restored! Please refresh page.", restoreError: "Invalid file.",
-    shiftMorning: "🌅 Morning Shift", shiftEvening: "🌙 Evening Shift",
-    // ==== SHIFT LOG (en) ====
-    shiftLogBtn: "📅 Shift Log",
-    shiftLogTitle: "📅 Shift Log",
-    addEntry: "+ Add Entry", editEntry: "✏️ Edit", delEntry: "🗑️ Delete",
-    saveBtn: "💾 Save", cancelBtn: "✖ Cancel",
-    dateLabel: "Date", typeLabel: "Shift Type",
-    startLabel: "Start", endLabel: "End",
-    otLabel: "OT (hrs)", phLabel: "Public Holiday",
-    reasonLabel: "Reason", notesLabel: "Notes",
-    morning: "Morning", evening: "Evening", adhoc: "Adhoc",
-    reasonPh: "E.g: Boss asked OT, Ramadhan, Qiam",
-    notesPh: "Additional notes...",
-    dateCol: "Date", dayCol: "Day", shiftCol: "Shift",
-    startCol: "Start", endCol: "End", baseCol: "Base Hrs",
-    otCol: "OT Hrs", totalCol: "Total", phCol: "PH",
-    reasonCol: "Reason", notesCol: "Notes",
-    workingDays: "Working days", shiftsLabel: "shifts", avgLabel: "avg",
-    totalBase: "Total base hours", totalOT: "Total OT hours",
-    totalHours: "TOTAL HOURS", avgPerDay: "Avg hrs / day",
-    phShifts: "Public Holiday shifts",
-    printBtnLog: "🖨️ Print / PDF", csvBtn: "📄 CSV", exportBtn: "📥 Export Log JSON",
-    confirmDelEntry: "Delete this entry?",
-    emptyMonth: "No entries this month. Fill the form above to add.",
-    ytdLine: "YTD", ytdShifts: "shifts",
-    fillRequired: "Please fill date, start and end."
+    title:"Mosque Maintenance Procedure", subtitle:"Daily Routine",
+    expand:"Expand All", edit:"✏️ Edit", save:"💾 Save", reset:"Reset",
+    progress:"done", adhocTitle:"📌 Weekly Tasks",
+    notesTitle:"📝 Personal Notes", notesPlc:"Write notes here...",
+    days:["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"],
+    adhocPlc:"E.g: Bread donation...",
+    resetConfirm:"Clear all checklists, adhoc, and notes?",
+    addTask:"+ Add Task", delTask:"Delete", delSec:"Delete Box",
+    addSec:"+ Add New Box", checkAll:"✓ Check All",
+    backupBtn:"📥 Backup", restoreBtn:"📤 Restore", printBtn:"🖨️ Print",
+    galleryBtn:"📸 Gallery", galleryTitle:"📸 Reference Gallery",
+    cameraBtn:"📷 Camera", folderBtn:"🖼️ Gallery", closeBtn:"Close",
+    editImgBtn:"Edit", delImgBtn:"Delete",
+    noImgText:"No images yet.",
+    promptTitle:"Enter image title:", promptEditTitle:"Edit image title:",
+    confirmDelImg:"Delete this image?", confirmDelTask:"Delete this task?",
+    confirmDelSec:"Delete this box?",
+    backupDone:"Backup downloaded!", restoreSuccess:"Data restored! Refresh.",
+    restoreError:"Invalid file.",
+    shiftMorning:"🌅 Morning Shift", shiftEvening:"🌙 Evening Shift",
+    shiftLogTitle:"📅 Shift Log",
+    saveBtn:"💾 Save", cancelBtn:"✖ Cancel",
+    dateLabel:"Date", typeLabel:"Shift Type", startLabel:"Start", endLabel:"End",
+    otLabel:"OT (hrs)", phLabel:"Public Holiday", reasonLabel:"Reason", notesLabel:"Notes",
+    morning:"Morning", evening:"Evening", adhoc:"Adhoc",
+    reasonPh:"E.g: Boss OT", notesPh:"Additional notes...",
+    dateCol:"Date", dayCol:"Day", shiftCol:"Shift", startCol:"Start", endCol:"End",
+    baseCol:"Base Hrs", otCol:"OT Hrs", totalCol:"Total", phCol:"PH",
+    reasonCol:"Reason", notesCol:"Notes",
+    workingDays:"Working days", shiftsLabel:"shifts", avgLabel:"avg",
+    totalBase:"Total base hours", totalOT:"Total OT hours", totalHours:"TOTAL HOURS",
+    avgPerDay:"Avg hrs / day", phShifts:"Public Holiday shifts",
+    printBtnLog:"🖨️ Print / PDF", csvBtn:"📄 CSV", exportBtn:"📥 Export JSON",
+    confirmDelEntry:"Delete this entry?", emptyMonth:"No entries this month.",
+    ytdLine:"YTD", ytdShifts:"shifts", fillRequired:"Please fill date, start and end."
   }
 };
 
 // ==========================================
-// DATA STRUCTURES (MORNING & EVENING SHIFTS)
+// DATA
 // ==========================================
 const defaultMorningData = [
-  {
-    time: "4.30 – 4.45",
-    title: { ms: "Buka Kunci & Keselamatan", en: "Unlock & Safety" },
-    tasks: [
-      { t: { ms: "Buka kunci tangga & pintu utama", en: "Unlock stairs & main doors" } },
-      { t: { ms: "On suis utama (DB) & sistem lif", en: "On main switch (DB) & lift system" } },
-      { t: { ms: "Buka tingkap / aktifkan kipas", en: "Open windows / turn on fans" } },
-      { t: { ms: "Semak kebersihan luar", en: "Check outside cleanliness" } }
-    ]
-  },
-  {
-    time: "4.45 – 5.00",
-    title: { ms: "Persiapan Subuh & Live", en: "Subuh Prep & Live" },
-    tasks: [
-      { t: { ms: "Pasang PA system & mikrofon", en: "Set up PA system & microphone" } },
-      { t: { ms: "On sistem Sound & Aircon (Daikin/Mitsubishi)", en: "On Sound & Aircon systems (Daikin/Mitsubishi)" } },
-      { t: { ms: "Setup Live Streaming (Facebook & OBS)", en: "Setup Live Streaming (Facebook & OBS)" } },
-      { t: { ms: "Semak arah kiblat & saf", en: "Check qiblat & saf" } }
-    ]
-  },
-  {
-    time: "5.00 – 5.30",
-    title: { ms: "Semasa Solat Subuh", en: "During Subuh" },
-    tasks: [
-      { t: { ms: "Pastikan Live Streaming berjalan lancar", en: "Ensure Live Streaming is smooth" } },
-      { t: { ms: "Kemas kasut di rak", en: "Tidy shoes on rack" } },
-      { t: { ms: "Lihat keperluan jemaah", en: "Attend to jemaah needs" } }
-    ]
-  },
-  {
-    time: "5.30 – 6.30",
-    title: { ms: "Pembersihan & Karpet PMD", en: "Cleaning & PMD Carpet" },
-    tasks: [
-      { t: { ms: "Sapu & mop ruang solat", en: "Sweep & mop prayer hall" } },
-      { t: { ms: "Kemas karpet tempat PMD (elak jemaah tersadung)", en: "Tidy PMD carpet area (prevent tripping)" } },
-      { t: { ms: "Bersihkan tandas & tempat wuduk", en: "Clean toilets & ablution area" } },
-      { t: { ms: "Kosongkan tong sampah", en: "Empty trash bins" } }
-    ]
-  },
-  {
-    time: "6.30 – 7.30",
-    title: { ms: "Semakan & QR Clocking", en: "Checking & QR Clocking" },
-    tasks: [
-      { t: { ms: "Scan QR Code di 11 lokasi masjid", en: "Scan QR Code at 11 mosque locations" } },
-      { t: { ms: "Periksa panel Aircon (Daikin/Mitsubishi)", en: "Check Aircon panels (Daikin/Mitsubishi)" } },
-      { t: { ms: "Periksa panel Sound System", en: "Check Sound System panel" } },
-      { t: { ms: "Semak lampu rosak & paip bocor", en: "Check broken lights & leaks" } }
-    ]
-  },
-  {
-    time: "7.30 – 8.30",
-    title: { ms: "Persiapan Aktiviti / Kelas", en: "Activity / Class Prep" },
-    tasks: [
-      { t: { ms: "Sediakan tabung-tabung kuliah ikut label", en: "Prepare donation boxes per label" } },
-      { t: { ms: "Susun kerusi / meja kelas", en: "Arrange class chairs / tables" } },
-      { t: { ms: "Pastikan PA & projektor berfungsi", en: "Ensure PA & projector work" } },
-      { t: { ms: "Sediakan air minuman", en: "Prepare drinking water" } }
-    ]
-  },
-  {
-    time: "8.30 – 9.00",
-    title: { ms: "Tutup Syif Pagi & Laporan", en: "End Morning Shift & Report" },
-    tasks: [
-      { t: { ms: "Off Live Streaming (OBS)", en: "Off Live Streaming (OBS)" } },
-      { t: { ms: "Catat dalam buku log", en: "Log in the book" } }
-    ]
-  }
+  { time:"4.30 – 4.45", title:{ms:"Buka Kunci & Keselamatan",en:"Unlock & Safety"},
+    tasks:[
+      {t:{ms:"Buka kunci tangga & pintu utama",en:"Unlock stairs & main doors"}},
+      {t:{ms:"On suis utama (DB) & sistem lif",en:"On main switch (DB) & lift system"}},
+      {t:{ms:"Buka tingkap / aktifkan kipas",en:"Open windows / turn on fans"}},
+      {t:{ms:"Semak kebersihan luar",en:"Check outside cleanliness"}}
+    ]},
+  { time:"4.45 – 5.00", title:{ms:"Persiapan Subuh & Live",en:"Subuh Prep & Live"},
+    tasks:[
+      {t:{ms:"Pasang PA system & mikrofon",en:"Set up PA system & microphone"}},
+      {t:{ms:"On sistem Sound & Aircon (Daikin/Mitsubishi)",en:"On Sound & Aircon systems"}},
+      {t:{ms:"Setup Live Streaming (FB & OBS)",en:"Setup Live Streaming (FB & OBS)"}},
+      {t:{ms:"Semak arah kiblat & saf",en:"Check qiblat & saf"}}
+    ]},
+  { time:"5.00 – 5.30", title:{ms:"Semasa Solat Subuh",en:"During Subuh"},
+    tasks:[
+      {t:{ms:"Pastikan Live Streaming lancar",en:"Ensure Live Streaming is smooth"}},
+      {t:{ms:"Kemas kasut di rak",en:"Tidy shoes on rack"}},
+      {t:{ms:"Lihat keperluan jemaah",en:"Attend to jemaah needs"}}
+    ]},
+  { time:"5.30 – 6.30", title:{ms:"Pembersihan & Karpet PMD",en:"Cleaning & PMD Carpet"},
+    tasks:[
+      {t:{ms:"Sapu & mop ruang solat",en:"Sweep & mop prayer hall"}},
+      {t:{ms:"Kemas karpet PMD (elak tersadung)",en:"Tidy PMD carpet"}},
+      {t:{ms:"Bersihkan tandas & tempat wuduk",en:"Clean toilets & ablution"}},
+      {t:{ms:"Kosongkan tong sampah",en:"Empty trash bins"}}
+    ]},
+  { time:"6.30 – 7.30", title:{ms:"Semakan & QR Clocking",en:"Checking & QR Clocking"},
+    tasks:[
+      {t:{ms:"Scan QR Code di 11 lokasi",en:"Scan QR at 11 locations"}},
+      {t:{ms:"Periksa panel Aircon",en:"Check Aircon panels"}},
+      {t:{ms:"Periksa panel Sound System",en:"Check Sound System panel"}},
+      {t:{ms:"Semak lampu rosak & paip bocor",en:"Check broken lights & leaks"}}
+    ]},
+  { time:"7.30 – 8.30", title:{ms:"Persiapan Aktiviti / Kelas",en:"Activity / Class Prep"},
+    tasks:[
+      {t:{ms:"Sediakan tabung kuliah ikut label",en:"Prepare donation boxes"}},
+      {t:{ms:"Susun kerusi / meja kelas",en:"Arrange class chairs / tables"}},
+      {t:{ms:"Pastikan PA & projektor berfungsi",en:"Ensure PA & projector work"}},
+      {t:{ms:"Sediakan air minuman",en:"Prepare drinking water"}}
+    ]},
+  { time:"8.30 – 9.00", title:{ms:"Tutup Syif Pagi & Laporan",en:"End Morning Shift"},
+    tasks:[
+      {t:{ms:"Off Live Streaming (OBS)",en:"Off Live Streaming (OBS)"}},
+      {t:{ms:"Catat dalam buku log",en:"Log in the book"}}
+    ]}
 ];
 
 const defaultEveningData = [
-  {
-    time: "5.30 – 6.30",
-    title: { ms: "Persiapan Awal Petang", en: "Early Evening Prep" },
-    tasks: [
-      { t: { ms: "Buka kunci pagar masjid & pintu utama", en: "Unlock mosque gate & main doors" } },
-      { t: { ms: "On suis utama (DB), lampu & sistem lif", en: "On main switch (DB), lights & lift system" } },
-      { t: { ms: "On sistem Sound & Aircon (jika ada kelas)", en: "On Sound & Aircon systems (if there are classes)" } }
-    ]
-  },
-  {
-    time: "6.30 – 7.30",
-    title: { ms: "Pembersihan & Vacuum", en: "Cleaning & Vacuum" },
-    tasks: [
-      { t: { ms: "Vacuum karpet ruang solat utama", en: "Vacuum main prayer hall carpet" } },
-      { t: { ms: "Kemas & susun tabung-tabung kuliah", en: "Tidy & arrange donation boxes" } },
-      { t: { ms: "Kemas karpet PMD (pastikan tak tersadung)", en: "Tidy PMD carpet (ensure no tripping)" } },
-      { t: { ms: "Bersihkan tandas & tempat wuduk", en: "Clean toilets & ablution area" } }
-    ]
-  },
-  {
-    time: "7.30 – 8.30",
-    title: { ms: "Semasa Aktiviti / Kelas", en: "During Activities / Classes" },
-    tasks: [
-      { t: { ms: "Pantau keperluan kelas / jemaah", en: "Monitor class / jemaah needs" } },
-      { t: { ms: "Semak PA system berfungsi lancar", en: "Check PA system is working smoothly" } },
-      { t: { ms: "Sediakan air minuman", en: "Prepare drinking water" } }
-    ]
-  },
-  {
-    time: "8.30 – 9.30",
-    title: { ms: "Semakan Kelas & QR Clocking", en: "Class Check & QR Clocking" },
-    tasks: [
-      { t: { ms: "Scan QR Code di 11 lokasi masjid", en: "Scan QR Code at 11 mosque locations" } },
-      { t: { ms: "Periksa semua tingkap & pintu kelas ditutup", en: "Check all classroom windows & doors are closed" } },
-      { t: { ms: "Semak tandas & tempat wuduk terakhir kali", en: "Final check on toilets & ablution area" } }
-    ]
-  },
-  {
-    time: "9.30 – 10.30",
-    title: { ms: "Tutup Masjid & Keselamatan", en: "Lock Up & Safety" },
-    tasks: [
-      { t: { ms: "Off semua Aircon (Daikin/Mitsubishi)", en: "Off all Aircon (Daikin/Mitsubishi)" } },
-      { t: { ms: "Off kipas besar (Helicopter), kipas siling & standing fan", en: "Off big fan (Helicopter), ceiling fans & standing fans" } },
-      { t: { ms: "Off lampu & sistem Sound", en: "Off lights & Sound system" } },
-      { t: { ms: "Off sistem Lif", en: "Off Lift system" } },
-      { t: { ms: "Tutup semua tingkap", en: "Close all windows" } },
-      { t: { ms: "Kunci pintu utama, tangga & pagar masjid", en: "Lock main doors, stairs & mosque gate" } }
-    ]
-  }
+  { time:"5.30 – 6.30", title:{ms:"Persiapan Awal Petang",en:"Early Evening Prep"},
+    tasks:[
+      {t:{ms:"Buka kunci pagar & pintu utama",en:"Unlock gate & main doors"}},
+      {t:{ms:"On suis utama (DB), lampu & lif",en:"On main switch, lights & lift"}},
+      {t:{ms:"On Sound & Aircon (jika ada kelas)",en:"On Sound & Aircon"}}
+    ]},
+  { time:"6.30 – 7.30", title:{ms:"Pembersihan & Vacuum",en:"Cleaning & Vacuum"},
+    tasks:[
+      {t:{ms:"Vacuum karpet ruang solat utama",en:"Vacuum main prayer hall carpet"}},
+      {t:{ms:"Kemas & susun tabung kuliah",en:"Tidy donation boxes"}},
+      {t:{ms:"Kemas karpet PMD",en:"Tidy PMD carpet"}},
+      {t:{ms:"Bersihkan tandas & tempat wuduk",en:"Clean toilets & ablution"}}
+    ]},
+  { time:"7.30 – 8.30", title:{ms:"Semasa Aktiviti / Kelas",en:"During Activities"},
+    tasks:[
+      {t:{ms:"Pantau keperluan kelas / jemaah",en:"Monitor class / jemaah needs"}},
+      {t:{ms:"Semak PA system lancar",en:"Check PA system"}},
+      {t:{ms:"Sediakan air minuman",en:"Prepare drinking water"}}
+    ]},
+  { time:"8.30 – 9.30", title:{ms:"Semakan Kelas & QR Clocking",en:"Class Check & QR Clocking"},
+    tasks:[
+      {t:{ms:"Scan QR Code di 11 lokasi",en:"Scan QR at 11 locations"}},
+      {t:{ms:"Periksa tingkap & pintu kelas ditutup",en:"Check classroom doors/windows"}},
+      {t:{ms:"Semak tandas & wuduk terakhir",en:"Final check toilets"}}
+    ]},
+  { time:"9.30 – 10.30", title:{ms:"Tutup Masjid & Keselamatan",en:"Lock Up & Safety"},
+    tasks:[
+      {t:{ms:"Off semua Aircon",en:"Off all Aircon"}},
+      {t:{ms:"Off kipas besar, siling & standing",en:"Off big/ceiling/standing fans"}},
+      {t:{ms:"Off lampu & Sound",en:"Off lights & Sound"}},
+      {t:{ms:"Off sistem Lif",en:"Off Lift"}},
+      {t:{ms:"Tutup semua tingkap",en:"Close all windows"}},
+      {t:{ms:"Kunci pintu utama, tangga & pagar",en:"Lock main doors, stairs & gate"}}
+    ]}
 ];
 
 // ==========================================
-// STATE & VARIABLES (Fallback to localStorage)
+// STATE
 // ==========================================
 let currentLang = localStorage.getItem("noja_lang") || "en";
 let currentShift = localStorage.getItem("noja_shift") || "morning";
 let isEditMode = false;
 
-const K_TASKS_M = "noja_tasks_m_v6";
-const K_TASKS_E = "noja_tasks_e_v6";
-const K_CHECKS = "noja_checks_v6";
-const K_ADHOC = "noja_adhoc_v6";
-const K_NOTES = "noja_notes_v6";
-const K_GALLERY = "noja_gallery_v6";
-const K_SHIFTLOG = "noja_shiftlog_v1";
+const K_TASKS_M="noja_tasks_m_v6", K_TASKS_E="noja_tasks_e_v6";
+const K_CHECKS="noja_checks_v6", K_ADHOC="noja_adhoc_v6";
+const K_NOTES="noja_notes_v6", K_GALLERY="noja_gallery_v6", K_SHIFTLOG="noja_shiftlog_v1";
 
 let tasksMorning = JSON.parse(localStorage.getItem(K_TASKS_M)) || defaultMorningData;
 let tasksEvening = JSON.parse(localStorage.getItem(K_TASKS_E)) || defaultEveningData;
@@ -621,51 +674,36 @@ let notesData = localStorage.getItem(K_NOTES) || "";
 let galleryData = JSON.parse(localStorage.getItem(K_GALLERY)) || [];
 let shiftLogData = JSON.parse(localStorage.getItem(K_SHIFTLOG)) || [];
 
-function getCurrentTasks() {
-  return currentShift === "morning" ? tasksMorning : tasksEvening;
-}
+const getCurrentTasks = () => currentShift === "morning" ? tasksMorning : tasksEvening;
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 
 // ==========================================
-// RENDER FUNCTIONS (UI UPDATES)
+// RENDER
 // ==========================================
 function renderTexts() {
   const t = i18n[currentLang];
-
   document.getElementById("title").textContent = t.title;
   document.getElementById("subtitle").textContent =
     currentShift === "morning" ? `${t.subtitle} · 4.30 am – 9.00 am` : `${t.subtitle} · 5.30 pm – 10.30 pm`;
-  document.getElementById("langBtn").textContent = currentLang === "ms" ? "EN" : "BM";
-
+  document.querySelector(".btn-lang").textContent = currentLang === "ms" ? "EN" : "BM";
   document.getElementById("shiftMorningBtn").textContent = t.shiftMorning;
   document.getElementById("shiftEveningBtn").textContent = t.shiftEvening;
-  document.getElementById("shiftMorningBtn").className = currentShift === "morning" ? "shift-btn active" : "shift-btn";
-  document.getElementById("shiftEveningBtn").className = currentShift === "evening" ? "shift-btn active" : "shift-btn";
-
-  document.getElementById("btnShiftLog").textContent = t.shiftLogBtn;
-  document.getElementById("btnGallery").textContent = t.galleryBtn;
-  document.getElementById("btnBackup").textContent = t.backupBtn;
-  document.getElementById("btnRestore").textContent = t.restoreBtn;
-  document.getElementById("btnPrint").textContent = t.printBtn;
+  document.getElementById("shiftMorningBtn").className = currentShift==="morning" ? "shift-btn active" : "shift-btn";
+  document.getElementById("shiftEveningBtn").className = currentShift==="evening" ? "shift-btn active" : "shift-btn";
   document.getElementById("btnExpand").textContent = t.expand;
   document.getElementById("btnEdit").textContent = isEditMode ? t.save : t.edit;
   document.getElementById("btnReset").textContent = t.reset;
-
   document.getElementById("adhocTitle").textContent = t.adhocTitle;
   document.getElementById("notesTitle").textContent = t.notesTitle;
   document.getElementById("mainNotes").placeholder = t.notesPlc;
-
   document.getElementById("galleryTitle").textContent = t.galleryTitle;
   document.getElementById("btnCloseGallery").textContent = t.closeBtn;
-  
   document.getElementById("btnAddGalleryCamera").textContent = t.cameraBtn;
   document.getElementById("btnAddGalleryFolder").textContent = t.folderBtn;
-  
   updateProgress();
 }
 
-function countAllTasks() {
-  return getCurrentTasks().reduce((acc, sec) => acc + sec.tasks.length, 0);
-}
+function countAllTasks() { return getCurrentTasks().reduce((a,s)=>a+s.tasks.length,0); }
 
 function renderTasks() {
   const container = document.getElementById("sections");
@@ -675,102 +713,72 @@ function renderTasks() {
 
   tasksData.forEach((sec, si) => {
     const div = document.createElement("div");
-    div.className = "section";
-    div.id = "sec" + si;
-
+    div.className = "section"; div.id = "sec" + si;
     const head = document.createElement("div");
     head.className = "section-head";
-
     head.innerHTML = `
-      <span class="time">${sec.time}</span>
-      <h2>${sec.title[currentLang]}</h2>
+      <span class="time">${esc(sec.time)}</span>
+      <h2>${esc(sec.title[currentLang])}</h2>
       <span class="badge-done">DONE</span>
-      ${isEditMode ? `<button class="btn-sm btn-del-sec" onclick="deleteSection(${si})">${t.delSec}</button>` : ''}
+      ${isEditMode ? `<button class="btn-sm btn-del-sec" onclick="deleteSection(${si})">${esc(t.delSec)}</button>` : ""}
       <span class="arrow">▶</span>`;
-
     if (!isEditMode) head.onclick = () => div.classList.toggle("open");
     div.appendChild(head);
 
     const body = document.createElement("div");
     body.className = "section-body";
-
     if (isEditMode) {
-      const checkAllBtn = document.createElement("button");
-      checkAllBtn.className = "btn-check-all";
-      checkAllBtn.textContent = t.checkAll;
-      checkAllBtn.onclick = () => {
-        sec.tasks.forEach((_, ti) => {
-          const key = `s${currentShift}_${si}_t${ti}`;
-          checksData[key] = true;
-          const cb = document.getElementById(key);
-          if (cb) cb.checked = true;
-        });
+      const b = document.createElement("button");
+      b.className = "btn-check-all"; b.textContent = t.checkAll;
+      b.onclick = () => { sec.tasks.forEach((_,ti)=>{ const k=`s${currentShift}_${si}_t${ti}`;
+        checksData[k]=true; const cb=document.getElementById(k); if(cb)cb.checked=true; });
         localStorage.setItem(K_CHECKS, JSON.stringify(checksData));
-        updateProgress();
-      };
-      body.appendChild(checkAllBtn);
+        updateProgress(); schedulePush(); };
+      body.appendChild(b);
     }
-
     sec.tasks.forEach((task, ti) => {
       const key = `s${currentShift}_${si}_t${ti}`;
       const wrap = document.createElement("div");
       wrap.className = "task";
-
       if (isEditMode) {
         wrap.style.flexDirection = "column";
         wrap.innerHTML = `
-          <input type="text" class="edit-input" value="${task.t[currentLang]}"
-            onchange="updateTaskText(${si}, ${ti}, this.value)">
-          <div style="display:flex; width:100%; gap:8px; align-items:center;">
-             <input type="text" class="edit-input" style="flex:1; margin-bottom:0; font-size:0.8rem;"
-                placeholder="Notes / Nota" value="${task.n ? task.n[currentLang] : ''}"
-                onchange="updateTaskNote(${si}, ${ti}, this.value)">
-             <button class="btn-sm btn-delete" onclick="deleteTask(${si}, ${ti})">${t.delTask}</button>
-          </div>
-        `;
+          <input type="text" class="edit-input" value="${esc(task.t[currentLang])}"
+            onchange="updateTaskText(${si},${ti},this.value)">
+          <div style="display:flex;width:100%;gap:8px;align-items:center">
+            <input type="text" class="edit-input" style="flex:1;margin-bottom:0;font-size:.8rem"
+              placeholder="Notes" value="${esc(task.n ? task.n[currentLang] : '')}"
+              onchange="updateTaskNote(${si},${ti},this.value)">
+            <button class="btn-sm btn-delete" onclick="deleteTask(${si},${ti})">${esc(t.delTask)}</button>
+          </div>`;
       } else {
         const cb = document.createElement("input");
-        cb.type = "checkbox";
-        cb.id = key;
-        cb.checked = !!checksData[key];
-        cb.onchange = () => {
-          checksData[key] = cb.checked;
-          localStorage.setItem(K_CHECKS, JSON.stringify(checksData));
-          updateProgress();
-        };
-
+        cb.type="checkbox"; cb.id=key; cb.checked=!!checksData[key];
+        cb.onchange = () => { checksData[key]=cb.checked;
+          localStorage.setItem(K_CHECKS, JSON.stringify(checksData)); updateProgress(); schedulePush(); };
         const lbl = document.createElement("label");
         lbl.htmlFor = key;
-        lbl.innerHTML = task.t[currentLang] +
-          (task.n ? `<span class="note">${task.n[currentLang]}</span>` : "");
-
-        wrap.appendChild(cb);
-        wrap.appendChild(lbl);
+        lbl.innerHTML = esc(task.t[currentLang]) + (task.n ? `<span class="note">${esc(task.n[currentLang])}</span>` : "");
+        wrap.appendChild(cb); wrap.appendChild(lbl);
       }
       body.appendChild(wrap);
     });
-
     if (isEditMode) {
-      const addBtn = document.createElement("button");
-      addBtn.className = "btn-sm btn-add";
-      addBtn.textContent = t.addTask;
-      addBtn.onclick = () => addTask(si);
-      body.appendChild(addBtn);
+      const a = document.createElement("button");
+      a.className="btn-sm btn-add"; a.textContent=t.addTask;
+      a.onclick = () => addTask(si);
+      body.appendChild(a);
     }
-
     div.appendChild(body);
     container.appendChild(div);
   });
 
   if (isEditMode) {
-    const addSecBtn = document.createElement("button");
-    addSecBtn.className = "main-btn btn-primary";
-    addSecBtn.style = "width:100%; margin-bottom:20px;";
-    addSecBtn.textContent = t.addSec;
-    addSecBtn.onclick = addSection;
-    container.appendChild(addSecBtn);
+    const b = document.createElement("button");
+    b.className="main-btn btn-primary"; b.style="width:100%;margin-bottom:20px";
+    b.textContent=t.addSec; b.onclick=addSection;
+    container.appendChild(b);
   }
-
   updateProgress();
 }
 
@@ -778,208 +786,174 @@ function renderAdhoc() {
   const grid = document.getElementById("adhocGrid");
   grid.innerHTML = "";
   const days = i18n[currentLang].days;
-
-  for (let i = 0; i < 7; i++) {
-    const card = document.createElement("div");
-    card.className = "adhoc-card";
-    card.innerHTML = `
-      <h4>${days[i]}</h4>
-      <textarea class="adhoc-textarea" id="adhoc_${i}"
-        placeholder="${i18n[currentLang].adhocPlc}"
-        oninput="saveAdhoc(${i}, this.value)">${adhocData[i] || ""}</textarea>
-    `;
-    grid.appendChild(card);
+  for (let i=0;i<7;i++) {
+    const c = document.createElement("div");
+    c.className="adhoc-card";
+    c.innerHTML = `<h4>${esc(days[i])}</h4>
+      <textarea class="adhoc-textarea" id="adhoc_${i}" placeholder="${esc(i18n[currentLang].adhocPlc)}"
+        oninput="saveAdhoc(${i},this.value)">${esc(adhocData[i]||"")}</textarea>`;
+    grid.appendChild(c);
   }
 }
 
 function updateProgress() {
   const tasksData = getCurrentTasks();
   const all = countAllTasks();
-  const done = tasksData.reduce((acc, sec, si) => {
-    return acc + sec.tasks.filter((_, ti) => checksData[`s${currentShift}_${si}_t${ti}`] === true).length;
-  }, 0);
-
-  const pct = all ? (done / all * 100) : 0;
-
+  const done = tasksData.reduce((a,sec,si)=> a + sec.tasks.filter((_,ti)=>checksData[`s${currentShift}_${si}_t${ti}`]===true).length, 0);
+  const pct = all ? (done/all*100) : 0;
   document.getElementById("fill").style.width = pct + "%";
   document.getElementById("progressText").textContent =
     `${done} / ${all} ${i18n[currentLang].progress} (${Math.round(pct)}%)`;
-
-  tasksData.forEach((sec, si) => {
-    const boxes = sec.tasks.map((_, ti) => checksData[`s${currentShift}_${si}_t${ti}`]);
-    const allDone = boxes.length > 0 && boxes.every(b => b === true);
-    const el = document.getElementById("sec" + si);
-    if (el) el.classList.toggle("complete", allDone);
+  tasksData.forEach((sec,si)=>{
+    const boxes = sec.tasks.map((_,ti)=>checksData[`s${currentShift}_${si}_t${ti}`]);
+    const el = document.getElementById("sec"+si);
+    if (el) el.classList.toggle("complete", boxes.length>0 && boxes.every(b=>b===true));
   });
 }
 
 // ==========================================
-// SHIFT & EDIT LOGIC
+// ACTIONS
 // ==========================================
 function setShift(shift) {
   currentShift = shift;
   localStorage.setItem("noja_shift", currentShift);
   isEditMode = false;
-  renderTexts();
-  renderTasks();
+  renderTexts(); renderTasks();
 }
-
 function toggleEditMode() {
   isEditMode = !isEditMode;
-  renderTexts();
-  renderTasks();
-  if (!isEditMode) {
-    if (currentShift === "morning") {
-      localStorage.setItem(K_TASKS_M, JSON.stringify(tasksMorning));
-    } else {
-      localStorage.setItem(K_TASKS_E, JSON.stringify(tasksEvening));
-    }
-  }
+  renderTexts(); renderTasks();
+  if (!isEditMode) { saveTasksToStorage(); schedulePush(); }
 }
-
-function updateTaskText(si, ti, val) {
-  const tasksData = getCurrentTasks();
-  tasksData[si].tasks[ti].t[currentLang] = val;
-}
-
-function updateTaskNote(si, ti, val) {
-  const tasksData = getCurrentTasks();
-  if (tasksData[si].tasks[ti].n) {
-    tasksData[si].tasks[ti].n[currentLang] = val;
-  } else {
-    tasksData[si].tasks[ti].n = { ms: val, en: val };
-  }
-}
-
-function deleteTask(si, ti) {
-  if (confirm(i18n[currentLang].confirmDelTask)) {
-    const tasksData = getCurrentTasks();
-    tasksData[si].tasks.splice(ti, 1);
-    renderTasks();
-    saveTasksToStorage();
-  }
-}
-
-function addTask(si) {
-  const tasksData = getCurrentTasks();
-  tasksData[si].tasks.push({
-    t: { ms: "Tugasan Baru", en: "New Task" },
-    n: { ms: "", en: "" }
-  });
-  renderTasks();
-  saveTasksToStorage();
-}
-
-function deleteSection(si) {
-  if (confirm(i18n[currentLang].confirmDelSec)) {
-    const tasksData = getCurrentTasks();
-    tasksData.splice(si, 1);
-    renderTasks();
-    saveTasksToStorage();
-  }
-}
-
-function addSection() {
-  const tasksData = getCurrentTasks();
-  tasksData.push({
-    time: "Time",
-    title: { ms: "Kotak Baru", en: "New Box" },
-    tasks: [{ t: { ms: "Tugasan Baru", en: "New Task" }, n: { ms: "", en: "" } }]
-  });
-  renderTasks();
-  saveTasksToStorage();
-}
-
 function saveTasksToStorage() {
-  if (currentShift === "morning") {
-    localStorage.setItem(K_TASKS_M, JSON.stringify(tasksMorning));
-  } else {
-    localStorage.setItem(K_TASKS_E, JSON.stringify(tasksEvening));
+  localStorage.setItem(K_TASKS_M, JSON.stringify(tasksMorning));
+  localStorage.setItem(K_TASKS_E, JSON.stringify(tasksEvening));
+  schedulePush();
+}
+function updateTaskText(si,ti,val){ getCurrentTasks()[si].tasks[ti].t[currentLang]=val; }
+function updateTaskNote(si,ti,val){
+  const task = getCurrentTasks()[si].tasks[ti];
+  if (task.n) task.n[currentLang]=val; else task.n={ms:val,en:val};
+}
+function deleteTask(si,ti){
+  if (confirm(i18n[currentLang].confirmDelTask)) {
+    getCurrentTasks()[si].tasks.splice(ti,1); renderTasks(); saveTasksToStorage();
   }
 }
+function addTask(si){
+  getCurrentTasks()[si].tasks.push({t:{ms:"Tugasan Baru",en:"New Task"},n:{ms:"",en:""}});
+  renderTasks(); saveTasksToStorage();
+}
+function deleteSection(si){
+  if (confirm(i18n[currentLang].confirmDelSec)) {
+    getCurrentTasks().splice(si,1); renderTasks(); saveTasksToStorage();
+  }
+}
+function addSection(){
+  getCurrentTasks().push({
+    time:"Time", title:{ms:"Kotak Baru",en:"New Box"},
+    tasks:[{t:{ms:"Tugasan Baru",en:"New Task"},n:{ms:"",en:""}}]
+  });
+  renderTasks(); saveTasksToStorage();
+}
+function saveAdhoc(i,v){ adhocData[i]=v; localStorage.setItem(K_ADHOC,JSON.stringify(adhocData)); schedulePush(); }
 
-// ==========================================
-// GALLERY LOGIC
-// ==========================================
-function openGallery() {
-  document.getElementById("galleryModal").style.display = "flex";
-  renderGallery();
+document.getElementById("mainNotes").addEventListener("input", e => {
+  notesData = e.target.value;
+  localStorage.setItem(K_NOTES, notesData); schedulePush();
+});
+
+function resetAll(){
+  if (confirm(i18n[currentLang].resetConfirm)) {
+    checksData={}; adhocData={}; notesData="";
+    localStorage.removeItem(K_CHECKS); localStorage.removeItem(K_ADHOC); localStorage.removeItem(K_NOTES);
+    document.getElementById("mainNotes").value="";
+    renderTasks(); renderAdhoc(); schedulePush();
+  }
+}
+function expandAll(){ document.querySelectorAll(".section").forEach(s=>s.classList.toggle("open")); }
+function toggleLang(){
+  currentLang = currentLang==="ms"?"en":"ms";
+  localStorage.setItem("noja_lang", currentLang);
+  renderTexts(); renderTasks(); renderAdhoc();
+  if (document.getElementById("galleryModal").style.display==="flex") renderGallery();
+  if (document.getElementById("shiftLogModal").style.display==="flex") renderShiftLog();
 }
 
-function closeGallery() {
-  document.getElementById("galleryModal").style.display = "none";
-}
+// ==========================================
+// GALLERY
+// ==========================================
+function openGallery(){ document.getElementById("galleryModal").style.display="flex"; renderGallery(); }
+function closeGallery(){ document.getElementById("galleryModal").style.display="none"; }
 
-function renderGallery() {
+function renderGallery(){
   const grid = document.getElementById("galleryGrid");
   grid.innerHTML = "";
   const t = i18n[currentLang];
-
-  if (galleryData.length === 0) {
-    grid.innerHTML = `<p style='color:var(--muted); grid-column:1/-1; text-align:center;'>${t.noImgText}</p>`;
+  if (galleryData.length===0) {
+    grid.innerHTML = `<p style="color:var(--muted);grid-column:1/-1;text-align:center">${esc(t.noImgText)}</p>`;
     return;
   }
-
-  const reversed = [...galleryData].reverse();
-
-  reversed.forEach((item) => {
+  [...galleryData].reverse().forEach(item => {
     const card = document.createElement("div");
     card.className = "gallery-item";
+    const imgSrc = item.url || item.base64 || "";
     card.innerHTML = `
-      <img src="${item.base64}" onclick="viewImage('${item.id}')">
+      <img src="${esc(imgSrc)}" onclick="viewImage('${esc(item.id)}')" alt="">
       <div class="gallery-item-info">
-        <div class="gallery-item-title">${item.title}</div>
+        <div class="gallery-item-title">${esc(item.title)}</div>
         <div class="gallery-item-actions">
-          <button class="btn-sm" style="background:var(--accent2); color:#0f172a;" onclick="editGalleryTitle('${item.id}')">${t.editImgBtn}</button>
-          <button class="btn-sm btn-delete" onclick="deleteGalleryImg('${item.id}')">${t.delImgBtn}</button>
+          <button class="btn-sm" style="background:var(--accent2);color:#0f172a"
+            onclick="editGalleryTitle('${esc(item.id)}')">${esc(t.editImgBtn)}</button>
+          <button class="btn-sm btn-delete"
+            onclick="deleteGalleryImg('${esc(item.id)}')">${esc(t.delImgBtn)}</button>
         </div>
-      </div>
-    `;
+      </div>`;
     grid.appendChild(card);
   });
 }
 
-function triggerGalleryUpload(useCamera) {
+function triggerGalleryUpload(useCamera){
   const input = document.createElement("input");
-  input.type = "file";
-  input.accept = "image/*";
-  
-  if (useCamera) {
-    input.setAttribute("capture", "environment");
-  }
-
+  input.type="file"; input.accept="image/*";
+  if (useCamera) input.setAttribute("capture","environment");
   input.click();
-
-  input.onchange = (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
-
-    const t = i18n[currentLang];
-    const title = prompt(t.promptTitle);
-    if (!title) return;
-
+  input.onchange = e => {
+    const file = e.target.files[0]; if (!file) return;
+    const title = prompt(i18n[currentLang].promptTitle); if (!title) return;
     const reader = new FileReader();
-    reader.onload = (ev) => {
+    reader.onload = ev => {
       const img = new Image();
-      img.onload = () => {
+      img.onload = async () => {
         const canvas = document.createElement("canvas");
-        const MAX_WIDTH = 1000;
-        const scale = MAX_WIDTH / img.width;
-        canvas.width = MAX_WIDTH;
-        canvas.height = img.height * scale;
-        const ctx = canvas.getContext("2d");
-        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+        const MAX = 1000;
+        const scale = Math.min(1, MAX/img.width);
+        canvas.width = img.width*scale;
+        canvas.height = img.height*scale;
+        canvas.getContext("2d").drawImage(img,0,0,canvas.width,canvas.height);
+        const base64 = canvas.toDataURL("image/jpeg",0.75);
 
-        const base64 = canvas.toDataURL("image/jpeg", 0.75);
-
-        galleryData.push({
-          id: Date.now().toString(),
-          title: title,
-          base64: base64
-        });
-
+        const newItem = { id: Date.now().toString(), title, base64 };
+        galleryData.push(newItem);
         localStorage.setItem(K_GALLERY, JSON.stringify(galleryData));
         renderGallery();
+
+        // Upload to Supabase Storage if available
+        if (sbReady) {
+          try {
+            const blob = await (await fetch(base64)).blob();
+            const path = `${newItem.id}.jpg`;
+            const { error } = await sbClient.storage.from("gallery")
+              .upload(path, blob, { contentType: "image/jpeg", upsert: true });
+            if (!error) {
+              const { data: urlData } = sbClient.storage.from("gallery").getPublicUrl(path);
+              newItem.url = urlData.publicUrl;
+              localStorage.setItem(K_GALLERY, JSON.stringify(galleryData));
+              renderGallery();
+            }
+          } catch (err) { console.warn("Upload storage fail:", err); }
+        }
+        schedulePush();
       };
       img.src = ev.target.result;
     };
@@ -987,115 +961,84 @@ function triggerGalleryUpload(useCamera) {
   };
 }
 
-function viewImage(id) {
-  const item = galleryData.find(g => g.id === id);
-  if (item) {
-    document.getElementById("imgModalSrc").src = item.base64;
-    document.getElementById("imgModal").style.display = "flex";
+function viewImage(id){
+  const item = galleryData.find(g=>g.id===id); if (!item) return;
+  document.getElementById("imgModalSrc").src = item.url || item.base64;
+  document.getElementById("imgModal").style.display="flex";
+}
+function editGalleryTitle(id){
+  const item = galleryData.find(g=>g.id===id); if (!item) return;
+  const nt = prompt(i18n[currentLang].promptEditTitle, item.title);
+  if (nt && nt.trim()) {
+    item.title = nt.trim();
+    localStorage.setItem(K_GALLERY, JSON.stringify(galleryData));
+    renderGallery(); schedulePush();
   }
 }
-
-function editGalleryTitle(id) {
-  const item = galleryData.find(g => g.id === id);
-  if (!item) return;
-  const newTitle = prompt(i18n[currentLang].promptEditTitle, item.title);
-  if (newTitle !== null && newTitle.trim() !== "") {
-    item.title = newTitle.trim();
-    localStorage.setItem(K_GALLERY, JSON.stringify(galleryData));
-    renderGallery();
+function deleteGalleryImg(id){
+  if (!confirm(i18n[currentLang].confirmDelImg)) return;
+  const item = galleryData.find(g=>g.id===id);
+  if (item && item.url && sbReady) {
+    const path = item.url.split("/").pop();
+    sbClient.storage.from("gallery").remove([path]).catch(()=>{});
   }
-}
-
-function deleteGalleryImg(id) {
-  if (confirm(i18n[currentLang].confirmDelImg)) {
-    galleryData = galleryData.filter(g => g.id !== id);
-    localStorage.setItem(K_GALLERY, JSON.stringify(galleryData));
-    renderGallery();
-  }
+  galleryData = galleryData.filter(g=>g.id!==id);
+  localStorage.setItem(K_GALLERY, JSON.stringify(galleryData));
+  renderGallery(); schedulePush();
 }
 
 // ==========================================
-// SHIFT LOG MODULE — START
+// SHIFT LOG
 // ==========================================
 let slEditId = null;
 let slViewDate = new Date();
 
-function slSaveStorage() {
-  localStorage.setItem(K_SHIFTLOG, JSON.stringify(shiftLogData));
-}
-
-function slPad(n) { return String(n).padStart(2, "0"); }
-
-function slISOtoDisplay(iso) {
+function slSaveStorage(){ localStorage.setItem(K_SHIFTLOG, JSON.stringify(shiftLogData)); schedulePush(); }
+const slPad = n => String(n).padStart(2,"0");
+function slISOtoDisplay(iso){
   if (!iso) return "";
-  const [y, m, d] = iso.split("-");
-  const months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
-  return `${d} ${months[parseInt(m,10)-1]} ${y}`;
+  const [y,m,d] = iso.split("-");
+  const M = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+  return `${d} ${M[parseInt(m,10)-1]} ${y}`;
 }
-
-function slDayName(iso) {
-  const d = new Date(iso + "T00:00:00");
-  const days = i18n[currentLang].days;
-  return days[(d.getDay() + 6) % 7];
+function slDayName(iso){
+  const d = new Date(iso+"T00:00:00");
+  return i18n[currentLang].days[(d.getDay()+6)%7];
 }
-
-function slHours(start, end) {
-  if (!start || !end) return 0;
-  const [sh, sm] = start.split(":").map(Number);
-  const [eh, em] = end.split(":").map(Number);
-  let mins = (eh * 60 + em) - (sh * 60 + sm);
-  if (mins <= 0) mins += 24 * 60;
-  return mins / 60;
+function slHours(start,end){
+  if (!start||!end) return 0;
+  const [sh,sm]=start.split(":").map(Number), [eh,em]=end.split(":").map(Number);
+  let mins = (eh*60+em)-(sh*60+sm);
+  if (mins<=0) mins += 24*60;
+  return mins/60;
 }
-
-function slIsOvernight(start, end) {
-  if (!start || !end) return false;
-  const [sh, sm] = start.split(":").map(Number);
-  const [eh, em] = end.split(":").map(Number);
-  return (eh * 60 + em) <= (sh * 60 + sm);
+function slIsOvernight(s,e){
+  if (!s||!e) return false;
+  const [sh,sm]=s.split(":").map(Number), [eh,em]=e.split(":").map(Number);
+  return (eh*60+em) <= (sh*60+sm);
 }
-
-function slEntriesForMonth(year, month) {
-  const ym = `${year}-${slPad(month + 1)}`;
-  return shiftLogData
-    .filter(e => e.date.startsWith(ym))
-    .sort((a, b) => a.date === b.date ? a.start.localeCompare(b.start) : a.date.localeCompare(b.date));
+function slEntriesForMonth(y,m){
+  const ym = `${y}-${slPad(m+1)}`;
+  return shiftLogData.filter(e=>e.date.startsWith(ym))
+    .sort((a,b)=> a.date===b.date ? a.start.localeCompare(b.start) : a.date.localeCompare(b.date));
 }
-
-function openShiftLog() {
-  document.getElementById("shiftLogModal").style.display = "flex";
-  slViewDate = new Date();
-  slResetForm();
-  renderShiftLog();
+function openShiftLog(){
+  document.getElementById("shiftLogModal").style.display="flex";
+  slViewDate = new Date(); slResetForm(); renderShiftLog();
 }
-
-function closeShiftLog() {
-  document.getElementById("shiftLogModal").style.display = "none";
-  slEditId = null;
-}
-
-function shiftLogPrevMonth() {
-  slViewDate.setMonth(slViewDate.getMonth() - 1);
-  renderShiftLog();
-}
-
-function shiftLogNextMonth() {
-  slViewDate.setMonth(slViewDate.getMonth() + 1);
-  renderShiftLog();
-}
-
-function shiftLogOnTypeChange() {
+function closeShiftLog(){ document.getElementById("shiftLogModal").style.display="none"; slEditId=null; }
+function shiftLogPrevMonth(){ slViewDate.setMonth(slViewDate.getMonth()-1); renderShiftLog(); }
+function shiftLogNextMonth(){ slViewDate.setMonth(slViewDate.getMonth()+1); renderShiftLog(); }
+function shiftLogOnTypeChange(){
   const type = document.getElementById("slType").value;
-  const s = document.getElementById("slStart");
-  const e = document.getElementById("slEnd");
-  if (type === "morning") { s.value = "04:30"; e.value = "09:00"; }
-  else if (type === "evening") { s.value = "17:30"; e.value = "22:30"; }
-  else { s.value = ""; e.value = ""; }
+  const s=document.getElementById("slStart"), e=document.getElementById("slEnd");
+  if (type==="morning"){ s.value="04:30"; e.value="09:00"; }
+  else if (type==="evening"){ s.value="17:30"; e.value="22:30"; }
+  else { s.value=""; e.value=""; }
 }
-
-function slResetForm() {
-  slEditId = null;
-  document.getElementById("slDate").value = new Date().toISOString().slice(0, 10);
+function slResetForm(){
+  slEditId=null;
+  document.getElementById("slDate").value = new Date().toISOString().slice(0,10);
   document.getElementById("slType").value = "evening";
   shiftLogOnTypeChange();
   document.getElementById("slOT").value = 0;
@@ -1105,11 +1048,9 @@ function slResetForm() {
   document.getElementById("btnCancelEdit").style.display = "none";
   slApplyLabels();
 }
-
-function slApplyLabels() {
+function slApplyLabels(){
   const t = i18n[currentLang];
   document.getElementById("shiftLogTitleEl").textContent = t.shiftLogTitle;
-  document.getElementById("btnShiftLog").textContent = t.shiftLogBtn;
   document.getElementById("lblDate").textContent = t.dateLabel;
   document.getElementById("lblType").textContent = t.typeLabel;
   document.getElementById("lblStart").textContent = t.startLabel;
@@ -1126,404 +1067,215 @@ function slApplyLabels() {
   document.getElementById("btnLogCSV").textContent = t.csvBtn;
   document.getElementById("btnLogExport").textContent = t.exportBtn;
   const sel = document.getElementById("slType");
-  sel.options[0].text = t.morning;
-  sel.options[1].text = t.evening;
-  sel.options[2].text = t.adhoc;
+  sel.options[0].text = t.morning; sel.options[1].text = t.evening; sel.options[2].text = t.adhoc;
 }
-
-function shiftLogSaveEntry() {
-  const date = document.getElementById("slDate").value;
-  const type = document.getElementById("slType").value;
-  const start = document.getElementById("slStart").value;
-  const end = document.getElementById("slEnd").value;
-  const ot = parseFloat(document.getElementById("slOT").value) || 0;
-  const ph = document.getElementById("slPH").checked;
-  const reason = document.getElementById("slReason").value.trim();
-  const notes = document.getElementById("slNotes").value.trim();
-
-  if (!date || !start || !end) {
-    alert(i18n[currentLang].fillRequired);
-    return;
-  }
-
-  if (slEditId) {
-    const idx = shiftLogData.findIndex(e => e.id === slEditId);
-    if (idx >= 0) {
-      shiftLogData[idx] = { id: slEditId, date, type, start, end, ot, ph, reason, notes };
-    }
+function shiftLogSaveEntry(){
+  const date=document.getElementById("slDate").value;
+  const type=document.getElementById("slType").value;
+  const start=document.getElementById("slStart").value;
+  const end=document.getElementById("slEnd").value;
+  const ot=parseFloat(document.getElementById("slOT").value)||0;
+  const ph=document.getElementById("slPH").checked;
+  const reason=document.getElementById("slReason").value.trim();
+  const notes=document.getElementById("slNotes").value.trim();
+  if (!date||!start||!end){ alert(i18n[currentLang].fillRequired); return; }
+  const wasEditing = !!slEditId;
+  if (slEditId){
+    const idx = shiftLogData.findIndex(e=>e.id===slEditId);
+    if (idx>=0) shiftLogData[idx] = {id:slEditId,date,type,start,end,ot,ph,reason,notes};
   } else {
-    shiftLogData.push({ id: Date.now().toString(), date, type, start, end, ot, ph, reason, notes });
+    shiftLogData.push({id:Date.now().toString(),date,type,start,end,ot,ph,reason,notes});
   }
-
-  slSaveStorage();
-  slResetForm();
-  renderShiftLog();
+  slSaveStorage(); slResetForm(); renderShiftLog();
+  const total = (slHours(start,end)+ot).toFixed(2);
+  slToast((wasEditing?"✏️ Updated: ":"✅ Saved: ")+slISOtoDisplay(date)+" · "+total+"h");
 }
-
-function shiftLogEdit(id) {
-  const e = shiftLogData.find(x => x.id === id);
-  if (!e) return;
+function shiftLogEdit(id){
+  const e = shiftLogData.find(x=>x.id===id); if (!e) return;
   slEditId = id;
   document.getElementById("slDate").value = e.date;
   document.getElementById("slType").value = e.type;
   document.getElementById("slStart").value = e.start;
   document.getElementById("slEnd").value = e.end;
-  document.getElementById("slOT").value = e.ot || 0;
+  document.getElementById("slOT").value = e.ot||0;
   document.getElementById("slPH").checked = !!e.ph;
-  document.getElementById("slReason").value = e.reason || "";
-  document.getElementById("slNotes").value = e.notes || "";
+  document.getElementById("slReason").value = e.reason||"";
+  document.getElementById("slNotes").value = e.notes||"";
   document.getElementById("btnCancelEdit").style.display = "block";
-  document.getElementById("shiftLogForm").scrollIntoView({ behavior: "smooth", block: "center" });
+  document.getElementById("shiftLogForm").scrollIntoView({behavior:"smooth",block:"center"});
 }
-
-function shiftLogCancelEdit() {
-  slResetForm();
+function shiftLogCancelEdit(){ slResetForm(); }
+function shiftLogDelete(id){
+  if (!confirm(i18n[currentLang].confirmDelEntry)) return;
+  const removed = shiftLogData.find(e=>e.id===id);
+  shiftLogData = shiftLogData.filter(e=>e.id!==id);
+  slSaveStorage(); renderShiftLog();
+  slToast("🗑️ Deleted: "+(removed?slISOtoDisplay(removed.date):"entry"), true);
 }
-
-function renderShiftLog() {
+function renderShiftLog(){
   if (document.getElementById("shiftLogModal").style.display !== "flex") return;
   slApplyLabels();
   const t = i18n[currentLang];
-  const year = slViewDate.getFullYear();
-  const month = slViewDate.getMonth();
+  const year = slViewDate.getFullYear(), month = slViewDate.getMonth();
+  const M_MS=["Jan","Feb","Mac","Apr","Mei","Jun","Jul","Ogos","Sep","Okt","Nov","Dis"];
+  const M_EN=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+  document.getElementById("shiftLogMonthLabel").textContent =
+    (currentLang==="ms"?M_MS[month]:M_EN[month]) + " " + year;
 
-  const months = ["Jan","Feb","Mac","Apr","Mei","Jun","Jul","Ogos","Sep","Okt","Nov","Dis"];
-  const monthsEN = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
-  const mLabel = (currentLang === "ms" ? months[month] : monthsEN[month]) + " " + year;
-  document.getElementById("shiftLogMonthLabel").textContent = mLabel;
-
-  const thead = document.getElementById("shiftLogThead");
-  thead.innerHTML = `<tr>
+  document.getElementById("shiftLogThead").innerHTML = `<tr>
     <th>${t.dateCol}</th><th>${t.dayCol}</th><th>${t.shiftCol}</th>
     <th>${t.startCol}</th><th>${t.endCol}</th>
-    <th style="text-align:right;">${t.baseCol}</th>
-    <th style="text-align:right;">${t.otCol}</th>
-    <th style="text-align:right;">${t.totalCol}</th>
-    <th>${t.phCol}</th>
-    <th>${t.reasonCol}</th><th>${t.notesCol}</th>
-    <th></th><th></th>
-  </tr>`;
+    <th style="text-align:right">${t.baseCol}</th>
+    <th style="text-align:right">${t.otCol}</th>
+    <th style="text-align:right">${t.totalCol}</th>
+    <th>${t.phCol}</th><th>${t.reasonCol}</th><th>${t.notesCol}</th><th></th><th></th></tr>`;
 
   const tbody = document.getElementById("shiftLogTbody");
-  const entries = slEntriesForMonth(year, month);
+  const entries = slEntriesForMonth(year,month);
   tbody.innerHTML = "";
-
-  if (entries.length === 0) {
-    tbody.innerHTML = `<tr><td colspan="13" style="text-align:center; color:var(--muted); padding:20px;">${t.emptyMonth}</td></tr>`;
+  if (entries.length===0) {
+    tbody.innerHTML = `<tr><td colspan="13" style="text-align:center;color:var(--muted);padding:20px">${esc(t.emptyMonth)}</td></tr>`;
   } else {
-    entries.forEach(e => {
-      const base = slHours(e.start, e.end);
-      const total = base + (e.ot || 0);
-      const overnight = slIsOvernight(e.start, e.end) ? ' <span class="sl-overnight">+1d</span>' : "";
+    entries.forEach(e=>{
+      const base = slHours(e.start,e.end), total = base + (e.ot||0);
+      const overnight = slIsOvernight(e.start,e.end) ? ' <span class="sl-overnight">+1d</span>' : "";
       const tr = document.createElement("tr");
       tr.innerHTML = `
-        <td>${slISOtoDisplay(e.date)}</td>
-        <td>${slDayName(e.date)}</td>
-        <td>${t[e.type]}</td>
-        <td>${e.start}</td>
-        <td>${e.end}${overnight}</td>
+        <td>${esc(slISOtoDisplay(e.date))}</td>
+        <td>${esc(slDayName(e.date))}</td>
+        <td>${esc(t[e.type])}</td>
+        <td>${esc(e.start)}</td>
+        <td>${esc(e.end)}${overnight}</td>
         <td class="num">${base.toFixed(2)}</td>
         <td class="num">${(e.ot||0).toFixed(2)}</td>
         <td class="num"><strong>${total.toFixed(2)}</strong></td>
-        <td>${e.ph ? '<span class="sl-ph-badge">PH</span>' : ''}</td>
-        <td class="notes-cell">${e.reason || ''}</td>
-        <td class="notes-cell">${e.notes || ''}</td>
-        <td><button class="btn-sm" style="background:var(--accent2); color:#0f172a;" onclick="shiftLogEdit('${e.id}')">✏️</button></td>
-        <td><button class="btn-sm btn-delete" onclick="shiftLogDelete('${e.id}')">🗑️</button></td>
-      `;
+        <td>${e.ph?'<span class="sl-ph-badge">PH</span>':''}</td>
+        <td class="notes-cell">${esc(e.reason||"")}</td>
+        <td class="notes-cell">${esc(e.notes||"")}</td>
+        <td><button class="btn-sm" style="background:var(--accent2);color:#0f172a"
+          onclick="shiftLogEdit('${esc(e.id)}')">✏️</button></td>
+        <td><button class="btn-sm btn-delete" onclick="shiftLogDelete('${esc(e.id)}')">🗑️</button></td>`;
       tbody.appendChild(tr);
     });
   }
-
   renderShiftLogSummary(entries);
 }
-
-function renderShiftLogSummary(entries) {
+function renderShiftLogSummary(entries){
   const t = i18n[currentLang];
-  const summary = document.getElementById("shiftLogSummary");
-
-  let mCount = 0, mBase = 0, eCount = 0, eBase = 0, aCount = 0, aBase = 0;
-  let totalOT = 0, totalBaseAll = 0, phCount = 0;
-
-  entries.forEach(e => {
-    const base = slHours(e.start, e.end);
-    totalBaseAll += base;
-    totalOT += (e.ot || 0);
-    if (e.ph) phCount++;
-    if (e.type === "morning") { mCount++; mBase += base; }
-    else if (e.type === "evening") { eCount++; eBase += base; }
-    else { aCount++; aBase += base; }
+  let mC=0,mB=0,eC=0,eB=0,aC=0,aB=0,tOT=0,tBase=0,phC=0;
+  entries.forEach(e=>{
+    const b = slHours(e.start,e.end);
+    tBase+=b; tOT+=(e.ot||0); if (e.ph) phC++;
+    if (e.type==="morning"){mC++;mB+=b;} else if (e.type==="evening"){eC++;eB+=b;} else {aC++;aB+=b;}
   });
-
-  const totalHours = totalBaseAll + totalOT;
-  const days = entries.length;
-  const avgPerDay = days ? totalHours / days : 0;
-
-  function line(label, val) {
-    return `<div class="sl-summary-row"><span>${label}</span><span class="val">${val}</span></div>`;
-  }
-
-  let html = `<div style="font-weight:bold; margin-bottom:8px; color:var(--accent2);">${t.workingDays}: ${days}</div>`;
-  if (mCount) html += line(`&nbsp;&nbsp;${t.morning}`, `${mCount} ${t.shiftsLabel} · ${mBase.toFixed(2)}h · ${t.avgLabel} ${(mBase/mCount).toFixed(2)}`);
-  if (eCount) html += line(`&nbsp;&nbsp;${t.evening}`, `${eCount} ${t.shiftsLabel} · ${eBase.toFixed(2)}h · ${t.avgLabel} ${(eBase/eCount).toFixed(2)}`);
-  if (aCount) html += line(`&nbsp;&nbsp;${t.adhoc}`, `${aCount} ${t.shiftsLabel} · ${aBase.toFixed(2)}h · ${t.avgLabel} ${(aBase/aCount).toFixed(2)}`);
-  html += line(t.totalBase, totalBaseAll.toFixed(2) + " h");
-  html += line(t.totalOT, totalOT.toFixed(2) + " h");
-  html += `<div class="sl-summary-row total"><span>${t.totalHours}</span><span class="val">${totalHours.toFixed(2)} h</span></div>`;
-  html += line(t.avgPerDay, avgPerDay.toFixed(2) + " h");
-  html += line(t.phShifts, phCount);
-
-  let ytdShifts = 0, ytdHrs = 0;
-  shiftLogData.forEach(e => {
-    const y = parseInt(e.date.slice(0,4), 10);
-    if (y === slViewDate.getFullYear()) {
-      ytdShifts++;
-      ytdHrs += slHours(e.start, e.end) + (e.ot || 0);
-    }
+  const total = tBase+tOT, days = entries.length, avg = days? total/days : 0;
+  const line = (l,v)=>`<div class="sl-summary-row"><span>${l}</span><span class="val">${v}</span></div>`;
+  let html = `<div style="font-weight:bold;margin-bottom:8px;color:var(--accent2)">${t.workingDays}: ${days}</div>`;
+  if (mC) html += line("&nbsp;&nbsp;"+t.morning, `${mC} ${t.shiftsLabel} · ${mB.toFixed(2)}h · ${t.avgLabel} ${(mB/mC).toFixed(2)}`);
+  if (eC) html += line("&nbsp;&nbsp;"+t.evening, `${eC} ${t.shiftsLabel} · ${eB.toFixed(2)}h · ${t.avgLabel} ${(eB/eC).toFixed(2)}`);
+  if (aC) html += line("&nbsp;&nbsp;"+t.adhoc, `${aC} ${t.shiftsLabel} · ${aB.toFixed(2)}h · ${t.avgLabel} ${(aB/aC).toFixed(2)}`);
+  html += line(t.totalBase, tBase.toFixed(2)+" h");
+  html += line(t.totalOT, tOT.toFixed(2)+" h");
+  html += `<div class="sl-summary-row total"><span>${t.totalHours}</span><span class="val">${total.toFixed(2)} h</span></div>`;
+  html += line(t.avgPerDay, avg.toFixed(2)+" h");
+  html += line(t.phShifts, phC);
+  let ytdS=0, ytdH=0;
+  shiftLogData.forEach(e=>{
+    if (parseInt(e.date.slice(0,4),10)===slViewDate.getFullYear()){ ytdS++; ytdH+=slHours(e.start,e.end)+(e.ot||0); }
   });
-  html += `<div style="margin-top:10px; font-size:0.75rem; color:var(--muted); text-align:center;">${t.ytdLine} ${slViewDate.getFullYear()}: ${ytdHrs.toFixed(1)}h · ${ytdShifts} ${t.ytdShifts}</div>`;
-
-  summary.innerHTML = html;
+  html += `<div style="margin-top:10px;font-size:.75rem;color:var(--muted);text-align:center">${t.ytdLine} ${slViewDate.getFullYear()}: ${ytdH.toFixed(1)}h · ${ytdS} ${t.ytdShifts}</div>`;
+  document.getElementById("shiftLogSummary").innerHTML = html;
 }
-
-function shiftLogCSV() {
-  const year = slViewDate.getFullYear();
-  const month = slViewDate.getMonth();
-  const entries = slEntriesForMonth(year, month);
-  if (entries.length === 0) { alert(i18n[currentLang].emptyMonth); return; }
+function shiftLogCSV(){
+  const y=slViewDate.getFullYear(), m=slViewDate.getMonth();
+  const entries = slEntriesForMonth(y,m);
+  if (entries.length===0){ alert(i18n[currentLang].emptyMonth); return; }
   const t = i18n[currentLang];
-
-  const headers = [t.dateCol, t.dayCol, t.shiftCol, t.startCol, t.endCol, t.baseCol, t.otCol, t.totalCol, t.phCol, t.reasonCol, t.notesCol];
-  const rows = [headers];
-
-  entries.forEach(e => {
-    const base = slHours(e.start, e.end);
-    const total = base + (e.ot || 0);
-    rows.push([
-      slISOtoDisplay(e.date),
-      slDayName(e.date),
-      t[e.type],
-      e.start,
-      e.end,
-      base.toFixed(2),
-      (e.ot || 0).toFixed(2),
-      total.toFixed(2),
-      e.ph ? "PH" : "",
-      e.reason || "",
-      e.notes || ""
-    ]);
+  const rows = [[t.dateCol,t.dayCol,t.shiftCol,t.startCol,t.endCol,t.baseCol,t.otCol,t.totalCol,t.phCol,t.reasonCol,t.notesCol]];
+  entries.forEach(e=>{
+    const b = slHours(e.start,e.end);
+    rows.push([slISOtoDisplay(e.date),slDayName(e.date),t[e.type],e.start,e.end,
+      b.toFixed(2),(e.ot||0).toFixed(2),(b+(e.ot||0)).toFixed(2),
+      e.ph?"PH":"",e.reason||"",e.notes||""]);
   });
-
-  const sumBase = entries.reduce((a, e) => a + slHours(e.start, e.end), 0);
-  const sumOT = entries.reduce((a, e) => a + (e.ot || 0), 0);
-  rows.push(["", "", "", "", t.totalHours, sumBase.toFixed(2), sumOT.toFixed(2), (sumBase + sumOT).toFixed(2), "", "", ""]);
-
-  const csv = rows.map(r => r.map(c => `"${String(c).replace(/"/g,'""')}"`).join(",")).join("\r\n");
-  const blob = new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8;" });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  const monthsEN = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
-  a.download = `ShiftLog_${monthsEN[month]}_${year}.csv`;
-  a.click();
-  URL.revokeObjectURL(url);
+  const sB = entries.reduce((a,e)=>a+slHours(e.start,e.end),0);
+  const sO = entries.reduce((a,e)=>a+(e.ot||0),0);
+  rows.push(["","","","",t.totalHours,sB.toFixed(2),sO.toFixed(2),(sB+sO).toFixed(2),"","",""]);
+  const csv = rows.map(r=>r.map(c=>`"${String(c).replace(/"/g,'""')}"`).join(",")).join("\r\n");
+  const blob = new Blob(["\uFEFF"+csv],{type:"text/csv;charset=utf-8"});
+  const url = URL.createObjectURL(blob), a = document.createElement("a");
+  a.href=url;
+  const M=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+  a.download=`ShiftLog_${M[m]}_${y}.csv`; a.click(); URL.revokeObjectURL(url);
 }
-
-function slToast(msg, isError) {
-  const el = document.getElementById("slToast");
-  if (!el) return;
-  el.textContent = msg;
-  el.className = "show" + (isError ? " error" : "");
-  clearTimeout(el._t);
-  el._t = setTimeout(() => { el.className = ""; }, 2200);
+function slToast(msg, isErr){
+  const el = document.getElementById("slToast"); if (!el) return;
+  el.textContent = msg; el.className = "show"+(isErr?" error":"");
+  clearTimeout(el._t); el._t = setTimeout(()=>el.className="",2200);
 }
-
-function shiftLogDelete(id) {
-  if (!confirm(i18n[currentLang].confirmDelEntry)) return;
-  const removed = shiftLogData.find(e => e.id === id);
-  shiftLogData = shiftLogData.filter(e => e.id !== id);
-  slSaveStorage();
-  renderShiftLog();
-  slToast("🗑️ Deleted: " + (removed ? slISOtoDisplay(removed.date) : "entry"), true);
+function shiftLogExportJSON(){
+  const y=slViewDate.getFullYear(), m=slViewDate.getMonth();
+  const entries = slEntriesForMonth(y,m);
+  const M=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+  const blob = new Blob([JSON.stringify({month:`${M[m]}_${y}`,entries},null,2)],{type:"application/json"});
+  const url = URL.createObjectURL(blob), a = document.createElement("a");
+  a.href=url; a.download=`ShiftLog_${M[m]}_${y}.json`; a.click(); URL.revokeObjectURL(url);
 }
-
-const originalSave = shiftLogSaveEntry;
-shiftLogSaveEntry = function() {
-  const date = document.getElementById("slDate").value;
-  const start = document.getElementById("slStart").value;
-  const end = document.getElementById("slEnd").value;
-  const ot = parseFloat(document.getElementById("slOT").value) || 0;
-  
-  if (!date || !start || !end) {
-    alert(i18n[currentLang].fillRequired);
-    return;
-  }
-  
-  const wasEditing = !!slEditId;
-  originalSave();
-  
-  const total = (slHours(start, end) + ot).toFixed(2);
-  slToast((wasEditing ? "✏️ Updated: " : "✅ Saved: ") + slISOtoDisplay(date) + " · " + total + "h");
-};
-
-function shiftLogExportJSON() {
-  const year = slViewDate.getFullYear();
-  const month = slViewDate.getMonth();
-  const entries = slEntriesForMonth(year, month);
-  const monthsEN = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
-  const blob = new Blob([JSON.stringify({ month: `${monthsEN[month]}_${year}`, entries }, null, 2)], { type: "application/json" });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = `ShiftLog_${monthsEN[month]}_${year}.json`;
-  a.click();
-  URL.revokeObjectURL(url);
-}
-
-function shiftLogPrint() {
+function shiftLogPrint(){
   document.body.classList.add("sl-printing");
-  setTimeout(() => {
-    window.print();
-    setTimeout(() => document.body.classList.remove("sl-printing"), 500);
-  }, 100);
-}
-// ==========================================
-// SHIFT LOG MODULE — END
-// ==========================================
-
-// ==========================================
-// GENERAL ACTIONS
-// ==========================================
-function toggleLang() {
-  currentLang = currentLang === "ms" ? "en" : "ms";
-  localStorage.setItem("noja_lang", currentLang);
-  renderTexts();
-  renderTasks();
-  renderAdhoc();
-  if (document.getElementById("galleryModal").style.display === "flex") {
-    renderGallery();
-  }
-  renderShiftLog();
-}
-
-function saveAdhoc(index, val) {
-  adhocData[index] = val;
-  localStorage.setItem(K_ADHOC, JSON.stringify(adhocData));
-}
-
-document.getElementById("mainNotes").addEventListener("input", (e) => {
-  localStorage.setItem(K_NOTES, e.target.value);
-});
-
-function resetAll() {
-  if (confirm(i18n[currentLang].resetConfirm)) {
-    checksData = {};
-    adhocData = {};
-    notesData = "";
-    localStorage.removeItem(K_CHECKS);
-    localStorage.removeItem(K_ADHOC);
-    localStorage.removeItem(K_NOTES);
-    document.getElementById("mainNotes").value = "";
-    renderTasks();
-    renderAdhoc();
-    document.querySelectorAll(".task input[type=checkbox]").forEach(c => c.checked = false);
-  }
-}
-
-function expandAll() {
-  document.querySelectorAll(".section").forEach(s => s.classList.toggle("open"));
+  setTimeout(()=>{ window.print(); setTimeout(()=>document.body.classList.remove("sl-printing"),500); },100);
 }
 
 // ==========================================
-// BACKUP & RESTORE DATA
+// BACKUP / RESTORE (LOCAL)
 // ==========================================
-function backupJSON() {
-  const backupData = {
-    tasksMorning: tasksMorning,
-    tasksEvening: tasksEvening,
-    checks: checksData,
-    adhoc: adhocData,
-    notes: notesData,
-    gallery: galleryData,
-    shiftLog: shiftLogData
-  };
-
-  const blob = new Blob([JSON.stringify(backupData, null, 2)], { type: "application/json" });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = `NojaMasjid_Backup_${new Date().toISOString().slice(0,10)}.json`;
-  a.click();
-  URL.revokeObjectURL(url);
+function backupJSON(){
+  const data = buildStatePayload();
+  const blob = new Blob([JSON.stringify(data,null,2)],{type:"application/json"});
+  const url = URL.createObjectURL(blob), a = document.createElement("a");
+  a.href=url; a.download=`NojaMasjid_Backup_${new Date().toISOString().slice(0,10)}.json`;
+  a.click(); URL.revokeObjectURL(url);
   alert(i18n[currentLang].backupDone);
 }
-
-function restoreJSON(input) {
-  const file = input.files[0];
-  if (!file) return;
-
+function restoreJSON(input){
+  const file = input.files[0]; if (!file) return;
   const reader = new FileReader();
-  reader.onload = (e) => {
+  reader.onload = e => {
     try {
-      const data = JSON.parse(e.target.result);
-      if (data.tasksMorning && data.tasksEvening) {
-        tasksMorning = data.tasksMorning;
-        tasksEvening = data.tasksEvening;
-        checksData = data.checks || {};
-        adhocData = data.adhoc || {};
-        notesData = data.notes || "";
-        galleryData = data.gallery || [];
-        shiftLogData = data.shiftLog || [];
-
-        localStorage.setItem(K_TASKS_M, JSON.stringify(tasksMorning));
-        localStorage.setItem(K_TASKS_E, JSON.stringify(tasksEvening));
-        localStorage.setItem(K_CHECKS, JSON.stringify(checksData));
-        localStorage.setItem(K_ADHOC, JSON.stringify(adhocData));
-        localStorage.setItem(K_NOTES, notesData);
-        localStorage.setItem(K_GALLERY, JSON.stringify(galleryData));
-        localStorage.setItem(K_SHIFTLOG, JSON.stringify(shiftLogData));
-
-        alert(i18n[currentLang].restoreSuccess);
-        location.reload();
-      } else {
-        alert(i18n[currentLang].restoreError);
-      }
-    } catch (err) {
-      alert(i18n[currentLang].restoreError);
-    }
+      const d = JSON.parse(e.target.result);
+      if (!d.tasksMorning || !d.tasksEvening) throw new Error("invalid");
+      applyStatePayload(d);
+      alert(i18n[currentLang].restoreSuccess);
+      location.reload();
+    } catch { alert(i18n[currentLang].restoreError); }
   };
-  reader.readAsText(file);
-  input.value = "";
+  reader.readAsText(file); input.value="";
 }
 
 // ==========================================
-// REAL-TIME CLOCK
+// CLOCK
 // ==========================================
-function tick() {
+function tick(){
   const now = new Date();
-  const langCode = currentLang === "ms" ? "ms-SG" : "en-SG";
-
-  const dateStr = now.toLocaleDateString(langCode, {
-    weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
-  });
-
-  document.getElementById("dateDisplay").textContent = dateStr;
-  document.getElementById("clock").textContent = now.toLocaleTimeString(langCode, { hour12: false });
+  const loc = currentLang==="ms"?"ms-SG":"en-SG";
+  document.getElementById("dateDisplay").textContent =
+    now.toLocaleDateString(loc,{weekday:"long",year:"numeric",month:"long",day:"numeric"});
+  document.getElementById("clock").textContent =
+    now.toLocaleTimeString(loc,{hour12:false});
 }
-setInterval(tick, 1000);
+setInterval(tick,1000);
 
 // ==========================================
-// INITIALIZE APP
+// INIT
 // ==========================================
-function init() {
+async function init(){
   document.getElementById("mainNotes").value = notesData;
-  renderTexts();
-  renderTasks();
-  renderAdhoc();
-  slApplyLabels();
-  tick();
+  renderTexts(); renderTasks(); renderAdhoc(); slApplyLabels(); tick();
+  initSupabase();
+  if (sbReady) await pullFromCloud(false);
+  // Pull refresh every 60s (untuk multi-device)
+  setInterval(()=>{ if (sbReady && !isEditMode) pullFromCloud(false); }, 60000);
 }
-
 init();
 </script>
 </body>
