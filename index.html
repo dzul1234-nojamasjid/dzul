@@ -358,6 +358,13 @@
       <button class="btn-tool" style="flex:1;padding:10px" onclick="shiftLogExportJSON()">📥 Export JSON</button>
     </div>
     
+    <!-- MANUAL DOWNLOAD BUTTON ADDED HERE -->
+    <div style="margin-top:10px; text-align:center;">
+      <button class="btn-sm" id="btnSlManualBackup" style="background:var(--accent); color:#0f172a; padding:10px 12px; width:100%; font-weight:bold;" onclick="downloadLastMonthBackup()">
+        📥 Download Last Month's Backup
+      </button>
+    </div>
+    
     <!-- Auto/Manual Cleanup Button -->
     <div style="margin-top:10px; text-align:center;">
       <button class="btn-sm" id="btnSlClean" style="background:transparent; color:var(--warn); border:1px solid var(--warn); padding:8px 12px; width:100%" onclick="shiftLogCleanOldData()">
@@ -617,21 +624,15 @@ function runAutomations() {
     const prevEntries = shiftLogData.filter(e => e.date.startsWith(prevMonthKey));
     
     if (prevEntries.length > 0) {
-      // Create the backup file in the background (Blob)
-      const backupData = JSON.stringify({month: prevMonthKey, entries: prevEntries}, null, 2);
-      const fileName = `AutoBackup_ShiftLog_${prevMonthKey}.json`;
-      
-      // Format the date and time for the notification
       const timeStr = now.toLocaleTimeString("en-GB", {hour12: false, hour: '2-digit', minute:'2-digit'});
       const dateStr = now.toLocaleDateString("en-GB", {day: '2-digit', month: 'short', year: 'numeric'});
       
-      // Show a clean notification after 2 seconds
       setTimeout(() => {
         const msg = t(
-          `📁 End of month backup saved locally: ${dateStr} at ${timeStr}`,
-          `📁 Backup hujung bulan disimpan secara setempat: ${dateStr} pada ${timeStr}`
+          `📁 End of month backup ready: ${dateStr} at ${timeStr}. Go to Shift Log to download.`,
+          `📁 Backup hujung bulan sedia: ${dateStr} pada ${timeStr}. Pergi ke Log Syif untuk muat turun.`
         );
-        slToast(msg, false); // Show the green toast
+        slToast(msg, false);
       }, 2000);
     }
     localStorage.setItem(K_LAST_BACKUP, currentMonthKey);
@@ -651,6 +652,29 @@ function runAutomations() {
     setTimeout(() => slToast(t("🗑️ Old logs >3 months auto-cleaned", "🗑️ Log lama >3 bulan dibersihkan automatik"), false), 4000);
   }
 }
+
+// NEW FUNCTION TO DOWNLOAD THE PREVIOUS MONTH
+function downloadLastMonthBackup() {
+  const now = new Date();
+  let prevMonthDate = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+  const prevMonthKey = `${prevMonthDate.getFullYear()}-${String(prevMonthDate.getMonth()+1).padStart(2,"0")}`;
+  
+  const prevEntries = shiftLogData.filter(e => e.date.startsWith(prevMonthKey));
+  
+  if (prevEntries.length === 0) {
+    alert(t("No data found for last month.", "Tiada data dijumpai untuk bulan lepas."));
+    return;
+  }
+  
+  const backupData = JSON.stringify({month: prevMonthKey, entries: prevEntries}, null, 2);
+  const blob = new Blob([backupData], {type:"application/json"});
+  const url = URL.createObjectURL(blob), a = document.createElement("a");
+  a.href = url; a.download = `AutoBackup_ShiftLog_${prevMonthKey}.json`;
+  a.click(); URL.revokeObjectURL(url);
+  
+  slToast(t("📥 Backup downloaded successfully!", "📥 Backup berjaya dimuat turun!"));
+}
+
 function shiftLogCleanOldData() {
   if (!confirm(t("This will delete entries older than 3 months. Proceed?", "Ini akan memadam entri lebih 3 bulan. Teruskan?"))) return;
   const cutoffDate = new Date();
@@ -712,6 +736,7 @@ function translateUI() {
   document.getElementById("btnSlCancel").textContent = t("✖ Cancel", "✖ Batal");
   document.getElementById("btnSlPrint").textContent = t("🖨️ Print / PDF", "🖨️ Cetak / PDF");
   document.getElementById("btnSlClean").textContent = t("🗑️ Clean >3 Months Data", "🗑️ Padam Data >3 Bulan");
+  document.getElementById("btnSlManualBackup").textContent = t("📥 Download Last Month's Backup", "📥 Muat Turun Backup Bulan Lepas");
 }
 
 function setLang(lang) {
@@ -1307,7 +1332,7 @@ async function init(){
   
   if (sbReady) {
     await pullFromCloud(false);
-    runAutomations(); // <--- Runs the Auto-Backup and Auto-Cleanup
+    runAutomations();
   }
   
   setInterval(()=>{ if (sbReady && !isEditMode) pullFromCloud(false); }, 60000);
