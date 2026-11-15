@@ -4,8 +4,6 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Noja Masjid App</title>
-<!-- KITA GUNA SUPABASE TERUS UNTUK UJIAN INI -->
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
   :root {
     --bg:#0f172a; --card:#1e293b; --accent:#22c55e; --accent2:#38bdf8;
@@ -318,15 +316,17 @@
 
 <script>
 // ==========================================
-// SUPABASE CONFIG (DIRECT)
+// CLOUDFLARE WORKER PROXY
 // ==========================================
-// PASTE URL DAN KEY SUPABASE TUAN DI SINI
-const SUPABASE_URL = "https://MASUKKAN_URL_SUPABASE_ANDA.supabase.co";
-const SUPABASE_ANON_KEY = "MASUKKAN_KEY_PANJANG_ANDA_DI_SINI";
+// PASTIKAN URL DI BAWAH INI ADALAH URL CLOUDFLARE WORKER TUAN
+const WORKER_URL = "https://dzul.dzul1234.workers.dev"; 
 
-const sbClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 let sbReady = true;
 let pushTimer = null;
+
+function initSupabase() {
+  setSyncStatus("ok", "cloud");
+}
 
 function setSyncStatus(cls, text) {
   const el = document.getElementById("syncStatus");
@@ -334,7 +334,6 @@ function setSyncStatus(cls, text) {
   el.className = "sync-status " + cls;
   el.textContent = text;
 }
-setSyncStatus("ok", "cloud ✓");
 
 function buildStatePayload() {
   return {
@@ -364,17 +363,19 @@ function applyStatePayload(d) {
 }
 
 async function pullFromCloud(showToast) {
+  if (!sbReady) { if (showToast) slToast("Cloud not configured", true); return false; }
   try {
     setSyncStatus("", "syncing…");
-    const { data, error } = await sbClient
-      .from("noja_state").select("data").eq("id", "main").maybeSingle();
-    if (error) throw error;
-    if (data && data.data) {
-      applyStatePayload(data.data);
+    const res = await fetch(WORKER_URL + "?t=" + Date.now(), { method: "GET" });
+    if (!res.ok) throw new Error("Network error");
+    const data = await res.json();
+    
+    if (data && data.length > 0 && data[0].data) {
+      applyStatePayload(data[0].data);
       document.getElementById("mainNotes").value = notesData;
       renderTexts(); renderTasks(); renderAdhoc(); renderGallery();
       setSyncStatus("ok", "cloud ✓");
-      if (showToast) slToast("☁️ Data loaded from Supabase");
+      if (showToast) slToast("☁️ Data loaded from Cloudflare");
       return true;
     } else {
       setSyncStatus("ok", "cloud (empty)");
@@ -390,14 +391,22 @@ async function pullFromCloud(showToast) {
 }
 
 async function pushToCloud(showToast) {
+  if (!sbReady) { if (showToast) slToast("Cloud not configured", true); return; }
   try {
     setSyncStatus("", "saving…");
-    const { error } = await sbClient.from("noja_state").upsert({
-      id: "main", data: buildStatePayload(), updated_at: new Date().toISOString()
+    const payload = {
+        id: "main",
+        data: buildStatePayload(),
+        updated_at: new Date().toISOString()
+    };
+    const res = await fetch(WORKER_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
     });
-    if (error) throw error;
+    if (!res.ok) throw new Error("Network error");
     setSyncStatus("ok", "cloud ✓");
-    if (showToast) slToast("✅ Data uploaded to Supabase");
+    if (showToast) slToast("✅ Data uploaded to Cloudflare");
   } catch (e) {
     console.error("Push fail:", e);
     setSyncStatus("err", "err");
@@ -406,6 +415,7 @@ async function pushToCloud(showToast) {
 }
 
 function schedulePush() {
+  if (!sbReady) return;
   clearTimeout(pushTimer);
   pushTimer = setTimeout(() => pushToCloud(false), 1500);
 }
@@ -1044,6 +1054,7 @@ setInterval(tick,1000);
 async function init(){
   document.getElementById("mainNotes").value = notesData;
   renderTexts(); renderTasks(); renderAdhoc(); tick();
+  initSupabase();
   if (sbReady) await pullFromCloud(false);
   setInterval(()=>{ if (sbReady && !isEditMode) pullFromCloud(false); }, 60000);
 }
