@@ -4,6 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Noja Masjid App</title>
+<!-- KITA GUNA SUPABASE TERUS UNTUK UJIAN INI -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
   :root {
     --bg:#0f172a; --card:#1e293b; --accent:#22c55e; --accent2:#38bdf8;
@@ -316,22 +318,15 @@
 
 <script>
 // ==========================================
-// CLOUDFLARE WORKER PROXY
+// SUPABASE CONFIG (DIRECT)
 // ==========================================
-// GANTIKAN URL DI BAWAH INI DENGAN URL CLOUDFLARE WORKER TUAN
-const WORKER_URL = "https://dzul.dzul1234.workers.dev"; 
+// PASTE URL DAN KEY SUPABASE TUAN DI SINI
+const SUPABASE_URL = "https://MASUKKAN_URL_SUPABASE_ANDA.supabase.co";
+const SUPABASE_ANON_KEY = "MASUKKAN_KEY_PANJANG_ANDA_DI_SINI";
 
-let sbReady = false;
+const sbClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+let sbReady = true;
 let pushTimer = null;
-
-function initSupabase() {
-  if (WORKER_URL && WORKER_URL.startsWith("https://")) {
-    sbReady = true;
-    setSyncStatus("ok", "cloud");
-  } else {
-    setSyncStatus("", "local");
-  }
-}
 
 function setSyncStatus(cls, text) {
   const el = document.getElementById("syncStatus");
@@ -339,6 +334,7 @@ function setSyncStatus(cls, text) {
   el.className = "sync-status " + cls;
   el.textContent = text;
 }
+setSyncStatus("ok", "cloud ✓");
 
 function buildStatePayload() {
   return {
@@ -368,20 +364,17 @@ function applyStatePayload(d) {
 }
 
 async function pullFromCloud(showToast) {
-  if (!sbReady) { if (showToast) slToast("Cloud not configured", true); return false; }
   try {
     setSyncStatus("", "syncing…");
-    // Add a cache-buster to prevent browser caching
-    const res = await fetch(WORKER_URL + "?t=" + Date.now(), { method: "GET" });
-    if (!res.ok) throw new Error("Network error");
-    const data = await res.json();
-    
-    if (data && data.length > 0 && data[0].data) {
-      applyStatePayload(data[0].data);
+    const { data, error } = await sbClient
+      .from("noja_state").select("data").eq("id", "main").maybeSingle();
+    if (error) throw error;
+    if (data && data.data) {
+      applyStatePayload(data.data);
       document.getElementById("mainNotes").value = notesData;
       renderTexts(); renderTasks(); renderAdhoc(); renderGallery();
       setSyncStatus("ok", "cloud ✓");
-      if (showToast) slToast("☁️ Data loaded from Cloudflare");
+      if (showToast) slToast("☁️ Data loaded from Supabase");
       return true;
     } else {
       setSyncStatus("ok", "cloud (empty)");
@@ -397,22 +390,14 @@ async function pullFromCloud(showToast) {
 }
 
 async function pushToCloud(showToast) {
-  if (!sbReady) { if (showToast) slToast("Cloud not configured", true); return; }
   try {
     setSyncStatus("", "saving…");
-    const payload = {
-        id: "main",
-        data: buildStatePayload(),
-        updated_at: new Date().toISOString()
-    };
-    const res = await fetch(WORKER_URL, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload)
+    const { error } = await sbClient.from("noja_state").upsert({
+      id: "main", data: buildStatePayload(), updated_at: new Date().toISOString()
     });
-    if (!res.ok) throw new Error("Network error");
+    if (error) throw error;
     setSyncStatus("ok", "cloud ✓");
-    if (showToast) slToast("✅ Data uploaded to Cloudflare");
+    if (showToast) slToast("✅ Data uploaded to Supabase");
   } catch (e) {
     console.error("Push fail:", e);
     setSyncStatus("err", "err");
@@ -421,7 +406,6 @@ async function pushToCloud(showToast) {
 }
 
 function schedulePush() {
-  if (!sbReady) return;
   clearTimeout(pushTimer);
   pushTimer = setTimeout(() => pushToCloud(false), 1500);
 }
@@ -504,7 +488,7 @@ const defaultEveningData = [
 ];
 
 // ==========================================
-// STATE
+// STATE & BUG FIX FOR [object Object]
 // ==========================================
 let currentShift = localStorage.getItem("noja_shift") || "morning";
 let isEditMode = false;
@@ -513,8 +497,28 @@ const K_TASKS_M="noja_tasks_m_v7", K_TASKS_E="noja_tasks_e_v7";
 const K_CHECKS="noja_checks_v7", K_ADHOC="noja_adhoc_v7";
 const K_NOTES="noja_notes_v7", K_GALLERY="noja_gallery_v7", K_SHIFTLOG="noja_shiftlog_v2";
 
+function cleanOldData(data) {
+  if (!Array.isArray(data)) return data;
+  return data.map(sec => {
+    let title = sec.title;
+    if (typeof title === 'object' && title !== null) title = title.en || title.ms || "Section";
+    let tasks = sec.tasks || [];
+    tasks = tasks.map(t => {
+      let taskText = t.t;
+      if (typeof taskText === 'object' && taskText !== null) taskText = taskText.en || taskText.ms || "Task";
+      let note = t.n;
+      if (typeof note === 'object' && note !== null) note = note.en || note.ms || "";
+      return { t: taskText, n: note };
+    });
+    return { time: sec.time, title: title, tasks: tasks };
+  });
+}
+
 let tasksMorning = JSON.parse(localStorage.getItem(K_TASKS_M)) || defaultMorningData;
 let tasksEvening = JSON.parse(localStorage.getItem(K_TASKS_E)) || defaultEveningData;
+tasksMorning = cleanOldData(tasksMorning);
+tasksEvening = cleanOldData(tasksEvening);
+
 let checksData = JSON.parse(localStorage.getItem(K_CHECKS)) || {};
 let adhocData = JSON.parse(localStorage.getItem(K_ADHOC)) || {};
 let notesData = localStorage.getItem(K_NOTES) || "";
@@ -1040,7 +1044,6 @@ setInterval(tick,1000);
 async function init(){
   document.getElementById("mainNotes").value = notesData;
   renderTexts(); renderTasks(); renderAdhoc(); tick();
-  initSupabase();
   if (sbReady) await pullFromCloud(false);
   setInterval(()=>{ if (sbReady && !isEditMode) pullFromCloud(false); }, 60000);
 }
