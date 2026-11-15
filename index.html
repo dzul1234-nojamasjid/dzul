@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ms">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -177,65 +177,64 @@
   <div style="font-weight:bold;font-size:1.1rem">🕌 Noja Masjid</div>
   <div class="btn-group">
     <span class="sync-status" id="syncStatus">local</span>
-    <button class="btn-tool btn-log" onclick="openShiftLog()">📅 Log Syif</button>
-    <button class="btn-tool btn-gallery" onclick="openGallery()">📸 Galeri</button>
-    <button class="btn-tool btn-sync" onclick="pushToCloud(true)" title="Hantar ke Supabase">☁️ Sync</button>
-    <button class="btn-tool" onclick="backupJSON()" title="Backup">📥</button>
-    <button class="btn-tool" onclick="document.getElementById('restoreFile').click()" title="Restore">📤</button>
-    <button class="btn-tool" onclick="window.print()" title="Print PDF">🖨️</button>
-    <button class="btn-tool btn-settings" onclick="openSettings()" title="Tetapan">⚙️</button>
-    <button class="btn-lang" onclick="toggleLang()">EN</button>
+    <button class="btn-tool btn-log" onclick="openShiftLog()">📅 Shift Log</button>
+    <button class="btn-tool btn-gallery" onclick="openGallery()">📸 Gallery</button>
+    <button class="btn-tool btn-sync" onclick="pushToCloud(true)" title="Upload to Supabase">☁️ Sync</button>
+    <button class="btn-tool" onclick="backupJSON()" title="Backup JSON">📥</button>
+    <button class="btn-tool" onclick="document.getElementById('restoreFile').click()" title="Restore JSON">📤</button>
+    <button class="btn-tool" onclick="window.print()" title="Print / PDF">🖨️</button>
+    <button class="btn-tool btn-settings" onclick="openSettings()" title="Settings">⚙️</button>
   </div>
   <input type="file" id="restoreFile" accept=".json" style="display:none" onchange="restoreJSON(this)">
 </div>
 
 <div class="shift-toggle">
-  <button class="shift-btn active" id="shiftMorningBtn" onclick="setShift('morning')">🌅 Shift Pagi</button>
-  <button class="shift-btn" id="shiftEveningBtn" onclick="setShift('evening')">🌙 Shift Petang</button>
+  <button class="shift-btn active" id="shiftMorningBtn" onclick="setShift('morning')">🌅 Morning Shift</button>
+  <button class="shift-btn" id="shiftEveningBtn" onclick="setShift('evening')">🌙 Evening Shift</button>
 </div>
 
 <header>
-  <h1 id="title">Prosedur Kerja Noja Masjid</h1>
-  <p id="subtitle">Rutin Harian · 4.30 pagi – 9.00 pagi</p>
+  <h1 id="title">Noja Masjid Work Procedure</h1>
+  <p id="subtitle">Daily Routine · 4:30 AM – 9:00 AM</p>
   <div class="date-display" id="dateDisplay">--</div>
   <div class="clock" id="clock">--:--:--</div>
 </header>
 
 <div class="progress-wrap">
   <div class="progress-bar"><div class="progress-fill" id="fill"></div></div>
-  <div class="progress-text" id="progressText">0 / 0 selesai</div>
+  <div class="progress-text" id="progressText">0 / 0 completed</div>
 </div>
 
 <div id="sections"></div>
 
 <div class="adhoc-section">
-  <h3 id="adhocTitle">📌 Tugasan Mingguan</h3>
+  <h3>📌 Weekly Tasks</h3>
   <div class="adhoc-grid" id="adhocGrid"></div>
 </div>
 
 <div class="notes-section">
-  <h3 id="notesTitle">📝 Nota Peribadi</h3>
-  <textarea class="notes-textarea" id="mainNotes" placeholder="Tulis nota di sini..."></textarea>
+  <h3>📝 Personal Notes</h3>
+  <textarea class="notes-textarea" id="mainNotes" placeholder="Write notes here..."></textarea>
 </div>
 
 <footer>
-  <button class="main-btn" id="btnExpand" onclick="expandAll()">Buka Semua</button>
+  <button class="main-btn" onclick="expandAll()">Expand All</button>
   <button class="main-btn btn-primary" id="btnEdit" onclick="toggleEditMode()">✏️ Edit</button>
-  <button class="main-btn btn-danger" id="btnReset" onclick="resetAll()">Reset</button>
+  <button class="main-btn btn-danger" onclick="resetAll()">Reset</button>
 </footer>
 
 <!-- Gallery Modal -->
 <div id="galleryModal" class="modal">
   <div class="modal-header">
-    <h2 id="galleryTitle">📸 Galeri Rujukan</h2>
-    <button class="btn-close" id="btnCloseGallery" onclick="closeGallery()">Tutup</button>
+    <h2>📸 Reference Gallery</h2>
+    <button class="btn-close" onclick="closeGallery()">Close</button>
   </div>
   <div class="modal-body">
     <div style="display:flex;gap:10px;margin-bottom:16px">
       <button class="btn-tool btn-sync" style="flex:1;padding:12px;font-size:.9rem"
-        id="btnAddGalleryCamera" onclick="triggerGalleryUpload(true)">📷 Camera</button>
+        onclick="triggerGalleryUpload(true)">📷 Camera</button>
       <button class="btn-tool btn-sync" style="flex:1;padding:12px;font-size:.9rem"
-        id="btnAddGalleryFolder" onclick="triggerGalleryUpload(false)">🖼️ Gallery</button>
+        onclick="triggerGalleryUpload(false)">🖼️ Gallery</button>
     </div>
     <div class="gallery-grid" id="galleryGrid"></div>
   </div>
@@ -250,33 +249,34 @@
 <!-- Settings Modal -->
 <div id="settingsModal" class="modal">
   <div class="modal-header">
-    <h2>⚙️ Tetapan Supabase</h2>
+    <h2>⚙️ Supabase Settings</h2>
     <button class="btn-close" onclick="closeSettings()">✖</button>
   </div>
   <div class="modal-body">
     <p style="color:var(--muted);font-size:.85rem">
-      Masukkan URL & Anon Key projek Supabase anda. Disimpan dalam localStorage peranti ini.
+      Enter your Supabase Project URL and Anon Key. These are saved locally in this browser only.
     </p>
     <label style="font-size:.8rem;color:var(--muted)">Project URL</label>
     <input type="text" id="cfgUrl" class="edit-input" placeholder="https://xxxx.supabase.co">
     <label style="font-size:.8rem;color:var(--muted)">Anon Key</label>
     <input type="text" id="cfgKey" class="edit-input" placeholder="eyJhbGciOi...">
     <div style="display:flex;gap:8px;margin-top:12px">
-      <button class="btn-tool btn-sync" style="flex:1;padding:10px" onclick="saveSettings()">💾 Simpan</button>
-      <button class="btn-tool" style="flex:1;padding:10px" onclick="clearSettings()">🗑️ Buang</button>
+      <button class="btn-tool btn-sync" style="flex:1;padding:10px" onclick="saveSettings()">💾 Save</button>
+      <button class="btn-tool" style="flex:1;padding:10px" onclick="clearSettings()">🗑️ Clear</button>
     </div>
     <div style="margin-top:16px;font-size:.8rem;color:var(--muted)">
       Status: <span id="cfgStatus">-</span><br>
-      Data disimpan di table <code>noja_state</code> (row id: <code>main</code>),
-      gambar di bucket <code>gallery</code>.
+      Data stored in table <code>noja_state</code> (row id: <code>main</code>).<br>
+      Images stored in bucket <code>gallery</code>.
     </div>
   </div>
 </div>
 
+<!-- Shift Log Modal -->
 <div id="slToast"></div>
 <div id="shiftLogModal" class="modal">
   <div class="modal-header">
-    <h2 id="shiftLogTitleEl">📅 Log Syif</h2>
+    <h2>📅 Shift Log</h2>
     <button class="btn-close" onclick="closeShiftLog()">✖</button>
   </div>
   <div class="modal-body">
@@ -289,39 +289,39 @@
     <div id="shiftLogForm" style="background:var(--input-bg);border:1px solid var(--border);
       border-radius:10px;padding:12px;margin-bottom:14px">
       <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px">
-        <div><label style="font-size:.75rem;color:var(--muted)" id="lblDate">Tarikh</label>
+        <div><label style="font-size:.75rem;color:var(--muted)">Date</label>
           <input type="date" id="slDate" class="edit-input" style="margin-bottom:0"></div>
-        <div><label style="font-size:.75rem;color:var(--muted)" id="lblType">Jenis Syif</label>
+        <div><label style="font-size:.75rem;color:var(--muted)">Shift Type</label>
           <select id="slType" class="edit-input" style="margin-bottom:0" onchange="shiftLogOnTypeChange()">
-            <option value="morning">Pagi</option>
-            <option value="evening" selected>Petang</option>
+            <option value="morning">Morning</option>
+            <option value="evening" selected>Evening</option>
             <option value="adhoc">Adhoc</option>
           </select></div>
-        <div><label style="font-size:.75rem;color:var(--muted)" id="lblStart">Mula</label>
+        <div><label style="font-size:.75rem;color:var(--muted)">Start</label>
           <input type="time" id="slStart" class="edit-input" style="margin-bottom:0" value="17:30"></div>
-        <div><label style="font-size:.75rem;color:var(--muted)" id="lblEnd">Tamat</label>
+        <div><label style="font-size:.75rem;color:var(--muted)">End</label>
           <input type="time" id="slEnd" class="edit-input" style="margin-bottom:0" value="22:30"></div>
-        <div><label style="font-size:.75rem;color:var(--muted)" id="lblOT">OT (jam)</label>
+        <div><label style="font-size:.75rem;color:var(--muted)">OT (hrs)</label>
           <input type="number" id="slOT" class="edit-input" style="margin-bottom:0" min="0" step="0.25" value="0"></div>
         <div style="display:flex;align-items:flex-end;padding-bottom:4px">
           <label style="display:flex;align-items:center;gap:6px;font-size:.85rem">
             <input type="checkbox" id="slPH" style="width:18px;height:18px">
-            <span id="lblPH">Cuti Umum</span>
+            <span>Public Holiday</span>
           </label></div>
       </div>
       <div style="margin-top:8px">
-        <label style="font-size:.75rem;color:var(--muted)" id="lblReason">Sebab</label>
+        <label style="font-size:.75rem;color:var(--muted)">Reason</label>
         <input type="text" id="slReason" class="edit-input" style="margin-bottom:0">
       </div>
       <div style="margin-top:8px">
-        <label style="font-size:.75rem;color:var(--muted)" id="lblNotes">Nota</label>
+        <label style="font-size:.75rem;color:var(--muted)">Notes</label>
         <input type="text" id="slNotes" class="edit-input" style="margin-bottom:0">
       </div>
       <div style="display:flex;gap:8px;margin-top:10px">
         <button class="btn-sm" style="flex:1;background:var(--accent);color:#0f172a;padding:10px;font-size:.9rem"
-          id="btnSaveEntry" onclick="shiftLogSaveEntry()">💾 Simpan</button>
+          id="btnSaveEntry" onclick="shiftLogSaveEntry()">💾 Save</button>
         <button class="btn-sm" style="flex:1;background:var(--border);color:var(--text);padding:10px;
-          font-size:.9rem;display:none" id="btnCancelEdit" onclick="shiftLogCancelEdit()">✖ Batal</button>
+          font-size:.9rem;display:none" id="btnCancelEdit" onclick="shiftLogCancelEdit()">✖ Cancel</button>
       </div>
     </div>
 
@@ -336,9 +336,9 @@
       border-radius:10px;padding:14px;margin-bottom:14px"></div>
 
     <div style="display:flex;gap:8px;flex-wrap:wrap">
-      <button class="btn-tool btn-sync" style="flex:1;padding:10px" onclick="shiftLogPrint()" id="btnLogPrint">🖨️ Print / PDF</button>
-      <button class="btn-tool" style="flex:1;padding:10px" onclick="shiftLogCSV()" id="btnLogCSV">📄 CSV</button>
-      <button class="btn-tool" style="flex:1;padding:10px" onclick="shiftLogExportJSON()" id="btnLogExport">📥 Export JSON</button>
+      <button class="btn-tool btn-sync" style="flex:1;padding:10px" onclick="shiftLogPrint()">🖨️ Print / PDF</button>
+      <button class="btn-tool" style="flex:1;padding:10px" onclick="shiftLogCSV()">📄 CSV</button>
+      <button class="btn-tool" style="flex:1;padding:10px" onclick="shiftLogExportJSON()">📥 Export JSON</button>
     </div>
   </div>
 </div>
@@ -380,7 +380,7 @@ function setSyncStatus(cls, text) {
 function openSettings() {
   document.getElementById("cfgUrl").value = localStorage.getItem(SB_URL_KEY) || "";
   document.getElementById("cfgKey").value = localStorage.getItem(SB_KEY_KEY) || "";
-  document.getElementById("cfgStatus").textContent = sbReady ? "✅ Bersambung" : "❌ Tidak bersambung";
+  document.getElementById("cfgStatus").textContent = sbReady ? "✅ Connected" : "❌ Not connected";
   document.getElementById("settingsModal").style.display = "flex";
 }
 function closeSettings() {
@@ -389,7 +389,8 @@ function closeSettings() {
 function saveSettings() {
   const u = document.getElementById("cfgUrl").value.trim();
   const k = document.getElementById("cfgKey").value.trim();
-  if (!u || !k) return alert("Isi kedua-dua medan.");
+  if (!u || !k) return alert("Please fill both fields.");
+  if (!u.startsWith("https://")) return alert("Project URL must start with https://");
   localStorage.setItem(SB_URL_KEY, u);
   localStorage.setItem(SB_KEY_KEY, k);
   initSupabase();
@@ -397,7 +398,7 @@ function saveSettings() {
   if (sbReady) pullFromCloud(true);
 }
 function clearSettings() {
-  if (!confirm("Buang tetapan Supabase dari peranti ini?")) return;
+  if (!confirm("Remove Supabase settings from this device?")) return;
   localStorage.removeItem(SB_URL_KEY);
   localStorage.removeItem(SB_KEY_KEY);
   sbClient = null; sbReady = false;
@@ -412,7 +413,6 @@ function buildStatePayload() {
   return {
     tasksMorning, tasksEvening, checks: checksData, adhoc: adhocData,
     notes: notesData, gallery: galleryData, shiftLog: shiftLogData,
-    lang: currentLang, shift: currentShift,
     _savedAt: new Date().toISOString()
   };
 }
@@ -437,7 +437,7 @@ function applyStatePayload(d) {
 }
 
 async function pullFromCloud(showToast) {
-  if (!sbReady) { if (showToast) slToast("Supabase belum diset", true); return false; }
+  if (!sbReady) { if (showToast) slToast("Supabase not configured", true); return false; }
   try {
     setSyncStatus("", "syncing…");
     const { data, error } = await sbClient
@@ -448,23 +448,23 @@ async function pullFromCloud(showToast) {
       document.getElementById("mainNotes").value = notesData;
       renderTexts(); renderTasks(); renderAdhoc(); renderGallery();
       setSyncStatus("ok", "cloud ✓");
-      if (showToast) slToast("☁️ Data dimuat dari Supabase");
+      if (showToast) slToast("☁️ Data loaded from Supabase");
       return true;
     } else {
       setSyncStatus("ok", "cloud (empty)");
-      if (showToast) slToast("Supabase kosong — tekan ☁️ Sync untuk hantar", true);
+      if (showToast) slToast("Supabase is empty — press ☁️ Sync to upload", true);
       return false;
     }
   } catch (e) {
     console.error("Pull fail:", e);
     setSyncStatus("err", "err");
-    if (showToast) slToast("❌ Gagal tarik: " + e.message, true);
+    if (showToast) slToast("❌ Pull failed: " + e.message, true);
     return false;
   }
 }
 
 async function pushToCloud(showToast) {
-  if (!sbReady) { if (showToast) slToast("Tetapan Supabase kosong", true); return; }
+  if (!sbReady) { if (showToast) slToast("Supabase settings missing", true); return; }
   try {
     setSyncStatus("", "saving…");
     const { error } = await sbClient.from("noja_state").upsert({
@@ -472,11 +472,11 @@ async function pushToCloud(showToast) {
     });
     if (error) throw error;
     setSyncStatus("ok", "cloud ✓");
-    if (showToast) slToast("✅ Data dihantar ke Supabase");
+    if (showToast) slToast("✅ Data uploaded to Supabase");
   } catch (e) {
     console.error("Push fail:", e);
     setSyncStatus("err", "err");
-    if (showToast) slToast("❌ Gagal hantar: " + e.message, true);
+    if (showToast) slToast("❌ Push failed: " + e.message, true);
   }
 }
 
@@ -487,184 +487,91 @@ function schedulePush() {
 }
 
 // ==========================================
-// TRANSLATIONS
-// ==========================================
-const i18n = {
-  ms: {
-    title:"Prosedur Kerja Noja Masjid", subtitle:"Rutin Harian",
-    expand:"Buka Semua", edit:"✏️ Edit", save:"💾 Simpan", reset:"Reset",
-    progress:"selesai", adhocTitle:"📌 Tugasan Mingguan",
-    notesTitle:"📝 Nota Peribadi", notesPlc:"Tulis nota di sini...",
-    days:["Isnin","Selasa","Rabu","Khamis","Jumaat","Sabtu","Ahad"],
-    adhocPlc:"Contoh: Sedekah roti, tambah mic...",
-    resetConfirm:"Padam semua checklist, adhoc, dan nota?",
-    addTask:"+ Tambah Tugasan", delTask:"Padam", delSec:"Padam Kotak",
-    addSec:"+ Tambah Kotak Baru", checkAll:"✓ Semak Semua",
-    backupBtn:"📥 Backup", restoreBtn:"📤 Restore", printBtn:"🖨️ Print",
-    galleryBtn:"📸 Galeri", galleryTitle:"📸 Galeri Rujukan",
-    cameraBtn:"📷 Kamera", folderBtn:"🖼️ Galeri", closeBtn:"Tutup",
-    editImgBtn:"Edit", delImgBtn:"Padam",
-    noImgText:"Tiada gambar lagi. Tekan butang di atas untuk tambah.",
-    promptTitle:"Masukkan tajuk gambar:", promptEditTitle:"Edit tajuk gambar:",
-    confirmDelImg:"Padam gambar ini?", confirmDelTask:"Padam tugasan ini?",
-    confirmDelSec:"Padam kotak ini?",
-    backupDone:"Backup dimuat turun!", restoreSuccess:"Data dipulihkan! Sila refresh.",
-    restoreError:"Fail tidak sah.",
-    shiftMorning:"🌅 Shift Pagi", shiftEvening:"🌙 Shift Petang",
-    shiftLogTitle:"📅 Log Syif",
-    saveBtn:"💾 Simpan", cancelBtn:"✖ Batal",
-    dateLabel:"Tarikh", typeLabel:"Jenis Syif", startLabel:"Mula", endLabel:"Tamat",
-    otLabel:"OT (jam)", phLabel:"Cuti Umum", reasonLabel:"Sebab", notesLabel:"Nota",
-    morning:"Pagi", evening:"Petang", adhoc:"Adhoc",
-    reasonPh:"Cth: Bos minta OT", notesPh:"Nota tambahan...",
-    dateCol:"Tarikh", dayCol:"Hari", shiftCol:"Syif", startCol:"Mula", endCol:"Tamat",
-    baseCol:"Jam Asas", otCol:"Jam OT", totalCol:"Jumlah", phCol:"CU",
-    reasonCol:"Sebab", notesCol:"Nota",
-    workingDays:"Hari bekerja", shiftsLabel:"syif", avgLabel:"purata",
-    totalBase:"Jumlah jam asas", totalOT:"Jumlah jam OT", totalHours:"JUMLAH JAM",
-    avgPerDay:"Purata jam/hari", phShifts:"Syif Cuti Umum",
-    printBtnLog:"🖨️ Print / PDF", csvBtn:"📄 CSV", exportBtn:"📥 Export JSON",
-    confirmDelEntry:"Padam entri ini?", emptyMonth:"Tiada entri bulan ini.",
-    ytdLine:"YTD", ytdShifts:"syif", fillRequired:"Sila isi tarikh, mula dan tamat."
-  },
-  en: {
-    title:"Mosque Maintenance Procedure", subtitle:"Daily Routine",
-    expand:"Expand All", edit:"✏️ Edit", save:"💾 Save", reset:"Reset",
-    progress:"done", adhocTitle:"📌 Weekly Tasks",
-    notesTitle:"📝 Personal Notes", notesPlc:"Write notes here...",
-    days:["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"],
-    adhocPlc:"E.g: Bread donation...",
-    resetConfirm:"Clear all checklists, adhoc, and notes?",
-    addTask:"+ Add Task", delTask:"Delete", delSec:"Delete Box",
-    addSec:"+ Add New Box", checkAll:"✓ Check All",
-    backupBtn:"📥 Backup", restoreBtn:"📤 Restore", printBtn:"🖨️ Print",
-    galleryBtn:"📸 Gallery", galleryTitle:"📸 Reference Gallery",
-    cameraBtn:"📷 Camera", folderBtn:"🖼️ Gallery", closeBtn:"Close",
-    editImgBtn:"Edit", delImgBtn:"Delete",
-    noImgText:"No images yet.",
-    promptTitle:"Enter image title:", promptEditTitle:"Edit image title:",
-    confirmDelImg:"Delete this image?", confirmDelTask:"Delete this task?",
-    confirmDelSec:"Delete this box?",
-    backupDone:"Backup downloaded!", restoreSuccess:"Data restored! Refresh.",
-    restoreError:"Invalid file.",
-    shiftMorning:"🌅 Morning Shift", shiftEvening:"🌙 Evening Shift",
-    shiftLogTitle:"📅 Shift Log",
-    saveBtn:"💾 Save", cancelBtn:"✖ Cancel",
-    dateLabel:"Date", typeLabel:"Shift Type", startLabel:"Start", endLabel:"End",
-    otLabel:"OT (hrs)", phLabel:"Public Holiday", reasonLabel:"Reason", notesLabel:"Notes",
-    morning:"Morning", evening:"Evening", adhoc:"Adhoc",
-    reasonPh:"E.g: Boss OT", notesPh:"Additional notes...",
-    dateCol:"Date", dayCol:"Day", shiftCol:"Shift", startCol:"Start", endCol:"End",
-    baseCol:"Base Hrs", otCol:"OT Hrs", totalCol:"Total", phCol:"PH",
-    reasonCol:"Reason", notesCol:"Notes",
-    workingDays:"Working days", shiftsLabel:"shifts", avgLabel:"avg",
-    totalBase:"Total base hours", totalOT:"Total OT hours", totalHours:"TOTAL HOURS",
-    avgPerDay:"Avg hrs / day", phShifts:"Public Holiday shifts",
-    printBtnLog:"🖨️ Print / PDF", csvBtn:"📄 CSV", exportBtn:"📥 Export JSON",
-    confirmDelEntry:"Delete this entry?", emptyMonth:"No entries this month.",
-    ytdLine:"YTD", ytdShifts:"shifts", fillRequired:"Please fill date, start and end."
-  }
-};
-
-// ==========================================
-// DATA
+// DEFAULT DATA (English)
 // ==========================================
 const defaultMorningData = [
-  { time:"4.30 – 4.45", title:{ms:"Buka Kunci & Keselamatan",en:"Unlock & Safety"},
-    tasks:[
-      {t:{ms:"Buka kunci tangga & pintu utama",en:"Unlock stairs & main doors"}},
-      {t:{ms:"On suis utama (DB) & sistem lif",en:"On main switch (DB) & lift system"}},
-      {t:{ms:"Buka tingkap / aktifkan kipas",en:"Open windows / turn on fans"}},
-      {t:{ms:"Semak kebersihan luar",en:"Check outside cleanliness"}}
-    ]},
-  { time:"4.45 – 5.00", title:{ms:"Persiapan Subuh & Live",en:"Subuh Prep & Live"},
-    tasks:[
-      {t:{ms:"Pasang PA system & mikrofon",en:"Set up PA system & microphone"}},
-      {t:{ms:"On sistem Sound & Aircon (Daikin/Mitsubishi)",en:"On Sound & Aircon systems"}},
-      {t:{ms:"Setup Live Streaming (FB & OBS)",en:"Setup Live Streaming (FB & OBS)"}},
-      {t:{ms:"Semak arah kiblat & saf",en:"Check qiblat & saf"}}
-    ]},
-  { time:"5.00 – 5.30", title:{ms:"Semasa Solat Subuh",en:"During Subuh"},
-    tasks:[
-      {t:{ms:"Pastikan Live Streaming lancar",en:"Ensure Live Streaming is smooth"}},
-      {t:{ms:"Kemas kasut di rak",en:"Tidy shoes on rack"}},
-      {t:{ms:"Lihat keperluan jemaah",en:"Attend to jemaah needs"}}
-    ]},
-  { time:"5.30 – 6.30", title:{ms:"Pembersihan & Karpet PMD",en:"Cleaning & PMD Carpet"},
-    tasks:[
-      {t:{ms:"Sapu & mop ruang solat",en:"Sweep & mop prayer hall"}},
-      {t:{ms:"Kemas karpet PMD (elak tersadung)",en:"Tidy PMD carpet"}},
-      {t:{ms:"Bersihkan tandas & tempat wuduk",en:"Clean toilets & ablution"}},
-      {t:{ms:"Kosongkan tong sampah",en:"Empty trash bins"}}
-    ]},
-  { time:"6.30 – 7.30", title:{ms:"Semakan & QR Clocking",en:"Checking & QR Clocking"},
-    tasks:[
-      {t:{ms:"Scan QR Code di 11 lokasi",en:"Scan QR at 11 locations"}},
-      {t:{ms:"Periksa panel Aircon",en:"Check Aircon panels"}},
-      {t:{ms:"Periksa panel Sound System",en:"Check Sound System panel"}},
-      {t:{ms:"Semak lampu rosak & paip bocor",en:"Check broken lights & leaks"}}
-    ]},
-  { time:"7.30 – 8.30", title:{ms:"Persiapan Aktiviti / Kelas",en:"Activity / Class Prep"},
-    tasks:[
-      {t:{ms:"Sediakan tabung kuliah ikut label",en:"Prepare donation boxes"}},
-      {t:{ms:"Susun kerusi / meja kelas",en:"Arrange class chairs / tables"}},
-      {t:{ms:"Pastikan PA & projektor berfungsi",en:"Ensure PA & projector work"}},
-      {t:{ms:"Sediakan air minuman",en:"Prepare drinking water"}}
-    ]},
-  { time:"8.30 – 9.00", title:{ms:"Tutup Syif Pagi & Laporan",en:"End Morning Shift"},
-    tasks:[
-      {t:{ms:"Off Live Streaming (OBS)",en:"Off Live Streaming (OBS)"}},
-      {t:{ms:"Catat dalam buku log",en:"Log in the book"}}
-    ]}
+  { time:"4:30 – 4:45", title:"Unlock & Safety", tasks:[
+    {t:"Unlock stairs & main doors"},
+    {t:"Turn on main switch (DB) & lift system"},
+    {t:"Open windows / turn on fans"},
+    {t:"Check outside cleanliness"}
+  ]},
+  { time:"4:45 – 5:00", title:"Subuh Prep & Live Stream", tasks:[
+    {t:"Set up PA system & microphone"},
+    {t:"Turn on Sound & Aircon (Daikin/Mitsubishi)"},
+    {t:"Set up Live Streaming (Facebook & OBS)"},
+    {t:"Check qiblat & saf alignment"}
+  ]},
+  { time:"5:00 – 5:30", title:"During Subuh Prayer", tasks:[
+    {t:"Ensure Live Streaming runs smoothly"},
+    {t:"Tidy shoes on rack"},
+    {t:"Attend to jemaah needs"}
+  ]},
+  { time:"5:30 – 6:30", title:"Cleaning & PMD Carpet", tasks:[
+    {t:"Sweep & mop prayer hall"},
+    {t:"Tidy PMD carpet (prevent tripping)"},
+    {t:"Clean toilets & ablution area"},
+    {t:"Empty trash bins"}
+  ]},
+  { time:"6:30 – 7:30", title:"Checks & QR Clocking", tasks:[
+    {t:"Scan QR Code at 11 mosque locations"},
+    {t:"Check Aircon panels (Daikin/Mitsubishi)"},
+    {t:"Check Sound System panel"},
+    {t:"Check broken lights & water leaks"}
+  ]},
+  { time:"7:30 – 8:30", title:"Activity / Class Prep", tasks:[
+    {t:"Prepare donation boxes per label"},
+    {t:"Arrange class chairs / tables"},
+    {t:"Ensure PA & projector are working"},
+    {t:"Prepare drinking water"}
+  ]},
+  { time:"8:30 – 9:00", title:"End Morning Shift & Report", tasks:[
+    {t:"Turn off Live Streaming (OBS)"},
+    {t:"Write in the log book"}
+  ]}
 ];
 
 const defaultEveningData = [
-  { time:"5.30 – 6.30", title:{ms:"Persiapan Awal Petang",en:"Early Evening Prep"},
-    tasks:[
-      {t:{ms:"Buka kunci pagar & pintu utama",en:"Unlock gate & main doors"}},
-      {t:{ms:"On suis utama (DB), lampu & lif",en:"On main switch, lights & lift"}},
-      {t:{ms:"On Sound & Aircon (jika ada kelas)",en:"On Sound & Aircon"}}
-    ]},
-  { time:"6.30 – 7.30", title:{ms:"Pembersihan & Vacuum",en:"Cleaning & Vacuum"},
-    tasks:[
-      {t:{ms:"Vacuum karpet ruang solat utama",en:"Vacuum main prayer hall carpet"}},
-      {t:{ms:"Kemas & susun tabung kuliah",en:"Tidy donation boxes"}},
-      {t:{ms:"Kemas karpet PMD",en:"Tidy PMD carpet"}},
-      {t:{ms:"Bersihkan tandas & tempat wuduk",en:"Clean toilets & ablution"}}
-    ]},
-  { time:"7.30 – 8.30", title:{ms:"Semasa Aktiviti / Kelas",en:"During Activities"},
-    tasks:[
-      {t:{ms:"Pantau keperluan kelas / jemaah",en:"Monitor class / jemaah needs"}},
-      {t:{ms:"Semak PA system lancar",en:"Check PA system"}},
-      {t:{ms:"Sediakan air minuman",en:"Prepare drinking water"}}
-    ]},
-  { time:"8.30 – 9.30", title:{ms:"Semakan Kelas & QR Clocking",en:"Class Check & QR Clocking"},
-    tasks:[
-      {t:{ms:"Scan QR Code di 11 lokasi",en:"Scan QR at 11 locations"}},
-      {t:{ms:"Periksa tingkap & pintu kelas ditutup",en:"Check classroom doors/windows"}},
-      {t:{ms:"Semak tandas & wuduk terakhir",en:"Final check toilets"}}
-    ]},
-  { time:"9.30 – 10.30", title:{ms:"Tutup Masjid & Keselamatan",en:"Lock Up & Safety"},
-    tasks:[
-      {t:{ms:"Off semua Aircon",en:"Off all Aircon"}},
-      {t:{ms:"Off kipas besar, siling & standing",en:"Off big/ceiling/standing fans"}},
-      {t:{ms:"Off lampu & Sound",en:"Off lights & Sound"}},
-      {t:{ms:"Off sistem Lif",en:"Off Lift"}},
-      {t:{ms:"Tutup semua tingkap",en:"Close all windows"}},
-      {t:{ms:"Kunci pintu utama, tangga & pagar",en:"Lock main doors, stairs & gate"}}
-    ]}
+  { time:"5:30 – 6:30", title:"Early Evening Prep", tasks:[
+    {t:"Unlock mosque gate & main doors"},
+    {t:"Turn on main switch (DB), lights & lift system"},
+    {t:"Turn on Sound & Aircon (if there are classes)"}
+  ]},
+  { time:"6:30 – 7:30", title:"Cleaning & Vacuum", tasks:[
+    {t:"Vacuum main prayer hall carpet"},
+    {t:"Tidy & arrange donation boxes"},
+    {t:"Tidy PMD carpet (ensure no tripping)"},
+    {t:"Clean toilets & ablution area"}
+  ]},
+  { time:"7:30 – 8:30", title:"During Activities / Classes", tasks:[
+    {t:"Monitor class / jemaah needs"},
+    {t:"Check PA system is working"},
+    {t:"Prepare drinking water"}
+  ]},
+  { time:"8:30 – 9:30", title:"Class Check & QR Clocking", tasks:[
+    {t:"Scan QR Code at 11 mosque locations"},
+    {t:"Check all classroom windows & doors are closed"},
+    {t:"Final check on toilets & ablution area"}
+  ]},
+  { time:"9:30 – 10:30", title:"Lock Up & Safety", tasks:[
+    {t:"Turn off all Aircon (Daikin/Mitsubishi)"},
+    {t:"Turn off big fan (Helicopter), ceiling fans & standing fans"},
+    {t:"Turn off lights & Sound system"},
+    {t:"Turn off Lift system"},
+    {t:"Close all windows"},
+    {t:"Lock main doors, stairs & mosque gate"}
+  ]}
 ];
 
 // ==========================================
 // STATE
 // ==========================================
-let currentLang = localStorage.getItem("noja_lang") || "en";
 let currentShift = localStorage.getItem("noja_shift") || "morning";
 let isEditMode = false;
 
-const K_TASKS_M="noja_tasks_m_v6", K_TASKS_E="noja_tasks_e_v6";
-const K_CHECKS="noja_checks_v6", K_ADHOC="noja_adhoc_v6";
-const K_NOTES="noja_notes_v6", K_GALLERY="noja_gallery_v6", K_SHIFTLOG="noja_shiftlog_v1";
+const K_TASKS_M="noja_tasks_m_v7", K_TASKS_E="noja_tasks_e_v7";
+const K_CHECKS="noja_checks_v7", K_ADHOC="noja_adhoc_v7";
+const K_NOTES="noja_notes_v7", K_GALLERY="noja_gallery_v7", K_SHIFTLOG="noja_shiftlog_v2";
 
 let tasksMorning = JSON.parse(localStorage.getItem(K_TASKS_M)) || defaultMorningData;
 let tasksEvening = JSON.parse(localStorage.getItem(K_TASKS_E)) || defaultEveningData;
@@ -681,25 +588,11 @@ const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt
 // RENDER
 // ==========================================
 function renderTexts() {
-  const t = i18n[currentLang];
-  document.getElementById("title").textContent = t.title;
   document.getElementById("subtitle").textContent =
-    currentShift === "morning" ? `${t.subtitle} · 4.30 am – 9.00 am` : `${t.subtitle} · 5.30 pm – 10.30 pm`;
-  document.querySelector(".btn-lang").textContent = currentLang === "ms" ? "EN" : "BM";
-  document.getElementById("shiftMorningBtn").textContent = t.shiftMorning;
-  document.getElementById("shiftEveningBtn").textContent = t.shiftEvening;
+    currentShift === "morning" ? "Daily Routine · 4:30 AM – 9:00 AM" : "Daily Routine · 5:30 PM – 10:30 PM";
   document.getElementById("shiftMorningBtn").className = currentShift==="morning" ? "shift-btn active" : "shift-btn";
   document.getElementById("shiftEveningBtn").className = currentShift==="evening" ? "shift-btn active" : "shift-btn";
-  document.getElementById("btnExpand").textContent = t.expand;
-  document.getElementById("btnEdit").textContent = isEditMode ? t.save : t.edit;
-  document.getElementById("btnReset").textContent = t.reset;
-  document.getElementById("adhocTitle").textContent = t.adhocTitle;
-  document.getElementById("notesTitle").textContent = t.notesTitle;
-  document.getElementById("mainNotes").placeholder = t.notesPlc;
-  document.getElementById("galleryTitle").textContent = t.galleryTitle;
-  document.getElementById("btnCloseGallery").textContent = t.closeBtn;
-  document.getElementById("btnAddGalleryCamera").textContent = t.cameraBtn;
-  document.getElementById("btnAddGalleryFolder").textContent = t.folderBtn;
+  document.getElementById("btnEdit").textContent = isEditMode ? "💾 Save" : "✏️ Edit";
   updateProgress();
 }
 
@@ -708,7 +601,6 @@ function countAllTasks() { return getCurrentTasks().reduce((a,s)=>a+s.tasks.leng
 function renderTasks() {
   const container = document.getElementById("sections");
   container.innerHTML = "";
-  const t = i18n[currentLang];
   const tasksData = getCurrentTasks();
 
   tasksData.forEach((sec, si) => {
@@ -718,9 +610,9 @@ function renderTasks() {
     head.className = "section-head";
     head.innerHTML = `
       <span class="time">${esc(sec.time)}</span>
-      <h2>${esc(sec.title[currentLang])}</h2>
+      <h2>${esc(sec.title)}</h2>
       <span class="badge-done">DONE</span>
-      ${isEditMode ? `<button class="btn-sm btn-del-sec" onclick="deleteSection(${si})">${esc(t.delSec)}</button>` : ""}
+      ${isEditMode ? `<button class="btn-sm btn-del-sec" onclick="deleteSection(${si})">Delete Box</button>` : ""}
       <span class="arrow">▶</span>`;
     if (!isEditMode) head.onclick = () => div.classList.toggle("open");
     div.appendChild(head);
@@ -729,7 +621,7 @@ function renderTasks() {
     body.className = "section-body";
     if (isEditMode) {
       const b = document.createElement("button");
-      b.className = "btn-check-all"; b.textContent = t.checkAll;
+      b.className = "btn-check-all"; b.textContent = "✓ Check All";
       b.onclick = () => { sec.tasks.forEach((_,ti)=>{ const k=`s${currentShift}_${si}_t${ti}`;
         checksData[k]=true; const cb=document.getElementById(k); if(cb)cb.checked=true; });
         localStorage.setItem(K_CHECKS, JSON.stringify(checksData));
@@ -743,13 +635,13 @@ function renderTasks() {
       if (isEditMode) {
         wrap.style.flexDirection = "column";
         wrap.innerHTML = `
-          <input type="text" class="edit-input" value="${esc(task.t[currentLang])}"
+          <input type="text" class="edit-input" value="${esc(task.t)}"
             onchange="updateTaskText(${si},${ti},this.value)">
           <div style="display:flex;width:100%;gap:8px;align-items:center">
             <input type="text" class="edit-input" style="flex:1;margin-bottom:0;font-size:.8rem"
-              placeholder="Notes" value="${esc(task.n ? task.n[currentLang] : '')}"
+              placeholder="Notes" value="${esc(task.n || '')}"
               onchange="updateTaskNote(${si},${ti},this.value)">
-            <button class="btn-sm btn-delete" onclick="deleteTask(${si},${ti})">${esc(t.delTask)}</button>
+            <button class="btn-sm btn-delete" onclick="deleteTask(${si},${ti})">Delete</button>
           </div>`;
       } else {
         const cb = document.createElement("input");
@@ -758,14 +650,14 @@ function renderTasks() {
           localStorage.setItem(K_CHECKS, JSON.stringify(checksData)); updateProgress(); schedulePush(); };
         const lbl = document.createElement("label");
         lbl.htmlFor = key;
-        lbl.innerHTML = esc(task.t[currentLang]) + (task.n ? `<span class="note">${esc(task.n[currentLang])}</span>` : "");
+        lbl.innerHTML = esc(task.t) + (task.n ? `<span class="note">${esc(task.n)}</span>` : "");
         wrap.appendChild(cb); wrap.appendChild(lbl);
       }
       body.appendChild(wrap);
     });
     if (isEditMode) {
       const a = document.createElement("button");
-      a.className="btn-sm btn-add"; a.textContent=t.addTask;
+      a.className="btn-sm btn-add"; a.textContent="+ Add Task";
       a.onclick = () => addTask(si);
       body.appendChild(a);
     }
@@ -776,7 +668,7 @@ function renderTasks() {
   if (isEditMode) {
     const b = document.createElement("button");
     b.className="main-btn btn-primary"; b.style="width:100%;margin-bottom:20px";
-    b.textContent=t.addSec; b.onclick=addSection;
+    b.textContent="+ Add New Box"; b.onclick=addSection;
     container.appendChild(b);
   }
   updateProgress();
@@ -785,12 +677,12 @@ function renderTasks() {
 function renderAdhoc() {
   const grid = document.getElementById("adhocGrid");
   grid.innerHTML = "";
-  const days = i18n[currentLang].days;
+  const days = ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"];
   for (let i=0;i<7;i++) {
     const c = document.createElement("div");
     c.className="adhoc-card";
     c.innerHTML = `<h4>${esc(days[i])}</h4>
-      <textarea class="adhoc-textarea" id="adhoc_${i}" placeholder="${esc(i18n[currentLang].adhocPlc)}"
+      <textarea class="adhoc-textarea" id="adhoc_${i}" placeholder="E.g: Bread donation, extra mic..."
         oninput="saveAdhoc(${i},this.value)">${esc(adhocData[i]||"")}</textarea>`;
     grid.appendChild(c);
   }
@@ -802,8 +694,7 @@ function updateProgress() {
   const done = tasksData.reduce((a,sec,si)=> a + sec.tasks.filter((_,ti)=>checksData[`s${currentShift}_${si}_t${ti}`]===true).length, 0);
   const pct = all ? (done/all*100) : 0;
   document.getElementById("fill").style.width = pct + "%";
-  document.getElementById("progressText").textContent =
-    `${done} / ${all} ${i18n[currentLang].progress} (${Math.round(pct)}%)`;
+  document.getElementById("progressText").textContent = `${done} / ${all} completed (${Math.round(pct)}%)`;
   tasksData.forEach((sec,si)=>{
     const boxes = sec.tasks.map((_,ti)=>checksData[`s${currentShift}_${si}_t${ti}`]);
     const el = document.getElementById("sec"+si);
@@ -830,29 +721,26 @@ function saveTasksToStorage() {
   localStorage.setItem(K_TASKS_E, JSON.stringify(tasksEvening));
   schedulePush();
 }
-function updateTaskText(si,ti,val){ getCurrentTasks()[si].tasks[ti].t[currentLang]=val; }
-function updateTaskNote(si,ti,val){
-  const task = getCurrentTasks()[si].tasks[ti];
-  if (task.n) task.n[currentLang]=val; else task.n={ms:val,en:val};
-}
+function updateTaskText(si,ti,val){ getCurrentTasks()[si].tasks[ti].t=val; }
+function updateTaskNote(si,ti,val){ getCurrentTasks()[si].tasks[ti].n=val; }
 function deleteTask(si,ti){
-  if (confirm(i18n[currentLang].confirmDelTask)) {
+  if (confirm("Delete this task?")) {
     getCurrentTasks()[si].tasks.splice(ti,1); renderTasks(); saveTasksToStorage();
   }
 }
 function addTask(si){
-  getCurrentTasks()[si].tasks.push({t:{ms:"Tugasan Baru",en:"New Task"},n:{ms:"",en:""}});
+  getCurrentTasks()[si].tasks.push({t:"New Task", n:""});
   renderTasks(); saveTasksToStorage();
 }
 function deleteSection(si){
-  if (confirm(i18n[currentLang].confirmDelSec)) {
+  if (confirm("Delete this box?")) {
     getCurrentTasks().splice(si,1); renderTasks(); saveTasksToStorage();
   }
 }
 function addSection(){
   getCurrentTasks().push({
-    time:"Time", title:{ms:"Kotak Baru",en:"New Box"},
-    tasks:[{t:{ms:"Tugasan Baru",en:"New Task"},n:{ms:"",en:""}}]
+    time:"Time", title:"New Box",
+    tasks:[{t:"New Task", n:""}]
   });
   renderTasks(); saveTasksToStorage();
 }
@@ -864,7 +752,7 @@ document.getElementById("mainNotes").addEventListener("input", e => {
 });
 
 function resetAll(){
-  if (confirm(i18n[currentLang].resetConfirm)) {
+  if (confirm("Clear all checklists, adhoc tasks, and notes?")) {
     checksData={}; adhocData={}; notesData="";
     localStorage.removeItem(K_CHECKS); localStorage.removeItem(K_ADHOC); localStorage.removeItem(K_NOTES);
     document.getElementById("mainNotes").value="";
@@ -872,13 +760,6 @@ function resetAll(){
   }
 }
 function expandAll(){ document.querySelectorAll(".section").forEach(s=>s.classList.toggle("open")); }
-function toggleLang(){
-  currentLang = currentLang==="ms"?"en":"ms";
-  localStorage.setItem("noja_lang", currentLang);
-  renderTexts(); renderTasks(); renderAdhoc();
-  if (document.getElementById("galleryModal").style.display==="flex") renderGallery();
-  if (document.getElementById("shiftLogModal").style.display==="flex") renderShiftLog();
-}
 
 // ==========================================
 // GALLERY
@@ -889,9 +770,8 @@ function closeGallery(){ document.getElementById("galleryModal").style.display="
 function renderGallery(){
   const grid = document.getElementById("galleryGrid");
   grid.innerHTML = "";
-  const t = i18n[currentLang];
   if (galleryData.length===0) {
-    grid.innerHTML = `<p style="color:var(--muted);grid-column:1/-1;text-align:center">${esc(t.noImgText)}</p>`;
+    grid.innerHTML = `<p style="color:var(--muted);grid-column:1/-1;text-align:center">No images yet. Click a button above to add.</p>`;
     return;
   }
   [...galleryData].reverse().forEach(item => {
@@ -904,9 +784,9 @@ function renderGallery(){
         <div class="gallery-item-title">${esc(item.title)}</div>
         <div class="gallery-item-actions">
           <button class="btn-sm" style="background:var(--accent2);color:#0f172a"
-            onclick="editGalleryTitle('${esc(item.id)}')">${esc(t.editImgBtn)}</button>
+            onclick="editGalleryTitle('${esc(item.id)}')">Edit</button>
           <button class="btn-sm btn-delete"
-            onclick="deleteGalleryImg('${esc(item.id)}')">${esc(t.delImgBtn)}</button>
+            onclick="deleteGalleryImg('${esc(item.id)}')">Delete</button>
         </div>
       </div>`;
     grid.appendChild(card);
@@ -920,7 +800,7 @@ function triggerGalleryUpload(useCamera){
   input.click();
   input.onchange = e => {
     const file = e.target.files[0]; if (!file) return;
-    const title = prompt(i18n[currentLang].promptTitle); if (!title) return;
+    const title = prompt("Enter image title (e.g: Daikin Aircon Panel):"); if (!title) return;
     const reader = new FileReader();
     reader.onload = ev => {
       const img = new Image();
@@ -938,7 +818,6 @@ function triggerGalleryUpload(useCamera){
         localStorage.setItem(K_GALLERY, JSON.stringify(galleryData));
         renderGallery();
 
-        // Upload to Supabase Storage if available
         if (sbReady) {
           try {
             const blob = await (await fetch(base64)).blob();
@@ -951,7 +830,7 @@ function triggerGalleryUpload(useCamera){
               localStorage.setItem(K_GALLERY, JSON.stringify(galleryData));
               renderGallery();
             }
-          } catch (err) { console.warn("Upload storage fail:", err); }
+          } catch (err) { console.warn("Storage upload fail:", err); }
         }
         schedulePush();
       };
@@ -968,7 +847,7 @@ function viewImage(id){
 }
 function editGalleryTitle(id){
   const item = galleryData.find(g=>g.id===id); if (!item) return;
-  const nt = prompt(i18n[currentLang].promptEditTitle, item.title);
+  const nt = prompt("Edit image title:", item.title);
   if (nt && nt.trim()) {
     item.title = nt.trim();
     localStorage.setItem(K_GALLERY, JSON.stringify(galleryData));
@@ -976,7 +855,7 @@ function editGalleryTitle(id){
   }
 }
 function deleteGalleryImg(id){
-  if (!confirm(i18n[currentLang].confirmDelImg)) return;
+  if (!confirm("Delete this image from gallery?")) return;
   const item = galleryData.find(g=>g.id===id);
   if (item && item.url && sbReady) {
     const path = item.url.split("/").pop();
@@ -1003,7 +882,7 @@ function slISOtoDisplay(iso){
 }
 function slDayName(iso){
   const d = new Date(iso+"T00:00:00");
-  return i18n[currentLang].days[(d.getDay()+6)%7];
+  return ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"][(d.getDay()+6)%7];
 }
 function slHours(start,end){
   if (!start||!end) return 0;
@@ -1046,28 +925,6 @@ function slResetForm(){
   document.getElementById("slReason").value = "";
   document.getElementById("slNotes").value = "";
   document.getElementById("btnCancelEdit").style.display = "none";
-  slApplyLabels();
-}
-function slApplyLabels(){
-  const t = i18n[currentLang];
-  document.getElementById("shiftLogTitleEl").textContent = t.shiftLogTitle;
-  document.getElementById("lblDate").textContent = t.dateLabel;
-  document.getElementById("lblType").textContent = t.typeLabel;
-  document.getElementById("lblStart").textContent = t.startLabel;
-  document.getElementById("lblEnd").textContent = t.endLabel;
-  document.getElementById("lblOT").textContent = t.otLabel;
-  document.getElementById("lblPH").textContent = t.phLabel;
-  document.getElementById("lblReason").textContent = t.reasonLabel;
-  document.getElementById("lblNotes").textContent = t.notesLabel;
-  document.getElementById("slReason").placeholder = t.reasonPh;
-  document.getElementById("slNotes").placeholder = t.notesPh;
-  document.getElementById("btnSaveEntry").textContent = t.saveBtn;
-  document.getElementById("btnCancelEdit").textContent = t.cancelBtn;
-  document.getElementById("btnLogPrint").textContent = t.printBtnLog;
-  document.getElementById("btnLogCSV").textContent = t.csvBtn;
-  document.getElementById("btnLogExport").textContent = t.exportBtn;
-  const sel = document.getElementById("slType");
-  sel.options[0].text = t.morning; sel.options[1].text = t.evening; sel.options[2].text = t.adhoc;
 }
 function shiftLogSaveEntry(){
   const date=document.getElementById("slDate").value;
@@ -1078,7 +935,7 @@ function shiftLogSaveEntry(){
   const ph=document.getElementById("slPH").checked;
   const reason=document.getElementById("slReason").value.trim();
   const notes=document.getElementById("slNotes").value.trim();
-  if (!date||!start||!end){ alert(i18n[currentLang].fillRequired); return; }
+  if (!date||!start||!end){ alert("Please fill date, start and end times."); return; }
   const wasEditing = !!slEditId;
   if (slEditId){
     const idx = shiftLogData.findIndex(e=>e.id===slEditId);
@@ -1106,7 +963,7 @@ function shiftLogEdit(id){
 }
 function shiftLogCancelEdit(){ slResetForm(); }
 function shiftLogDelete(id){
-  if (!confirm(i18n[currentLang].confirmDelEntry)) return;
+  if (!confirm("Delete this entry?")) return;
   const removed = shiftLogData.find(e=>e.id===id);
   shiftLogData = shiftLogData.filter(e=>e.id!==id);
   slSaveStorage(); renderShiftLog();
@@ -1114,27 +971,23 @@ function shiftLogDelete(id){
 }
 function renderShiftLog(){
   if (document.getElementById("shiftLogModal").style.display !== "flex") return;
-  slApplyLabels();
-  const t = i18n[currentLang];
   const year = slViewDate.getFullYear(), month = slViewDate.getMonth();
-  const M_MS=["Jan","Feb","Mac","Apr","Mei","Jun","Jul","Ogos","Sep","Okt","Nov","Dis"];
-  const M_EN=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
-  document.getElementById("shiftLogMonthLabel").textContent =
-    (currentLang==="ms"?M_MS[month]:M_EN[month]) + " " + year;
+  const M = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+  document.getElementById("shiftLogMonthLabel").textContent = M[month] + " " + year;
 
   document.getElementById("shiftLogThead").innerHTML = `<tr>
-    <th>${t.dateCol}</th><th>${t.dayCol}</th><th>${t.shiftCol}</th>
-    <th>${t.startCol}</th><th>${t.endCol}</th>
-    <th style="text-align:right">${t.baseCol}</th>
-    <th style="text-align:right">${t.otCol}</th>
-    <th style="text-align:right">${t.totalCol}</th>
-    <th>${t.phCol}</th><th>${t.reasonCol}</th><th>${t.notesCol}</th><th></th><th></th></tr>`;
+    <th>Date</th><th>Day</th><th>Shift</th>
+    <th>Start</th><th>End</th>
+    <th style="text-align:right">Base Hrs</th>
+    <th style="text-align:right">OT Hrs</th>
+    <th style="text-align:right">Total</th>
+    <th>PH</th><th>Reason</th><th>Notes</th><th></th><th></th></tr>`;
 
   const tbody = document.getElementById("shiftLogTbody");
   const entries = slEntriesForMonth(year,month);
   tbody.innerHTML = "";
   if (entries.length===0) {
-    tbody.innerHTML = `<tr><td colspan="13" style="text-align:center;color:var(--muted);padding:20px">${esc(t.emptyMonth)}</td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="13" style="text-align:center;color:var(--muted);padding:20px">No entries this month. Fill the form above to add.</td></tr>`;
   } else {
     entries.forEach(e=>{
       const base = slHours(e.start,e.end), total = base + (e.ot||0);
@@ -1143,7 +996,7 @@ function renderShiftLog(){
       tr.innerHTML = `
         <td>${esc(slISOtoDisplay(e.date))}</td>
         <td>${esc(slDayName(e.date))}</td>
-        <td>${esc(t[e.type])}</td>
+        <td>${esc(e.type.charAt(0).toUpperCase()+e.type.slice(1))}</td>
         <td>${esc(e.start)}</td>
         <td>${esc(e.end)}${overnight}</td>
         <td class="num">${base.toFixed(2)}</td>
@@ -1161,7 +1014,6 @@ function renderShiftLog(){
   renderShiftLogSummary(entries);
 }
 function renderShiftLogSummary(entries){
-  const t = i18n[currentLang];
   let mC=0,mB=0,eC=0,eB=0,aC=0,aB=0,tOT=0,tBase=0,phC=0;
   entries.forEach(e=>{
     const b = slHours(e.start,e.end);
@@ -1170,37 +1022,36 @@ function renderShiftLogSummary(entries){
   });
   const total = tBase+tOT, days = entries.length, avg = days? total/days : 0;
   const line = (l,v)=>`<div class="sl-summary-row"><span>${l}</span><span class="val">${v}</span></div>`;
-  let html = `<div style="font-weight:bold;margin-bottom:8px;color:var(--accent2)">${t.workingDays}: ${days}</div>`;
-  if (mC) html += line("&nbsp;&nbsp;"+t.morning, `${mC} ${t.shiftsLabel} · ${mB.toFixed(2)}h · ${t.avgLabel} ${(mB/mC).toFixed(2)}`);
-  if (eC) html += line("&nbsp;&nbsp;"+t.evening, `${eC} ${t.shiftsLabel} · ${eB.toFixed(2)}h · ${t.avgLabel} ${(eB/eC).toFixed(2)}`);
-  if (aC) html += line("&nbsp;&nbsp;"+t.adhoc, `${aC} ${t.shiftsLabel} · ${aB.toFixed(2)}h · ${t.avgLabel} ${(aB/aC).toFixed(2)}`);
-  html += line(t.totalBase, tBase.toFixed(2)+" h");
-  html += line(t.totalOT, tOT.toFixed(2)+" h");
-  html += `<div class="sl-summary-row total"><span>${t.totalHours}</span><span class="val">${total.toFixed(2)} h</span></div>`;
-  html += line(t.avgPerDay, avg.toFixed(2)+" h");
-  html += line(t.phShifts, phC);
+  let html = `<div style="font-weight:bold;margin-bottom:8px;color:var(--accent2)">Working days: ${days}</div>`;
+  if (mC) html += line("&nbsp;&nbsp;Morning", `${mC} shifts · ${mB.toFixed(2)}h · avg ${(mB/mC).toFixed(2)}`);
+  if (eC) html += line("&nbsp;&nbsp;Evening", `${eC} shifts · ${eB.toFixed(2)}h · avg ${(eB/eC).toFixed(2)}`);
+  if (aC) html += line("&nbsp;&nbsp;Adhoc", `${aC} shifts · ${aB.toFixed(2)}h · avg ${(aB/aC).toFixed(2)}`);
+  html += line("Total base hours", tBase.toFixed(2)+" h");
+  html += line("Total OT hours", tOT.toFixed(2)+" h");
+  html += `<div class="sl-summary-row total"><span>TOTAL HOURS</span><span class="val">${total.toFixed(2)} h</span></div>`;
+  html += line("Avg hrs / day", avg.toFixed(2)+" h");
+  html += line("Public Holiday shifts", phC);
   let ytdS=0, ytdH=0;
   shiftLogData.forEach(e=>{
     if (parseInt(e.date.slice(0,4),10)===slViewDate.getFullYear()){ ytdS++; ytdH+=slHours(e.start,e.end)+(e.ot||0); }
   });
-  html += `<div style="margin-top:10px;font-size:.75rem;color:var(--muted);text-align:center">${t.ytdLine} ${slViewDate.getFullYear()}: ${ytdH.toFixed(1)}h · ${ytdS} ${t.ytdShifts}</div>`;
+  html += `<div style="margin-top:10px;font-size:.75rem;color:var(--muted);text-align:center">YTD ${slViewDate.getFullYear()}: ${ytdH.toFixed(1)}h · ${ytdS} shifts</div>`;
   document.getElementById("shiftLogSummary").innerHTML = html;
 }
 function shiftLogCSV(){
   const y=slViewDate.getFullYear(), m=slViewDate.getMonth();
   const entries = slEntriesForMonth(y,m);
-  if (entries.length===0){ alert(i18n[currentLang].emptyMonth); return; }
-  const t = i18n[currentLang];
-  const rows = [[t.dateCol,t.dayCol,t.shiftCol,t.startCol,t.endCol,t.baseCol,t.otCol,t.totalCol,t.phCol,t.reasonCol,t.notesCol]];
+  if (entries.length===0){ alert("No entries this month."); return; }
+  const rows = [["Date","Day","Shift","Start","End","Base Hrs","OT Hrs","Total","PH","Reason","Notes"]];
   entries.forEach(e=>{
     const b = slHours(e.start,e.end);
-    rows.push([slISOtoDisplay(e.date),slDayName(e.date),t[e.type],e.start,e.end,
+    rows.push([slISOtoDisplay(e.date),slDayName(e.date),e.type,e.start,e.end,
       b.toFixed(2),(e.ot||0).toFixed(2),(b+(e.ot||0)).toFixed(2),
       e.ph?"PH":"",e.reason||"",e.notes||""]);
   });
   const sB = entries.reduce((a,e)=>a+slHours(e.start,e.end),0);
   const sO = entries.reduce((a,e)=>a+(e.ot||0),0);
-  rows.push(["","","","",t.totalHours,sB.toFixed(2),sO.toFixed(2),(sB+sO).toFixed(2),"","",""]);
+  rows.push(["","","","","TOTAL HOURS",sB.toFixed(2),sO.toFixed(2),(sB+sO).toFixed(2),"","",""]);
   const csv = rows.map(r=>r.map(c=>`"${String(c).replace(/"/g,'""')}"`).join(",")).join("\r\n");
   const blob = new Blob(["\uFEFF"+csv],{type:"text/csv;charset=utf-8"});
   const url = URL.createObjectURL(blob), a = document.createElement("a");
@@ -1227,7 +1078,7 @@ function shiftLogPrint(){
 }
 
 // ==========================================
-// BACKUP / RESTORE (LOCAL)
+// BACKUP / RESTORE (LOCAL JSON)
 // ==========================================
 function backupJSON(){
   const data = buildStatePayload();
@@ -1235,7 +1086,7 @@ function backupJSON(){
   const url = URL.createObjectURL(blob), a = document.createElement("a");
   a.href=url; a.download=`NojaMasjid_Backup_${new Date().toISOString().slice(0,10)}.json`;
   a.click(); URL.revokeObjectURL(url);
-  alert(i18n[currentLang].backupDone);
+  alert("Backup downloaded successfully.");
 }
 function restoreJSON(input){
   const file = input.files[0]; if (!file) return;
@@ -1245,9 +1096,9 @@ function restoreJSON(input){
       const d = JSON.parse(e.target.result);
       if (!d.tasksMorning || !d.tasksEvening) throw new Error("invalid");
       applyStatePayload(d);
-      alert(i18n[currentLang].restoreSuccess);
+      alert("Data restored. Page will reload.");
       location.reload();
-    } catch { alert(i18n[currentLang].restoreError); }
+    } catch { alert("Invalid backup file."); }
   };
   reader.readAsText(file); input.value="";
 }
@@ -1257,11 +1108,9 @@ function restoreJSON(input){
 // ==========================================
 function tick(){
   const now = new Date();
-  const loc = currentLang==="ms"?"ms-SG":"en-SG";
   document.getElementById("dateDisplay").textContent =
-    now.toLocaleDateString(loc,{weekday:"long",year:"numeric",month:"long",day:"numeric"});
-  document.getElementById("clock").textContent =
-    now.toLocaleTimeString(loc,{hour12:false});
+    now.toLocaleDateString("en-GB",{weekday:"long",year:"numeric",month:"long",day:"numeric"});
+  document.getElementById("clock").textContent = now.toLocaleTimeString("en-GB",{hour12:false});
 }
 setInterval(tick,1000);
 
@@ -1270,10 +1119,9 @@ setInterval(tick,1000);
 // ==========================================
 async function init(){
   document.getElementById("mainNotes").value = notesData;
-  renderTexts(); renderTasks(); renderAdhoc(); slApplyLabels(); tick();
+  renderTexts(); renderTasks(); renderAdhoc(); tick();
   initSupabase();
   if (sbReady) await pullFromCloud(false);
-  // Pull refresh every 60s (untuk multi-device)
   setInterval(()=>{ if (sbReady && !isEditMode) pullFromCloud(false); }, 60000);
 }
 init();
