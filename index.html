@@ -4,7 +4,6 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Noja Masjid App</title>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
   :root {
     --bg:#0f172a; --card:#1e293b; --accent:#22c55e; --accent2:#38bdf8;
@@ -345,26 +344,16 @@
 
 <script>
 // ==========================================
-// SUPABASE CONFIG
+// CLOUDFLARE WORKER PROXY (Supabase Config)
 // ==========================================
-const SB_URL_KEY = "noja_sb_url";
-const SB_KEY_KEY = "noja_sb_key";
-let sbClient = null;
+const WORKER_URL = "https://dzul.dzul1234.workers.dev"; 
 let sbReady = false;
 let pushTimer = null;
 
 function initSupabase() {
-  const url = localStorage.getItem(SB_URL_KEY);
-  const key = localStorage.getItem(SB_KEY_KEY);
-  if (url && key && window.supabase) {
-    try {
-      sbClient = window.supabase.createClient(url, key);
-      sbReady = true;
-      setSyncStatus("ok", "cloud");
-    } catch (e) {
-      console.error("Supabase init fail:", e);
-      setSyncStatus("err", "err");
-    }
+  if (WORKER_URL && WORKER_URL.startsWith("https://")) {
+    sbReady = true;
+    setSyncStatus("ok", "cloud");
   } else {
     setSyncStatus("", "local");
   }
@@ -377,82 +366,24 @@ function setSyncStatus(cls, text) {
   el.textContent = text;
 }
 
-function openSettings() {
-  document.getElementById("cfgUrl").value = localStorage.getItem(SB_URL_KEY) || "";
-  document.getElementById("cfgKey").value = localStorage.getItem(SB_KEY_KEY) || "";
-  document.getElementById("cfgStatus").textContent = sbReady ? "✅ Connected" : "❌ Not connected";
-  document.getElementById("settingsModal").style.display = "flex";
-}
-function closeSettings() {
-  document.getElementById("settingsModal").style.display = "none";
-}
-function saveSettings() {
-  const u = document.getElementById("cfgUrl").value.trim();
-  const k = document.getElementById("cfgKey").value.trim();
-  if (!u || !k) return alert("Please fill both fields.");
-  if (!u.startsWith("https://")) return alert("Project URL must start with https://");
-  localStorage.setItem(SB_URL_KEY, u);
-  localStorage.setItem(SB_KEY_KEY, k);
-  initSupabase();
-  closeSettings();
-  if (sbReady) pullFromCloud(true);
-}
-function clearSettings() {
-  if (!confirm("Remove Supabase settings from this device?")) return;
-  localStorage.removeItem(SB_URL_KEY);
-  localStorage.removeItem(SB_KEY_KEY);
-  sbClient = null; sbReady = false;
-  setSyncStatus("", "local");
-  closeSettings();
-}
-
-// ==========================================
-// CLOUD SYNC
-// ==========================================
-function buildStatePayload() {
-  return {
-    tasksMorning, tasksEvening, checks: checksData, adhoc: adhocData,
-    notes: notesData, gallery: galleryData, shiftLog: shiftLogData,
-    _savedAt: new Date().toISOString()
-  };
-}
-
-function applyStatePayload(d) {
-  if (!d) return;
-  if (Array.isArray(d.tasksMorning)) tasksMorning = d.tasksMorning;
-  if (Array.isArray(d.tasksEvening)) tasksEvening = d.tasksEvening;
-  if (d.checks) checksData = d.checks;
-  if (d.adhoc) adhocData = d.adhoc;
-  if (typeof d.notes === "string") notesData = d.notes;
-  if (Array.isArray(d.gallery)) galleryData = d.gallery;
-  if (Array.isArray(d.shiftLog)) shiftLogData = d.shiftLog;
-
-  localStorage.setItem(K_TASKS_M, JSON.stringify(tasksMorning));
-  localStorage.setItem(K_TASKS_E, JSON.stringify(tasksEvening));
-  localStorage.setItem(K_CHECKS, JSON.stringify(checksData));
-  localStorage.setItem(K_ADHOC, JSON.stringify(adhocData));
-  localStorage.setItem(K_NOTES, notesData);
-  localStorage.setItem(K_GALLERY, JSON.stringify(galleryData));
-  localStorage.setItem(K_SHIFTLOG, JSON.stringify(shiftLogData));
-}
-
 async function pullFromCloud(showToast) {
-  if (!sbReady) { if (showToast) slToast("Supabase not configured", true); return false; }
+  if (!sbReady) { if (showToast) slToast("Cloud not configured", true); return false; }
   try {
     setSyncStatus("", "syncing…");
-    const { data, error } = await sbClient
-      .from("noja_state").select("data").eq("id", "main").maybeSingle();
-    if (error) throw error;
-    if (data && data.data) {
-      applyStatePayload(data.data);
+    const res = await fetch(WORKER_URL, { method: "GET" });
+    if (!res.ok) throw new Error("Network error");
+    const data = await res.json();
+    
+    if (data && data.length > 0 && data[0].data) {
+      applyStatePayload(data[0].data);
       document.getElementById("mainNotes").value = notesData;
       renderTexts(); renderTasks(); renderAdhoc(); renderGallery();
       setSyncStatus("ok", "cloud ✓");
-      if (showToast) slToast("☁️ Data loaded from Supabase");
+      if (showToast) slToast("☁️ Data loaded from Cloudflare");
       return true;
     } else {
       setSyncStatus("ok", "cloud (empty)");
-      if (showToast) slToast("Supabase is empty — press ☁️ Sync to upload", true);
+      if (showToast) slToast("Cloud is empty — press ☁️ Sync to upload", true);
       return false;
     }
   } catch (e) {
@@ -464,15 +395,22 @@ async function pullFromCloud(showToast) {
 }
 
 async function pushToCloud(showToast) {
-  if (!sbReady) { if (showToast) slToast("Supabase settings missing", true); return; }
+  if (!sbReady) { if (showToast) slToast("Cloud not configured", true); return; }
   try {
     setSyncStatus("", "saving…");
-    const { error } = await sbClient.from("noja_state").upsert({
-      id: "main", data: buildStatePayload(), updated_at: new Date().toISOString()
+    const payload = {
+        id: "main",
+        data: buildStatePayload(),
+        updated_at: new Date().toISOString()
+    };
+    const res = await fetch(WORKER_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
     });
-    if (error) throw error;
+    if (!res.ok) throw new Error("Network error");
     setSyncStatus("ok", "cloud ✓");
-    if (showToast) slToast("✅ Data uploaded to Supabase");
+    if (showToast) slToast("✅ Data uploaded to Cloudflare");
   } catch (e) {
     console.error("Push fail:", e);
     setSyncStatus("err", "err");
