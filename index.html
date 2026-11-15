@@ -628,20 +628,24 @@ function runAutomations() {
         el.innerHTML = t("📥 Click here to save last month's backup!", "📥 Klik sini untuk simpan backup bulan lepas!");
         el.className = "show";
         
-        // When you click the toast, it downloads
+        // Create the actual download link
+        const blob = new Blob([backupData], {type:"application/json"});
+        const url = URL.createObjectURL(blob);
+        const fileName = `AutoBackup_ShiftLog_${prevMonthKey}.json`;
+
+        // Put a REAL link inside the green bar
+        el.innerHTML = `<a href="${url}" download="${fileName}" style="color:inherit; text-decoration:none; display:block;">` + 
+                       t("📥 Click here to save last month's backup!", "📥 Klik sini untuk simpan backup bulan lepas!") + 
+                       `</a>`;
+        el.className = "show";
+
+        // Hide the toast when you click the link
         el.onclick = () => {
-          const blob = new Blob([backupData], {type:"application/json"});
-          const url = URL.createObjectURL(blob), a = document.createElement("a");
-          a.href = url; a.download = `AutoBackup_ShiftLog_${prevMonthKey}.json`;
-          a.click(); URL.revokeObjectURL(url);
-          
-          // Cleanly hide the toast and remove the click event
           el.className = "";
           el.onclick = null;
-          clearTimeout(el._t); 
         };
 
-        // This safety timer ensures it disappears after 10 seconds even if you don't click it
+        // Safety timer (disappears after 10s)
         clearTimeout(el._t);
         el._t = setTimeout(() => { el.className = ""; el.onclick = null; }, 10000);
 
