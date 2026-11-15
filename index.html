@@ -4,6 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Noja Masjid App</title>
+<!-- Supabase JS Client CDN -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
   :root {
     --bg: #0f172a; --card: #1e293b; --accent: #22c55e; --accent2: #38bdf8;
@@ -219,8 +221,6 @@
 
 <div id="sections"></div>
 
-<!-- ⏸️ END OF PART 1 — PASTE PART 2 IMMEDIATELY BELOW THIS LINE -->
-
 <div class="adhoc-section">
   <h3 id="adhocTitle">📌 Tugasan Mingguan</h3>
   <div class="adhoc-grid" id="adhocGrid"></div>
@@ -343,9 +343,24 @@
 </div>
 <!-- ==== SHIFT LOG MODAL — END ==== -->
 
-<!-- ⏸️ END OF PART 2 — PASTE PART 3 IMMEDIATELY BELOW THIS LINE -->
-
 <script>
+// ==========================================
+// SUPABASE CONFIG (Secure Client Prompt)
+// ==========================================
+let SUPABASE_URL = localStorage.getItem("noja_sb_url");
+let SUPABASE_KEY = localStorage.getItem("noja_sb_key");
+
+if (!SUPABASE_URL || !SUPABASE_KEY) {
+  SUPABASE_URL = prompt("Sila masukkan Supabase Project URL:");
+  SUPABASE_KEY = prompt("Sila masukkan Supabase Anon Key:");
+  if (SUPABASE_URL && SUPABASE_KEY) {
+    localStorage.setItem("noja_sb_url", SUPABASE_URL.trim());
+    localStorage.setItem("noja_sb_key", SUPABASE_KEY.trim());
+  }
+}
+
+const supabase = (SUPABASE_URL && SUPABASE_KEY) ? window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY) : null;
+
 // ==========================================
 // TRANSLATIONS (LANGUAGE DICTIONARY)
 // ==========================================
@@ -576,7 +591,7 @@ const defaultEveningData = [
 ];
 
 // ==========================================
-// STATE & VARIABLES
+// STATE & VARIABLES (Fallback to localStorage)
 // ==========================================
 let currentLang = localStorage.getItem("noja_lang") || "ms";
 let currentShift = localStorage.getItem("noja_shift") || "morning";
@@ -634,7 +649,6 @@ function renderTexts() {
   document.getElementById("galleryTitle").textContent = t.galleryTitle;
   document.getElementById("btnCloseGallery").textContent = t.closeBtn;
   
-  // Updated to use the two new buttons
   document.getElementById("btnAddGalleryCamera").textContent = t.cameraBtn;
   document.getElementById("btnAddGalleryFolder").textContent = t.folderBtn;
   
@@ -877,7 +891,7 @@ function saveTasksToStorage() {
 }
 
 // ==========================================
-// GALLERY LOGIC (FIXED)
+// GALLERY LOGIC
 // ==========================================
 function openGallery() {
   document.getElementById("galleryModal").style.display = "flex";
@@ -917,27 +931,21 @@ function renderGallery() {
   });
 }
 
-// FIXED FUNCTION: Trigger file input FIRST to maintain user activation
-// UPDATED: Accepts a boolean to decide whether to force the camera or open the gallery
 function triggerGalleryUpload(useCamera) {
   const input = document.createElement("input");
   input.type = "file";
   input.accept = "image/*";
   
-  // If useCamera is true, force the camera. Otherwise, let the phone choose (Gallery).
   if (useCamera) {
     input.setAttribute("capture", "environment");
   }
 
-  // 1. Open file picker IMMEDIATELY
   input.click();
 
-  // 2. Handle file selection AFTER the dialog closes
   input.onchange = (e) => {
     const file = e.target.files[0];
     if (!file) return;
 
-    // Ask for title AFTER file is selected
     const t = i18n[currentLang];
     const title = prompt(t.promptTitle);
     if (!title) return;
@@ -1164,13 +1172,6 @@ function shiftLogCancelEdit() {
   slResetForm();
 }
 
-function shiftLogDelete(id) {
-  if (!confirm(i18n[currentLang].confirmDelEntry)) return;
-  shiftLogData = shiftLogData.filter(e => e.id !== id);
-  slSaveStorage();
-  renderShiftLog();
-}
-
 function renderShiftLog() {
   if (document.getElementById("shiftLogModal").style.display !== "flex") return;
   slApplyLabels();
@@ -1319,6 +1320,7 @@ function shiftLogCSV() {
   a.click();
   URL.revokeObjectURL(url);
 }
+
 function slToast(msg, isError) {
   const el = document.getElementById("slToast");
   if (!el) return;
@@ -1337,7 +1339,6 @@ function shiftLogDelete(id) {
   slToast("🗑️ Deleted: " + (removed ? slISOtoDisplay(removed.date) : "entry"), true);
 }
 
-// Tambah toast notification pada fungsi Save Entry
 const originalSave = shiftLogSaveEntry;
 shiftLogSaveEntry = function() {
   const date = document.getElementById("slDate").value;
@@ -1351,7 +1352,7 @@ shiftLogSaveEntry = function() {
   }
   
   const wasEditing = !!slEditId;
-  originalSave(); // Panggil fungsi asal kau
+  originalSave();
   
   const total = (slHours(start, end) + ot).toFixed(2);
   slToast((wasEditing ? "✏️ Updated: " : "✅ Saved: ") + slISOtoDisplay(date) + " · " + total + "h");
@@ -1513,8 +1514,6 @@ function init() {
   renderAdhoc();
   slApplyLabels();
   tick();
-  
-  // REMOVED the auto-open section code here so it starts minimized.
 }
 
 init();
