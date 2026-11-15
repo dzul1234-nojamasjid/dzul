@@ -3,12 +3,12 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Noja Masjid App</title>
+<title>Noja Daily Procedure</title>
 <style>
   :root {
     --bg:#0f172a; --card:#1e293b; --accent:#22c55e; --accent2:#38bdf8;
     --text:#e2e8f0; --muted:#94a3b8; --warn:#f59e0b; --danger:#ef4444;
-    --border:#334155; --input-bg:#0b1220;
+    --border:#334155; --input-bg:#0b1220; --gold:#fbbf24;
   }
   *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
   body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
@@ -28,11 +28,34 @@
     padding:10px 20px;border-radius:10px;font-weight:bold;cursor:pointer;transition:.2s}
   .shift-btn.active{background:var(--accent2);color:#0f172a;border-color:var(--accent2)}
 
-  header{text-align:center;margin-bottom:20px;padding:16px;
-    background:linear-gradient(135deg,#166534,#065f46);border-radius:16px}
-  header h1{margin:0;font-size:1.3rem}
-  header p{margin:6px 0 0;color:#bbf7d0;font-size:0.85rem}
-  .date-display{font-size:0.95rem;font-weight:bold;color:#fff;margin-top:8px}
+  header{text-align:center;margin-bottom:20px;padding:20px 16px;
+    background:linear-gradient(135deg,#166534,#065f46);border-radius:16px;box-shadow:0 4px 15px rgba(0,0,0,0.3)}
+  header h1{margin:0;font-size:1.4rem;letter-spacing:0.5px}
+  
+  /* Ramadhan Countdown Styling */
+  .ramadhan-countdown {
+    margin-top: 15px;
+    padding: 10px;
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 10px;
+    border: 1px solid rgba(251, 191, 36, 0.3);
+  }
+  .ramadhan-countdown h3 {
+    margin: 0 0 5px 0;
+    font-size: 0.85rem;
+    color: var(--gold);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+  .ramadhan-countdown .days {
+    font-size: 1.8rem;
+    font-weight: 900;
+    color: #fff;
+    text-shadow: 0 0 10px rgba(251, 191, 36, 0.5);
+  }
+  .ramadhan-countdown .days span { font-size: 0.9rem; font-weight: 400; color: var(--text); }
+
+  .date-display{font-size:0.95rem;font-weight:bold;color:#fff;margin-top:12px}
   .clock{font-size:1.5rem;font-weight:700;margin-top:4px;color:#fff;font-variant-numeric:tabular-nums}
 
   .progress-wrap{position:sticky;top:0;z-index:10;background:var(--bg);padding:10px 0;margin-bottom:8px}
@@ -133,7 +156,7 @@
   @media print{
     body{background:#fff;color:#000;padding:0}
     header,.progress-wrap,footer,.top-bar,.adhoc-section,.notes-section,.btn-sm,.btn-delete,
-    .btn-add,.btn-del-sec,.arrow,.shift-toggle,.btn-check-all{display:none!important}
+    .btn-add,.btn-del-sec,.arrow,.shift-toggle,.btn-check-all,.ramadhan-countdown{display:none!important}
     .section{border:1px solid #ccc;page-break-inside:avoid;margin-bottom:15px;background:#fff}
     .section-head{background:#eee!important;color:#000}
     .section-body{display:block!important}
@@ -191,8 +214,15 @@
 </div>
 
 <header>
-  <h1 id="title">Noja Masjid Work Procedure</h1>
-  <p id="subtitle">Daily Routine · 4:30 AM – 9:00 AM</p>
+  <h1 id="title">Noja Daily Procedure</h1>
+  
+  <!-- NEW RAMADHAN COUNTDOWN -->
+  <div class="ramadhan-countdown">
+    <h3>🌙 Countdown to Ramadhan</h3>
+    <div class="days" id="ramadhanDays">--</div>
+    <div style="font-size:0.75rem;color:var(--muted);margin-top:4px">Estimated: 8 Feb 2027</div>
+  </div>
+
   <div class="date-display" id="dateDisplay">--</div>
   <div class="clock" id="clock">--:--:--</div>
 </header>
@@ -215,7 +245,7 @@
 </div>
 
 <footer>
-  <button class="main-btn" onclick="expandAll()">Expand All</button>
+  <button class="main-btn" id="btnExpandAll" onclick="toggleExpandAll()">Expand All</button>
   <button class="main-btn btn-primary" id="btnEdit" onclick="toggleEditMode()">✏️ Edit</button>
   <button class="main-btn btn-danger" onclick="resetAll()">Reset</button>
 </footer>
@@ -318,7 +348,6 @@
 // ==========================================
 // CLOUDFLARE WORKER PROXY
 // ==========================================
-// PASTIKAN URL DI BAWAH INI ADALAH URL CLOUDFLARE WORKER BARU TUAN
 const WORKER_URL = "https://noja-dzul.dzul1234.workers.dev"; 
 
 let sbReady = true;
@@ -498,7 +527,7 @@ const defaultEveningData = [
 ];
 
 // ==========================================
-// STATE & BUG FIX FOR [object Object]
+// STATE & UNIVERSAL DATA CLEANER
 // ==========================================
 let currentShift = localStorage.getItem("noja_shift") || "morning";
 let isEditMode = false;
@@ -507,18 +536,23 @@ const K_TASKS_M="noja_tasks_m_v7", K_TASKS_E="noja_tasks_e_v7";
 const K_CHECKS="noja_checks_v7", K_ADHOC="noja_adhoc_v7";
 const K_NOTES="noja_notes_v7", K_GALLERY="noja_gallery_v7", K_SHIFTLOG="noja_shiftlog_v2";
 
+// This safety function is applied to EVERY task as it renders
+// If it finds an object, it extracts the text. If it's a string, it uses it.
+function safeText(val) {
+  if (val === null || val === undefined) return "";
+  if (typeof val === "object") {
+    return val.en || val.ms || Object.values(val)[0] || "Task";
+  }
+  return String(val);
+}
+
 function cleanOldData(data) {
   if (!Array.isArray(data)) return data;
   return data.map(sec => {
-    let title = sec.title;
-    if (typeof title === 'object' && title !== null) title = title.en || title.ms || "Section";
+    let title = safeText(sec.title) || "Section";
     let tasks = sec.tasks || [];
     tasks = tasks.map(t => {
-      let taskText = t.t;
-      if (typeof taskText === 'object' && taskText !== null) taskText = taskText.en || taskText.ms || "Task";
-      let note = t.n;
-      if (typeof note === 'object' && note !== null) note = note.en || note.ms || "";
-      return { t: taskText, n: note };
+      return { t: safeText(t.t), n: safeText(t.n) };
     });
     return { time: sec.time, title: title, tasks: tasks };
   });
@@ -542,8 +576,6 @@ const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt
 // RENDER
 // ==========================================
 function renderTexts() {
-  document.getElementById("subtitle").textContent =
-    currentShift === "morning" ? "Daily Routine · 4:30 AM – 9:00 AM" : "Daily Routine · 5:30 PM – 10:30 PM";
   document.getElementById("shiftMorningBtn").className = currentShift==="morning" ? "shift-btn active" : "shift-btn";
   document.getElementById("shiftEveningBtn").className = currentShift==="evening" ? "shift-btn active" : "shift-btn";
   document.getElementById("btnEdit").textContent = isEditMode ? "💾 Save" : "✏️ Edit";
@@ -562,9 +594,13 @@ function renderTasks() {
     div.className = "section"; div.id = "sec" + si;
     const head = document.createElement("div");
     head.className = "section-head";
+    
+    // Using safeText() directly here prevents [object Object] completely
+    const safeTitle = safeText(sec.title);
+    
     head.innerHTML = `
       <span class="time">${esc(sec.time)}</span>
-      <h2>${esc(sec.title)}</h2>
+      <h2>${esc(safeTitle)}</h2>
       <span class="badge-done">DONE</span>
       ${isEditMode ? `<button class="btn-sm btn-del-sec" onclick="deleteSection(${si})">Delete Box</button>` : ""}
       <span class="arrow">▶</span>`;
@@ -586,14 +622,18 @@ function renderTasks() {
       const key = `s${currentShift}_${si}_t${ti}`;
       const wrap = document.createElement("div");
       wrap.className = "task";
+      
+      const safeTaskText = safeText(task.t);
+      const safeTaskNote = safeText(task.n);
+      
       if (isEditMode) {
         wrap.style.flexDirection = "column";
         wrap.innerHTML = `
-          <input type="text" class="edit-input" value="${esc(task.t)}"
+          <input type="text" class="edit-input" value="${esc(safeTaskText)}"
             onchange="updateTaskText(${si},${ti},this.value)">
           <div style="display:flex;width:100%;gap:8px;align-items:center">
             <input type="text" class="edit-input" style="flex:1;margin-bottom:0;font-size:.8rem"
-              placeholder="Notes" value="${esc(task.n || '')}"
+              placeholder="Notes" value="${esc(safeTaskNote)}"
               onchange="updateTaskNote(${si},${ti},this.value)">
             <button class="btn-sm btn-delete" onclick="deleteTask(${si},${ti})">Delete</button>
           </div>`;
@@ -604,7 +644,7 @@ function renderTasks() {
           localStorage.setItem(K_CHECKS, JSON.stringify(checksData)); updateProgress(); schedulePush(); };
         const lbl = document.createElement("label");
         lbl.htmlFor = key;
-        lbl.innerHTML = esc(task.t) + (task.n ? `<span class="note">${esc(task.n)}</span>` : "");
+        lbl.innerHTML = esc(safeTaskText) + (safeTaskNote ? `<span class="note">${esc(safeTaskNote)}</span>` : "");
         wrap.appendChild(cb); wrap.appendChild(lbl);
       }
       body.appendChild(wrap);
@@ -637,7 +677,7 @@ function renderAdhoc() {
     c.className="adhoc-card";
     c.innerHTML = `<h4>${esc(days[i])}</h4>
       <textarea class="adhoc-textarea" id="adhoc_${i}" placeholder="E.g: Bread donation, extra mic..."
-        oninput="saveAdhoc(${i},this.value)">${esc(adhocData[i]||"")}</textarea>`;
+        oninput="saveAdhoc(${i},this.value)">${esc(safeText(adhocData[i]))}</textarea>`;
     grid.appendChild(c);
   }
 }
@@ -713,7 +753,16 @@ function resetAll(){
     renderTasks(); renderAdhoc(); schedulePush();
   }
 }
-function expandAll(){ document.querySelectorAll(".section").forEach(s=>s.classList.toggle("open")); }
+
+// Toggle Expand / Collapse All
+let isAllExpanded = false;
+function toggleExpandAll() {
+  isAllExpanded = !isAllExpanded;
+  document.querySelectorAll(".section").forEach(s => {
+    s.classList.toggle("open", isAllExpanded);
+  });
+  document.getElementById("btnExpandAll").textContent = isAllExpanded ? "Collapse All" : "Expand All";
+}
 
 // ==========================================
 // GALLERY
@@ -735,7 +784,7 @@ function renderGallery(){
     card.innerHTML = `
       <img src="${esc(imgSrc)}" onclick="viewImage('${esc(item.id)}')" alt="">
       <div class="gallery-item-info">
-        <div class="gallery-item-title">${esc(item.title)}</div>
+        <div class="gallery-item-title">${esc(safeText(item.title))}</div>
         <div class="gallery-item-actions">
           <button class="btn-sm" style="background:var(--accent2);color:#0f172a"
             onclick="editGalleryTitle('${esc(item.id)}')">Edit</button>
@@ -786,7 +835,7 @@ function viewImage(id){
 }
 function editGalleryTitle(id){
   const item = galleryData.find(g=>g.id===id); if (!item) return;
-  const nt = prompt("Edit image title:", item.title);
+  const nt = prompt("Edit image title:", safeText(item.title));
   if (nt && nt.trim()) {
     item.title = nt.trim();
     localStorage.setItem(K_GALLERY, JSON.stringify(galleryData));
@@ -1038,13 +1087,27 @@ function restoreJSON(input){
 }
 
 // ==========================================
-// CLOCK
+// CLOCK & COUNTDOWN
 // ==========================================
 function tick(){
   const now = new Date();
   document.getElementById("dateDisplay").textContent =
     now.toLocaleDateString("en-GB",{weekday:"long",year:"numeric",month:"long",day:"numeric"});
   document.getElementById("clock").textContent = now.toLocaleTimeString("en-GB",{hour12:false});
+  
+  // Ramadhan Countdown (8 Feb 2027)
+  const ramadhanDate = new Date("2027-02-08T00:00:00");
+  const diffTime = ramadhanDate - now;
+  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+  
+  const el = document.getElementById("ramadhanDays");
+  if (diffDays > 0) {
+    el.innerHTML = `${diffDays} <span>days left</span>`;
+  } else if (diffDays === 0) {
+    el.innerHTML = `Alhamdulillah, Ramadhan is here!`;
+  } else {
+    el.innerHTML = `Ramadhan Mubarak`;
+  }
 }
 setInterval(tick,1000);
 
