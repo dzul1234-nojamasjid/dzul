@@ -611,19 +611,21 @@ function runAutomations() {
 
   // 1. Auto-Backup (Runs on the 1st of the month or later if not done yet)
   if (lastBackup !== currentMonthKey) {
-    // Find entries from the previous month
     let prevMonthDate = new Date(now.getFullYear(), now.getMonth() - 1, 1);
     const prevMonthKey = `${prevMonthDate.getFullYear()}-${String(prevMonthDate.getMonth()+1).padStart(2,"0")}`;
     
     const prevEntries = shiftLogData.filter(e => e.date.startsWith(prevMonthKey));
     
     if (prevEntries.length > 0) {
-      const blob = new Blob([JSON.stringify({month: prevMonthKey, entries: prevEntries}, null, 2)], {type:"application/json"});
-      const url = URL.createObjectURL(blob), a = document.createElement("a");
-      a.href = url; a.download = `AutoBackup_ShiftLog_${prevMonthKey}.json`;
-      a.click(); URL.revokeObjectURL(url);
-      
-      setTimeout(() => slToast(t("📥 Auto-backup of last month downloaded", "📥 Backup automatik bulan lepas dimuat turun"), false), 1000);
+      // We add a 1.5 second delay so the browser doesn't block the automatic download
+      setTimeout(() => {
+        const blob = new Blob([JSON.stringify({month: prevMonthKey, entries: prevEntries}, null, 2)], {type:"application/json"});
+        const url = URL.createObjectURL(blob), a = document.createElement("a");
+        a.href = url; a.download = `AutoBackup_ShiftLog_${prevMonthKey}.json`;
+        a.click(); URL.revokeObjectURL(url);
+        
+        slToast(t("📥 Auto-backup of last month downloaded", "📥 Backup automatik bulan lepas dimuat turun"), false);
+      }, 1500); // 1500ms = 1.5 seconds
     }
     localStorage.setItem(K_LAST_BACKUP, currentMonthKey);
   }
