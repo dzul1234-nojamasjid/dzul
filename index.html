@@ -1317,42 +1317,63 @@ function tick(){
   document.getElementById("dateDisplay").textContent = `${dayName}, ${dayNum} ${monthName} ${yearNum}`;
   document.getElementById("clock").textContent = now.toLocaleTimeString("en-GB",{hour12:false});
   
-  // --- DYNAMIC COUNTDOWN LOGIC ---
-  const ramadhan2027 = new Date("2027-02-08T00:00:00");
-  const syawal2027 = new Date("2027-03-10T00:00:00");
-  const ramadhan2028 = new Date("2028-01-28T00:00:00"); // Estimated next Ramadhan
+  // --- MULTI-YEAR SMART COUNTDOWN ---
+  // Estimated dates for Singapore (subject to official moon sighting)
+  const islamicDates = [
+    { ramadhan: "2027-02-08", syawal: "2027-03-10" },
+    { ramadhan: "2028-01-28", syawal: "2028-02-26" },
+    { ramadhan: "2029-01-16", syawal: "2029-02-15" },
+    { ramadhan: "2030-01-06", syawal: "2030-02-04" },
+    { ramadhan: "2030-12-26", syawal: "2031-01-24" },
+    { ramadhan: "2031-12-15", syawal: "2032-01-14" },
+    { ramadhan: "2032-12-04", syawal: "2033-01-02" },
+    { ramadhan: "2033-11-23", syawal: "2033-12-23" },
+    { ramadhan: "2034-11-12", syawal: "2034-12-12" },
+    { ramadhan: "2035-11-01", syawal: "2035-12-01" },
+    { ramadhan: "2036-10-21", syawal: "2036-11-19" }
+  ];
 
-  const el = document.getElementById("ramadhanDays");
-  const titleEl = document.getElementById("ramadhanTitle");
-  const dateEl = document.getElementById("ramadhanDate");
+  let targetTitle = "";
+  let targetDateStr = "";
+  let targetDays = 0;
+  let found = false;
 
-  if (now < ramadhan2027) {
-    // Countdown to Ramadhan 2027
-    const diffTime = ramadhan2027 - now;
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    titleEl.textContent = t("🌙 Countdown to Ramadhan", "🌙 Detik Kehadiran Ramadhan");
-    el.innerHTML = t(`${diffDays} <span>days left</span>`, `${diffDays} <span>hari lagi</span>`);
-    dateEl.textContent = t("Estimated: 8 Feb 2027", "Anggaran: 8 Feb 2027");
-  } 
-  else if (now >= ramadhan2027 && now < syawal2027) {
-    // Countdown to Syawal 2027 (Hari Raya)
-    const diffTime = syawal2027 - now;
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    titleEl.textContent = t("✨ Countdown to Syawal (Hari Raya)", "✨ Detik Kehadiran Syawal (Hari Raya)");
-    el.innerHTML = t(`${diffDays} <span>days left</span>`, `${diffDays} <span>hari lagi</span>`);
-    dateEl.textContent = t("Estimated: 10 Mar 2027", "Anggaran: 10 Mar 2027");
-  } 
-  else if (now >= syawal2027) {
-    // Countdown to Next Ramadhan (2028)
-    const diffTime = ramadhan2028 - now;
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    titleEl.textContent = t("🌙 Countdown to Next Ramadhan", "🌙 Detik Kehadiran Ramadhan Seterusnya");
-    el.innerHTML = t(`${diffDays} <span>days left</span>`, `${diffDays} <span>hari lagi</span>`);
-    dateEl.textContent = t("Estimated: 28 Jan 2028", "Anggaran: 28 Jan 2028");
+  // Loop through the list to find what to count down to
+  for (let i = 0; i < islamicDates.length; i++) {
+    const rDate = new Date(islamicDates[i].ramadhan + "T00:00:00");
+    const sDate = new Date(islamicDates[i].syawal + "T00:00:00");
+
+    // Are we before this year's Ramadhan?
+    if (now < rDate) {
+      targetTitle = t("🌙 Countdown to Ramadhan", "🌙 Detik Kehadiran Ramadhan");
+      targetDateStr = t(`Estimated: ${islamicDates[i].ramadhan}`, `Anggaran: ${islamicDates[i].ramadhan}`);
+      targetDays = Math.ceil((rDate - now) / (1000 * 60 * 60 * 24));
+      found = true;
+      break;
+    }
+    
+    // Are we between this year's Ramadhan and Syawal?
+    if (now >= rDate && now < sDate) {
+      targetTitle = t("✨ Countdown to Syawal (Hari Raya)", "✨ Detik Kehadiran Syawal (Hari Raya)");
+      targetDateStr = t(`Estimated: ${islamicDates[i].syawal}`, `Anggaran: ${islamicDates[i].syawal}`);
+      targetDays = Math.ceil((sDate - now) / (1000 * 60 * 60 * 24));
+      found = true;
+      break;
+    }
   }
+
+  // Fallback just in case we run out of dates in 10 years
+  if (!found) {
+    targetTitle = t("🌙 Countdown to Ramadhan", "🌙 Detik Kehadiran Ramadhan");
+    targetDateStr = t("Please update Islamic dates.", "Sila kemaskini tarikh Islam.");
+    targetDays = "--";
+  }
+
+  document.getElementById("ramadhanTitle").textContent = targetTitle;
+  document.getElementById("ramadhanDate").textContent = targetDateStr;
+  document.getElementById("ramadhanDays").innerHTML = t(`${targetDays} <span>days left</span>`, `${targetDays} <span>hari lagi</span>`);
 }
 setInterval(tick,1000);
-
 // ==========================================
 // INIT
 // ==========================================
