@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Noja Daily Procedure</title>
+<title>Noja Daily Checklist</title>
 <style>
   :root {
     --bg:#0f172a; --card:#1e293b; --accent:#22c55e; --accent2:#38bdf8;
@@ -14,11 +14,16 @@
   body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
     background:var(--bg);color:var(--text);padding:16px;padding-bottom:120px;line-height:1.5}
 
-  .top-bar{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:10px}
+  .top-bar{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px;flex-wrap:wrap;gap:10px}
   .btn-group{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+  
+  /* Language Switch Styling */
+  .lang-switch { display: flex; background: var(--border); border-radius: 8px; overflow: hidden; }
+  .lang-switch button { background: transparent; border: none; color: var(--muted); padding: 6px 12px; font-weight: bold; font-size: 0.8rem; cursor: pointer; transition: 0.2s; }
+  .lang-switch button.active { background: var(--accent2); color: #0f172a; }
+
   .btn-lang,.btn-tool{background:var(--border);color:var(--text);border:none;padding:6px 12px;
     border-radius:6px;font-weight:700;font-size:0.8rem;cursor:pointer;width:auto}
-  .btn-lang{background:var(--accent2);color:#0f172a}
   .btn-gallery{background:#8b5cf6;color:#fff}
   .btn-log{background:#f97316;color:#fff}
   .btn-sync{background:var(--accent);color:#0f172a}
@@ -32,28 +37,35 @@
     background:linear-gradient(135deg,#166534,#065f46);border-radius:16px;box-shadow:0 4px 15px rgba(0,0,0,0.3)}
   header h1{margin:0;font-size:1.4rem;letter-spacing:0.5px}
   
-  /* Ramadhan Countdown Styling */
+  /* Ramadhan Countdown - FULL YELLOW & BLINKING */
   .ramadhan-countdown {
     margin-top: 15px;
-    padding: 10px;
-    background: rgba(0, 0, 0, 0.2);
+    padding: 12px;
+    background: rgba(0, 0, 0, 0.25);
     border-radius: 10px;
-    border: 1px solid rgba(251, 191, 36, 0.3);
+    border: 1px solid rgba(251, 191, 36, 0.4);
+    color: var(--gold); /* All text yellow */
   }
   .ramadhan-countdown h3 {
-    margin: 0 0 5px 0;
+    margin: 0 0 6px 0;
     font-size: 0.85rem;
-    color: var(--gold);
     text-transform: uppercase;
     letter-spacing: 1px;
+    color: var(--gold);
   }
   .ramadhan-countdown .days {
     font-size: 1.8rem;
     font-weight: 900;
-    color: #fff;
-    text-shadow: 0 0 10px rgba(251, 191, 36, 0.5);
+    color: var(--gold);
+    text-shadow: 0 0 10px rgba(251, 191, 36, 0.6);
+    animation: slowBlink 2.5s infinite ease-in-out;
   }
-  .ramadhan-countdown .days span { font-size: 0.9rem; font-weight: 400; color: var(--text); }
+  .ramadhan-countdown .days span { font-size: 0.9rem; font-weight: 600; }
+  
+  @keyframes slowBlink {
+    0%, 100% { opacity: 1; text-shadow: 0 0 15px rgba(251, 191, 36, 0.8); }
+    50% { opacity: 0.6; text-shadow: 0 0 2px rgba(251, 191, 36, 0.3); }
+  }
 
   .date-display{font-size:0.95rem;font-weight:bold;color:#fff;margin-top:12px}
   .clock{font-size:1.5rem;font-weight:700;margin-top:4px;color:#fff;font-variant-numeric:tabular-nums}
@@ -195,11 +207,19 @@
 <body>
 
 <div class="top-bar">
-  <div style="font-weight:bold;font-size:1.1rem">🕌 Noja Masjid</div>
+  <div style="display:flex; flex-direction:column; gap:8px;">
+    <div style="font-weight:bold;font-size:1.1rem">🕌 Noja Masjid</div>
+    <!-- LANGUAGE SWITCH -->
+    <div class="lang-switch">
+      <button id="btnLangEN" onclick="setLang('en')" class="active">ENG</button>
+      <button id="btnLangBM" onclick="setLang('bm')">BM</button>
+    </div>
+  </div>
+  
   <div class="btn-group">
     <span class="sync-status" id="syncStatus">local</span>
-    <button class="btn-tool btn-log" onclick="openShiftLog()">📅 Shift Log</button>
-    <button class="btn-tool btn-gallery" onclick="openGallery()">📸 Gallery</button>
+    <button class="btn-tool btn-log" id="btnShiftLog" onclick="openShiftLog()">📅 Shift Log</button>
+    <button class="btn-tool btn-gallery" id="btnGallery" onclick="openGallery()">📸 Gallery</button>
     <button class="btn-tool btn-sync" onclick="pushToCloud(true)" title="Upload to Supabase">☁️ Sync</button>
     <button class="btn-tool" onclick="backupJSON()" title="Backup JSON">📥</button>
     <button class="btn-tool" onclick="document.getElementById('restoreFile').click()" title="Restore JSON">📤</button>
@@ -214,13 +234,12 @@
 </div>
 
 <header>
-  <h1 id="title">Noja Daily Procedure</h1>
+  <h1 id="appTitle">Noja Daily Checklist</h1>
   
-  <!-- NEW RAMADHAN COUNTDOWN -->
   <div class="ramadhan-countdown">
-    <h3>🌙 Countdown to Ramadhan</h3>
+    <h3 id="ramadhanTitle">🌙 Countdown to Ramadhan</h3>
     <div class="days" id="ramadhanDays">--</div>
-    <div style="font-size:0.75rem;color:var(--muted);margin-top:4px">Estimated: 8 Feb 2027</div>
+    <div id="ramadhanDate" style="font-size:0.75rem;margin-top:4px;font-weight:bold;">Estimated: 8 Feb 2027</div>
   </div>
 
   <div class="date-display" id="dateDisplay">--</div>
@@ -235,32 +254,32 @@
 <div id="sections"></div>
 
 <div class="adhoc-section">
-  <h3>📌 Weekly Tasks</h3>
+  <h3 id="lblWeeklyTasks">📌 Weekly Tasks</h3>
   <div class="adhoc-grid" id="adhocGrid"></div>
 </div>
 
 <div class="notes-section">
-  <h3>📝 Personal Notes</h3>
+  <h3 id="lblNotes">📝 Personal Notes</h3>
   <textarea class="notes-textarea" id="mainNotes" placeholder="Write notes here..."></textarea>
 </div>
 
 <footer>
   <button class="main-btn" id="btnExpandAll" onclick="toggleExpandAll()">Expand All</button>
   <button class="main-btn btn-primary" id="btnEdit" onclick="toggleEditMode()">✏️ Edit</button>
-  <button class="main-btn btn-danger" onclick="resetAll()">Reset</button>
+  <button class="main-btn btn-danger" id="btnReset" onclick="resetAll()">Reset</button>
 </footer>
 
 <!-- Gallery Modal -->
 <div id="galleryModal" class="modal">
   <div class="modal-header">
-    <h2>📸 Reference Gallery</h2>
-    <button class="btn-close" onclick="closeGallery()">Close</button>
+    <h2 id="galTitle">📸 Reference Gallery</h2>
+    <button class="btn-close" id="btnGalClose" onclick="closeGallery()">Close</button>
   </div>
   <div class="modal-body">
     <div style="display:flex;gap:10px;margin-bottom:16px">
-      <button class="btn-tool btn-sync" style="flex:1;padding:12px;font-size:.9rem"
+      <button class="btn-tool btn-sync" id="btnGalCam" style="flex:1;padding:12px;font-size:.9rem"
         onclick="triggerGalleryUpload(true)">📷 Camera</button>
-      <button class="btn-tool btn-sync" style="flex:1;padding:12px;font-size:.9rem"
+      <button class="btn-tool btn-sync" id="btnGalUpload" style="flex:1;padding:12px;font-size:.9rem"
         onclick="triggerGalleryUpload(false)">🖼️ Gallery</button>
     </div>
     <div class="gallery-grid" id="galleryGrid"></div>
@@ -277,7 +296,7 @@
 <div id="slToast"></div>
 <div id="shiftLogModal" class="modal">
   <div class="modal-header">
-    <h2>📅 Shift Log</h2>
+    <h2 id="slTitle">📅 Shift Log</h2>
     <button class="btn-close" onclick="closeShiftLog()">✖</button>
   </div>
   <div class="modal-body">
@@ -290,39 +309,39 @@
     <div id="shiftLogForm" style="background:var(--input-bg);border:1px solid var(--border);
       border-radius:10px;padding:12px;margin-bottom:14px">
       <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px">
-        <div><label style="font-size:.75rem;color:var(--muted)">Date</label>
+        <div><label id="lblSlDate" style="font-size:.75rem;color:var(--muted)">Date</label>
           <input type="date" id="slDate" class="edit-input" style="margin-bottom:0"></div>
-        <div><label style="font-size:.75rem;color:var(--muted)">Shift Type</label>
+        <div><label id="lblSlType" style="font-size:.75rem;color:var(--muted)">Shift Type</label>
           <select id="slType" class="edit-input" style="margin-bottom:0" onchange="shiftLogOnTypeChange()">
-            <option value="morning">Morning</option>
-            <option value="evening" selected>Evening</option>
-            <option value="adhoc">Adhoc</option>
+            <option value="morning" id="optMorning">Morning</option>
+            <option value="evening" selected id="optEvening">Evening</option>
+            <option value="adhoc" id="optAdhoc">Adhoc</option>
           </select></div>
-        <div><label style="font-size:.75rem;color:var(--muted)">Start</label>
+        <div><label id="lblSlStart" style="font-size:.75rem;color:var(--muted)">Start</label>
           <input type="time" id="slStart" class="edit-input" style="margin-bottom:0" value="17:30"></div>
-        <div><label style="font-size:.75rem;color:var(--muted)">End</label>
+        <div><label id="lblSlEnd" style="font-size:.75rem;color:var(--muted)">End</label>
           <input type="time" id="slEnd" class="edit-input" style="margin-bottom:0" value="22:30"></div>
-        <div><label style="font-size:.75rem;color:var(--muted)">OT (hrs)</label>
+        <div><label id="lblSlOT" style="font-size:.75rem;color:var(--muted)">OT (hrs)</label>
           <input type="number" id="slOT" class="edit-input" style="margin-bottom:0" min="0" step="0.25" value="0"></div>
         <div style="display:flex;align-items:flex-end;padding-bottom:4px">
           <label style="display:flex;align-items:center;gap:6px;font-size:.85rem">
             <input type="checkbox" id="slPH" style="width:18px;height:18px">
-            <span>Public Holiday</span>
+            <span id="lblSlPH">Public Holiday</span>
           </label></div>
       </div>
       <div style="margin-top:8px">
-        <label style="font-size:.75rem;color:var(--muted)">Reason</label>
+        <label id="lblSlReason" style="font-size:.75rem;color:var(--muted)">Reason</label>
         <input type="text" id="slReason" class="edit-input" style="margin-bottom:0">
       </div>
       <div style="margin-top:8px">
-        <label style="font-size:.75rem;color:var(--muted)">Notes</label>
+        <label id="lblSlNotes" style="font-size:.75rem;color:var(--muted)">Notes</label>
         <input type="text" id="slNotes" class="edit-input" style="margin-bottom:0">
       </div>
       <div style="display:flex;gap:8px;margin-top:10px">
-        <button class="btn-sm" style="flex:1;background:var(--accent);color:#0f172a;padding:10px;font-size:.9rem"
-          id="btnSaveEntry" onclick="shiftLogSaveEntry()">💾 Save</button>
-        <button class="btn-sm" style="flex:1;background:var(--border);color:var(--text);padding:10px;
-          font-size:.9rem;display:none" id="btnCancelEdit" onclick="shiftLogCancelEdit()">✖ Cancel</button>
+        <button class="btn-sm" id="btnSlSave" style="flex:1;background:var(--accent);color:#0f172a;padding:10px;font-size:.9rem"
+          onclick="shiftLogSaveEntry()">💾 Save</button>
+        <button class="btn-sm" id="btnSlCancel" style="flex:1;background:var(--border);color:var(--text);padding:10px;
+          font-size:.9rem;display:none" onclick="shiftLogCancelEdit()">✖ Cancel</button>
       </div>
     </div>
 
@@ -337,7 +356,7 @@
       border-radius:10px;padding:14px;margin-bottom:14px"></div>
 
     <div style="display:flex;gap:8px;flex-wrap:wrap">
-      <button class="btn-tool btn-sync" style="flex:1;padding:10px" onclick="shiftLogPrint()">🖨️ Print / PDF</button>
+      <button class="btn-tool btn-sync" id="btnSlPrint" style="flex:1;padding:10px" onclick="shiftLogPrint()">🖨️ Print / PDF</button>
       <button class="btn-tool" style="flex:1;padding:10px" onclick="shiftLogCSV()">📄 CSV</button>
       <button class="btn-tool" style="flex:1;padding:10px" onclick="shiftLogExportJSON()">📥 Export JSON</button>
     </div>
@@ -450,84 +469,102 @@ function schedulePush() {
 }
 
 // ==========================================
-// DEFAULT DATA
+// BILINGUAL SUPPORT & SAFE TEXT
+// ==========================================
+let currentLang = localStorage.getItem("noja_lang") || "en"; // default to English
+
+function t(en, bm) {
+  return currentLang === "en" ? en : bm;
+}
+
+// Gracefully handle string or object formatting
+function safeText(val) {
+  if (val === null || val === undefined) return "";
+  if (typeof val === "object") {
+    return val[currentLang] || val["en"] || val["bm"] || Object.values(val)[0] || "Task";
+  }
+  return String(val);
+}
+
+// ==========================================
+// DEFAULT DATA (BILINGUAL)
 // ==========================================
 const defaultMorningData = [
-  { time:"4:30 – 4:45", title:"Unlock & Safety", tasks:[
-    {t:"Unlock stairs & main doors"},
-    {t:"Turn on main switch (DB) & lift system"},
-    {t:"Open windows / turn on fans"},
-    {t:"Check outside cleanliness"}
+  { time:"4:30 – 4:45", title:{en:"Unlock & Safety", bm:"Buka & Keselamatan"}, tasks:[
+    {t:{en:"Unlock stairs & main doors", bm:"Buka pintu tangga & pintu utama"}, n:""},
+    {t:{en:"Turn on main switch (DB) & lift system", bm:"Hidupkan suis utama (DB) & sistem lif"}, n:""},
+    {t:{en:"Open windows / turn on fans", bm:"Buka tingkap / hidupkan kipas"}, n:""},
+    {t:{en:"Check outside cleanliness", bm:"Periksa kebersihan luar masjid"}, n:""}
   ]},
-  { time:"4:45 – 5:00", title:"Subuh Prep & Live Stream", tasks:[
-    {t:"Set up PA system & microphone"},
-    {t:"Turn on Sound & Aircon (Daikin/Mitsubishi)"},
-    {t:"Set up Live Streaming (Facebook & OBS)"},
-    {t:"Check qiblat & saf alignment"}
+  { time:"4:45 – 5:00", title:{en:"Subuh Prep & Live Stream", bm:"Persiapan Subuh & Live Stream"}, tasks:[
+    {t:{en:"Set up PA system & microphone", bm:"Sediakan sistem PA & mikrofon"}, n:""},
+    {t:{en:"Turn on Sound & Aircon (Daikin/Mitsubishi)", bm:"Hidupkan bunyi & penghawa dingin (Daikin/Mitsubishi)"}, n:""},
+    {t:{en:"Set up Live Streaming (Facebook & OBS)", bm:"Sediakan Live Streaming (Facebook & OBS)"}, n:""},
+    {t:{en:"Check qiblat & saf alignment", bm:"Periksa arah kiblat & saf jemaah"}, n:""}
   ]},
-  { time:"5:00 – 5:30", title:"During Subuh Prayer", tasks:[
-    {t:"Ensure Live Streaming runs smoothly"},
-    {t:"Tidy shoes on rack"},
-    {t:"Attend to jemaah needs"}
+  { time:"5:00 – 5:30", title:{en:"During Subuh Prayer", bm:"Semasa Solat Subuh"}, tasks:[
+    {t:{en:"Ensure Live Streaming runs smoothly", bm:"Pastikan Live Streaming berjalan lancar"}, n:""},
+    {t:{en:"Tidy shoes on rack", bm:"Susun kasut di rak"}, n:""},
+    {t:{en:"Attend to jemaah needs", bm:"Layan keperluan jemaah"}, n:""}
   ]},
-  { time:"5:30 – 6:30", title:"Cleaning & PMD Carpet", tasks:[
-    {t:"Sweep & mop prayer hall"},
-    {t:"Tidy PMD carpet (prevent tripping)"},
-    {t:"Clean toilets & ablution area"},
-    {t:"Empty trash bins"}
+  { time:"5:30 – 6:30", title:{en:"Cleaning & PMD Carpet", bm:"Pembersihan & Karpet PMD"}, tasks:[
+    {t:{en:"Sweep & mop prayer hall", bm:"Sapu & mop dewan solat"}, n:""},
+    {t:{en:"Tidy PMD carpet (prevent tripping)", bm:"Kemas karpet PMD (elak tersadung)"}, n:""},
+    {t:{en:"Clean toilets & ablution area", bm:"Cuci tandas & tempat wuduk"}, n:""},
+    {t:{en:"Empty trash bins", bm:"Kosongkan tong sampah"}, n:""}
   ]},
-  { time:"6:30 – 7:30", title:"Checks & QR Clocking", tasks:[
-    {t:"Scan QR Code at 11 mosque locations"},
-    {t:"Check Aircon panels (Daikin/Mitsubishi)"},
-    {t:"Check Sound System panel"},
-    {t:"Check broken lights & water leaks"}
+  { time:"6:30 – 7:30", title:{en:"Checks & QR Clocking", bm:"Pemeriksaan & Scan QR"}, tasks:[
+    {t:{en:"Scan QR Code at 11 mosque locations", bm:"Scan QR Code di 11 lokasi masjid"}, n:""},
+    {t:{en:"Check Aircon panels (Daikin/Mitsubishi)", bm:"Periksa panel penghawa dingin (Daikin/Mitsubishi)"}, n:""},
+    {t:{en:"Check Sound System panel", bm:"Periksa panel sistem bunyi"}, n:""},
+    {t:{en:"Check broken lights & water leaks", bm:"Periksa lampu rosak & kebocoran air"}, n:""}
   ]},
-  { time:"7:30 – 8:30", title:"Activity / Class Prep", tasks:[
-    {t:"Prepare donation boxes per label"},
-    {t:"Arrange class chairs / tables"},
-    {t:"Ensure PA & projector are working"},
-    {t:"Prepare drinking water"}
+  { time:"7:30 – 8:30", title:{en:"Activity / Class Prep", bm:"Persediaan Aktiviti / Kelas"}, tasks:[
+    {t:{en:"Prepare donation boxes per label", bm:"Sediakan tabung derma mengikut label"}, n:""},
+    {t:{en:"Arrange class chairs / tables", bm:"Susun kerusi / meja kelas"}, n:""},
+    {t:{en:"Ensure PA & projector are working", bm:"Pastikan PA & projektor berfungsi"}, n:""},
+    {t:{en:"Prepare drinking water", bm:"Sediakan air minuman"}, n:""}
   ]},
-  { time:"8:30 – 9:00", title:"End Morning Shift & Report", tasks:[
-    {t:"Turn off Live Streaming (OBS)"},
-    {t:"Write in the log book"}
+  { time:"8:30 – 9:00", title:{en:"End Morning Shift & Report", bm:"Tamat Syif Pagi & Laporan"}, tasks:[
+    {t:{en:"Turn off Live Streaming (OBS)", bm:"Tutup Live Streaming (OBS)"}, n:""},
+    {t:{en:"Write in the log book", bm:"Tulis dalam buku log"}, n:""}
   ]}
 ];
 
 const defaultEveningData = [
-  { time:"5:30 – 6:30", title:"Early Evening Prep", tasks:[
-    {t:"Unlock mosque gate & main doors"},
-    {t:"Turn on main switch (DB), lights & lift system"},
-    {t:"Turn on Sound & Aircon (if there are classes)"}
+  { time:"5:30 – 6:30", title:{en:"Early Evening Prep", bm:"Persiapan Awal Petang"}, tasks:[
+    {t:{en:"Unlock mosque gate & main doors", bm:"Buka pintu pagar masjid & pintu utama"}, n:""},
+    {t:{en:"Turn on main switch (DB), lights & lift system", bm:"Hidupkan suis utama (DB), lampu & sistem lif"}, n:""},
+    {t:{en:"Turn on Sound & Aircon (if there are classes)", bm:"Hidupkan bunyi & penghawa dingin (jika ada kelas)"}, n:""}
   ]},
-  { time:"6:30 – 7:30", title:"Cleaning & Vacuum", tasks:[
-    {t:"Vacuum main prayer hall carpet"},
-    {t:"Tidy & arrange donation boxes"},
-    {t:"Tidy PMD carpet (ensure no tripping)"},
-    {t:"Clean toilets & ablution area"}
+  { time:"6:30 – 7:30", title:{en:"Cleaning & Vacuum", bm:"Pembersihan & Vakum"}, tasks:[
+    {t:{en:"Vacuum main prayer hall carpet", bm:"Vakum karpet dewan solat utama"}, n:""},
+    {t:{en:"Tidy & arrange donation boxes", bm:"Kemas & susun tabung derma"}, n:""},
+    {t:{en:"Tidy PMD carpet (ensure no tripping)", bm:"Kemas karpet PMD (elak tersadung)"}, n:""},
+    {t:{en:"Clean toilets & ablution area", bm:"Cuci tandas & tempat wuduk"}, n:""}
   ]},
-  { time:"7:30 – 8:30", title:"During Activities / Classes", tasks:[
-    {t:"Monitor class / jemaah needs"},
-    {t:"Check PA system is working"},
-    {t:"Prepare drinking water"}
+  { time:"7:30 – 8:30", title:{en:"During Activities / Classes", bm:"Semasa Aktiviti / Kelas"}, tasks:[
+    {t:{en:"Monitor class / jemaah needs", bm:"Pantau keperluan kelas / jemaah"}, n:""},
+    {t:{en:"Check PA system is working", bm:"Periksa sistem PA berfungsi"}, n:""},
+    {t:{en:"Prepare drinking water", bm:"Sediakan air minuman"}, n:""}
   ]},
-  { time:"8:30 – 9:30", title:"Class Check & QR Clocking", tasks:[
-    {t:"Scan QR Code at 11 mosque locations"},
-    {t:"Check all classroom windows & doors are closed"},
-    {t:"Final check on toilets & ablution area"}
+  { time:"8:30 – 9:30", title:{en:"Class Check & QR Clocking", bm:"Pemeriksaan Kelas & Scan QR"}, tasks:[
+    {t:{en:"Scan QR Code at 11 mosque locations", bm:"Scan QR Code di 11 lokasi masjid"}, n:""},
+    {t:{en:"Check all classroom windows & doors are closed", bm:"Pastikan semua tingkap & pintu kelas ditutup"}, n:""},
+    {t:{en:"Final check on toilets & ablution area", bm:"Pemeriksaan akhir tandas & tempat wuduk"}, n:""}
   ]},
-  { time:"9:30 – 10:30", title:"Lock Up & Safety", tasks:[
-    {t:"Turn off all Aircon (Daikin/Mitsubishi)"},
-    {t:"Turn off big fan (Helicopter), ceiling fans & standing fans"},
-    {t:"Turn off lights & Sound system"},
-    {t:"Turn off Lift system"},
-    {t:"Close all windows"},
-    {t:"Lock main doors, stairs & mosque gate"}
+  { time:"9:30 – 10:30", title:{en:"Lock Up & Safety", bm:"Kunci & Keselamatan"}, tasks:[
+    {t:{en:"Turn off all Aircon (Daikin/Mitsubishi)", bm:"Tutup semua penghawa dingin (Daikin/Mitsubishi)"}, n:""},
+    {t:{en:"Turn off big fan (Helicopter), ceiling fans & standing fans", bm:"Tutup kipas besar (Helicopter), kipas siling & kipas berdiri"}, n:""},
+    {t:{en:"Turn off lights & Sound system", bm:"Tutup lampu & sistem bunyi"}, n:""},
+    {t:{en:"Turn off Lift system", bm:"Tutup sistem lif"}, n:""},
+    {t:{en:"Close all windows", bm:"Tutup semua tingkap"}, n:""},
+    {t:{en:"Lock main doors, stairs & mosque gate", bm:"Kunci pintu utama, tangga & pagar masjid"}, n:""}
   ]}
 ];
 
 // ==========================================
-// STATE & UNIVERSAL DATA CLEANER
+// STATE
 // ==========================================
 let currentShift = localStorage.getItem("noja_shift") || "morning";
 let isEditMode = false;
@@ -535,16 +572,6 @@ let isEditMode = false;
 const K_TASKS_M="noja_tasks_m_v7", K_TASKS_E="noja_tasks_e_v7";
 const K_CHECKS="noja_checks_v7", K_ADHOC="noja_adhoc_v7";
 const K_NOTES="noja_notes_v7", K_GALLERY="noja_gallery_v7", K_SHIFTLOG="noja_shiftlog_v2";
-
-// This safety function is applied to EVERY task as it renders
-// If it finds an object, it extracts the text. If it's a string, it uses it.
-function safeText(val) {
-  if (val === null || val === undefined) return "";
-  if (typeof val === "object") {
-    return val.en || val.ms || Object.values(val)[0] || "Task";
-  }
-  return String(val);
-}
 
 function cleanOldData(data) {
   if (!Array.isArray(data)) return data;
@@ -573,12 +600,80 @@ const getCurrentTasks = () => currentShift === "morning" ? tasksMorning : tasksE
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 
 // ==========================================
+// TRANSLATIONS
+// ==========================================
+function translateUI() {
+  document.getElementById("appTitle").textContent = t("Noja Daily Checklist", "Senarai Semak Harian Noja");
+  
+  // Ramadhan
+  document.getElementById("ramadhanTitle").textContent = t("🌙 Countdown to Ramadhan", "🌙 Detik Kehadiran Ramadhan");
+  document.getElementById("ramadhanDate").textContent = t("Estimated: 8 Feb 2027", "Anggaran: 8 Feb 2027");
+
+  // Shift Toggles
+  document.getElementById("shiftMorningBtn").textContent = t("🌅 Morning Shift", "🌅 Syif Pagi");
+  document.getElementById("shiftEveningBtn").textContent = t("🌙 Evening Shift", "🌙 Syif Petang");
+
+  // Headers
+  document.getElementById("lblWeeklyTasks").textContent = t("📌 Weekly Tasks", "📌 Tugasan Mingguan");
+  document.getElementById("lblNotes").textContent = t("📝 Personal Notes", "📝 Nota Peribadi");
+  document.getElementById("mainNotes").placeholder = t("Write notes here...", "Tulis nota di sini...");
+
+  // Footer
+  document.getElementById("btnExpandAll").textContent = t(
+    isAllExpanded ? "Collapse All" : "Expand All", 
+    isAllExpanded ? "Tutup Semua" : "Buka Semua"
+  );
+  document.getElementById("btnEdit").textContent = isEditMode 
+    ? t("💾 Save", "💾 Simpan") 
+    : t("✏️ Edit", "✏️ Edit");
+  document.getElementById("btnReset").textContent = t("Reset", "Set Semula");
+
+  // Modals
+  document.getElementById("galTitle").textContent = t("📸 Reference Gallery", "📸 Galeri Rujukan");
+  document.getElementById("btnGalClose").textContent = t("Close", "Tutup");
+  document.getElementById("btnGalCam").textContent = t("📷 Camera", "📷 Kamera");
+  document.getElementById("btnGalUpload").textContent = t("🖼️ Gallery", "🖼️ Galeri");
+
+  // Shift Log
+  document.getElementById("slTitle").textContent = t("📅 Shift Log", "📅 Log Syif");
+  document.getElementById("lblSlDate").textContent = t("Date", "Tarikh");
+  document.getElementById("lblSlType").textContent = t("Shift Type", "Jenis Syif");
+  document.getElementById("optMorning").textContent = t("Morning", "Pagi");
+  document.getElementById("optEvening").textContent = t("Evening", "Petang");
+  document.getElementById("optAdhoc").textContent = t("Adhoc", "Adhoc");
+  document.getElementById("lblSlStart").textContent = t("Start", "Mula");
+  document.getElementById("lblSlEnd").textContent = t("End", "Tamat");
+  document.getElementById("lblSlOT").textContent = t("OT (hrs)", "OT (jam)");
+  document.getElementById("lblSlPH").textContent = t("Public Holiday", "Cuti Umum");
+  document.getElementById("lblSlReason").textContent = t("Reason", "Sebab");
+  document.getElementById("lblSlNotes").textContent = t("Notes", "Nota");
+  document.getElementById("btnSlSave").textContent = t("💾 Save", "💾 Simpan");
+  document.getElementById("btnSlCancel").textContent = t("✖ Cancel", "✖ Batal");
+  document.getElementById("btnSlPrint").textContent = t("🖨️ Print / PDF", "🖨️ Cetak / PDF");
+}
+
+function setLang(lang) {
+  currentLang = lang;
+  localStorage.setItem("noja_lang", currentLang);
+  
+  document.getElementById("btnLangEN").className = lang === "en" ? "active" : "";
+  document.getElementById("btnLangBM").className = lang === "bm" ? "active" : "";
+  
+  translateUI(); 
+  renderTexts();
+  renderTasks(); 
+  renderAdhoc(); 
+  if(document.getElementById("shiftLogModal").style.display === "flex"){
+    renderShiftLog();
+  }
+}
+
+// ==========================================
 // RENDER
 // ==========================================
 function renderTexts() {
   document.getElementById("shiftMorningBtn").className = currentShift==="morning" ? "shift-btn active" : "shift-btn";
   document.getElementById("shiftEveningBtn").className = currentShift==="evening" ? "shift-btn active" : "shift-btn";
-  document.getElementById("btnEdit").textContent = isEditMode ? "💾 Save" : "✏️ Edit";
   updateProgress();
 }
 
@@ -595,14 +690,13 @@ function renderTasks() {
     const head = document.createElement("div");
     head.className = "section-head";
     
-    // Using safeText() directly here prevents [object Object] completely
     const safeTitle = safeText(sec.title);
     
     head.innerHTML = `
       <span class="time">${esc(sec.time)}</span>
       <h2>${esc(safeTitle)}</h2>
-      <span class="badge-done">DONE</span>
-      ${isEditMode ? `<button class="btn-sm btn-del-sec" onclick="deleteSection(${si})">Delete Box</button>` : ""}
+      <span class="badge-done">${t("DONE","SIAP")}</span>
+      ${isEditMode ? `<button class="btn-sm btn-del-sec" onclick="deleteSection(${si})">${t("Delete Box","Hapus Kotak")}</button>` : ""}
       <span class="arrow">▶</span>`;
     if (!isEditMode) head.onclick = () => div.classList.toggle("open");
     div.appendChild(head);
@@ -611,7 +705,7 @@ function renderTasks() {
     body.className = "section-body";
     if (isEditMode) {
       const b = document.createElement("button");
-      b.className = "btn-check-all"; b.textContent = "✓ Check All";
+      b.className = "btn-check-all"; b.textContent = t("✓ Check All", "✓ Tanda Semua");
       b.onclick = () => { sec.tasks.forEach((_,ti)=>{ const k=`s${currentShift}_${si}_t${ti}`;
         checksData[k]=true; const cb=document.getElementById(k); if(cb)cb.checked=true; });
         localStorage.setItem(K_CHECKS, JSON.stringify(checksData));
@@ -633,9 +727,9 @@ function renderTasks() {
             onchange="updateTaskText(${si},${ti},this.value)">
           <div style="display:flex;width:100%;gap:8px;align-items:center">
             <input type="text" class="edit-input" style="flex:1;margin-bottom:0;font-size:.8rem"
-              placeholder="Notes" value="${esc(safeTaskNote)}"
+              placeholder="${t("Notes","Nota")}" value="${esc(safeTaskNote)}"
               onchange="updateTaskNote(${si},${ti},this.value)">
-            <button class="btn-sm btn-delete" onclick="deleteTask(${si},${ti})">Delete</button>
+            <button class="btn-sm btn-delete" onclick="deleteTask(${si},${ti})">${t("Delete","Hapus")}</button>
           </div>`;
       } else {
         const cb = document.createElement("input");
@@ -651,7 +745,7 @@ function renderTasks() {
     });
     if (isEditMode) {
       const a = document.createElement("button");
-      a.className="btn-sm btn-add"; a.textContent="+ Add Task";
+      a.className="btn-sm btn-add"; a.textContent=t("+ Add Task","+ Tambah Tugasan");
       a.onclick = () => addTask(si);
       body.appendChild(a);
     }
@@ -662,7 +756,7 @@ function renderTasks() {
   if (isEditMode) {
     const b = document.createElement("button");
     b.className="main-btn btn-primary"; b.style="width:100%;margin-bottom:20px";
-    b.textContent="+ Add New Box"; b.onclick=addSection;
+    b.textContent=t("+ Add New Box","+ Tambah Kotak Baru"); b.onclick=addSection;
     container.appendChild(b);
   }
   updateProgress();
@@ -671,12 +765,21 @@ function renderTasks() {
 function renderAdhoc() {
   const grid = document.getElementById("adhocGrid");
   grid.innerHTML = "";
-  const days = ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"];
+  const days = [
+    {en:"Monday", bm:"Isnin"},
+    {en:"Tuesday", bm:"Selasa"},
+    {en:"Wednesday", bm:"Rabu"},
+    {en:"Thursday", bm:"Khamis"},
+    {en:"Friday", bm:"Jumaat"},
+    {en:"Saturday", bm:"Sabtu"},
+    {en:"Sunday", bm:"Ahad"}
+  ];
+  
   for (let i=0;i<7;i++) {
     const c = document.createElement("div");
     c.className="adhoc-card";
-    c.innerHTML = `<h4>${esc(days[i])}</h4>
-      <textarea class="adhoc-textarea" id="adhoc_${i}" placeholder="E.g: Bread donation, extra mic..."
+    c.innerHTML = `<h4>${esc(t(days[i].en, days[i].bm))}</h4>
+      <textarea class="adhoc-textarea" id="adhoc_${i}" placeholder="${t("E.g: Bread donation, extra mic...", "Cth: Derma roti, mic tambahan...")}"
         oninput="saveAdhoc(${i},this.value)">${esc(safeText(adhocData[i]))}</textarea>`;
     grid.appendChild(c);
   }
@@ -688,7 +791,10 @@ function updateProgress() {
   const done = tasksData.reduce((a,sec,si)=> a + sec.tasks.filter((_,ti)=>checksData[`s${currentShift}_${si}_t${ti}`]===true).length, 0);
   const pct = all ? (done/all*100) : 0;
   document.getElementById("fill").style.width = pct + "%";
-  document.getElementById("progressText").textContent = `${done} / ${all} completed (${Math.round(pct)}%)`;
+  document.getElementById("progressText").textContent = t(
+    `${done} / ${all} completed (${Math.round(pct)}%)`,
+    `${done} / ${all} selesai (${Math.round(pct)}%)`
+  );
   tasksData.forEach((sec,si)=>{
     const boxes = sec.tasks.map((_,ti)=>checksData[`s${currentShift}_${si}_t${ti}`]);
     const el = document.getElementById("sec"+si);
@@ -707,7 +813,8 @@ function setShift(shift) {
 }
 function toggleEditMode() {
   isEditMode = !isEditMode;
-  renderTexts(); renderTasks();
+  translateUI();
+  renderTasks();
   if (!isEditMode) { saveTasksToStorage(); schedulePush(); }
 }
 function saveTasksToStorage() {
@@ -718,23 +825,23 @@ function saveTasksToStorage() {
 function updateTaskText(si,ti,val){ getCurrentTasks()[si].tasks[ti].t=val; }
 function updateTaskNote(si,ti,val){ getCurrentTasks()[si].tasks[ti].n=val; }
 function deleteTask(si,ti){
-  if (confirm("Delete this task?")) {
+  if (confirm(t("Delete this task?","Hapus tugasan ini?"))) {
     getCurrentTasks()[si].tasks.splice(ti,1); renderTasks(); saveTasksToStorage();
   }
 }
 function addTask(si){
-  getCurrentTasks()[si].tasks.push({t:"New Task", n:""});
+  getCurrentTasks()[si].tasks.push({t:t("New Task","Tugasan Baru"), n:""});
   renderTasks(); saveTasksToStorage();
 }
 function deleteSection(si){
-  if (confirm("Delete this box?")) {
+  if (confirm(t("Delete this box?","Hapus kotak ini?"))) {
     getCurrentTasks().splice(si,1); renderTasks(); saveTasksToStorage();
   }
 }
 function addSection(){
   getCurrentTasks().push({
-    time:"Time", title:"New Box",
-    tasks:[{t:"New Task", n:""}]
+    time:"Time", title:t("New Box","Kotak Baru"),
+    tasks:[{t:t("New Task","Tugasan Baru"), n:""}]
   });
   renderTasks(); saveTasksToStorage();
 }
@@ -746,7 +853,7 @@ document.getElementById("mainNotes").addEventListener("input", e => {
 });
 
 function resetAll(){
-  if (confirm("Clear all checklists, adhoc tasks, and notes?")) {
+  if (confirm(t("Clear all checklists, adhoc tasks, and notes?","Kosongkan semua senarai semak, tugasan mingguan, dan nota?"))) {
     checksData={}; adhocData={}; notesData="";
     localStorage.removeItem(K_CHECKS); localStorage.removeItem(K_ADHOC); localStorage.removeItem(K_NOTES);
     document.getElementById("mainNotes").value="";
@@ -754,14 +861,16 @@ function resetAll(){
   }
 }
 
-// Toggle Expand / Collapse All
 let isAllExpanded = false;
 function toggleExpandAll() {
   isAllExpanded = !isAllExpanded;
   document.querySelectorAll(".section").forEach(s => {
     s.classList.toggle("open", isAllExpanded);
   });
-  document.getElementById("btnExpandAll").textContent = isAllExpanded ? "Collapse All" : "Expand All";
+  document.getElementById("btnExpandAll").textContent = t(
+    isAllExpanded ? "Collapse All" : "Expand All", 
+    isAllExpanded ? "Tutup Semua" : "Buka Semua"
+  );
 }
 
 // ==========================================
@@ -774,7 +883,7 @@ function renderGallery(){
   const grid = document.getElementById("galleryGrid");
   grid.innerHTML = "";
   if (galleryData.length===0) {
-    grid.innerHTML = `<p style="color:var(--muted);grid-column:1/-1;text-align:center">No images yet. Click a button above to add.</p>`;
+    grid.innerHTML = `<p style="color:var(--muted);grid-column:1/-1;text-align:center">${t("No images yet. Click a button above to add.", "Belum ada gambar. Klik butang di atas untuk tambah.")}</p>`;
     return;
   }
   [...galleryData].reverse().forEach(item => {
@@ -787,9 +896,9 @@ function renderGallery(){
         <div class="gallery-item-title">${esc(safeText(item.title))}</div>
         <div class="gallery-item-actions">
           <button class="btn-sm" style="background:var(--accent2);color:#0f172a"
-            onclick="editGalleryTitle('${esc(item.id)}')">Edit</button>
+            onclick="editGalleryTitle('${esc(item.id)}')">${t("Edit","Edit")}</button>
           <button class="btn-sm btn-delete"
-            onclick="deleteGalleryImg('${esc(item.id)}')">Delete</button>
+            onclick="deleteGalleryImg('${esc(item.id)}')">${t("Delete","Hapus")}</button>
         </div>
       </div>`;
     grid.appendChild(card);
@@ -803,7 +912,8 @@ function triggerGalleryUpload(useCamera){
   input.click();
   input.onchange = e => {
     const file = e.target.files[0]; if (!file) return;
-    const title = prompt("Enter image title (e.g: Daikin Aircon Panel):"); if (!title) return;
+    const title = prompt(t("Enter image title (e.g: Daikin Aircon Panel):", "Masukkan tajuk gambar (cth: Panel Aircond Daikin):")); 
+    if (!title) return;
     const reader = new FileReader();
     reader.onload = ev => {
       const img = new Image();
@@ -835,7 +945,7 @@ function viewImage(id){
 }
 function editGalleryTitle(id){
   const item = galleryData.find(g=>g.id===id); if (!item) return;
-  const nt = prompt("Edit image title:", safeText(item.title));
+  const nt = prompt(t("Edit image title:", "Edit tajuk gambar:"), safeText(item.title));
   if (nt && nt.trim()) {
     item.title = nt.trim();
     localStorage.setItem(K_GALLERY, JSON.stringify(galleryData));
@@ -843,7 +953,7 @@ function editGalleryTitle(id){
   }
 }
 function deleteGalleryImg(id){
-  if (!confirm("Delete this image from gallery?")) return;
+  if (!confirm(t("Delete this image from gallery?","Hapus gambar ini dari galeri?"))) return;
   galleryData = galleryData.filter(g=>g.id!==id);
   localStorage.setItem(K_GALLERY, JSON.stringify(galleryData));
   renderGallery(); schedulePush();
@@ -865,7 +975,11 @@ function slISOtoDisplay(iso){
 }
 function slDayName(iso){
   const d = new Date(iso+"T00:00:00");
-  return ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"][(d.getDay()+6)%7];
+  const days = [
+    {en:"Monday", bm:"Isnin"}, {en:"Tuesday", bm:"Selasa"}, {en:"Wednesday", bm:"Rabu"},
+    {en:"Thursday", bm:"Khamis"}, {en:"Friday", bm:"Jumaat"}, {en:"Saturday", bm:"Sabtu"}, {en:"Sunday", bm:"Ahad"}
+  ];
+  return t(days[(d.getDay()+6)%7].en, days[(d.getDay()+6)%7].bm);
 }
 function slHours(start,end){
   if (!start||!end) return 0;
@@ -907,7 +1021,7 @@ function slResetForm(){
   document.getElementById("slPH").checked = false;
   document.getElementById("slReason").value = "";
   document.getElementById("slNotes").value = "";
-  document.getElementById("btnCancelEdit").style.display = "none";
+  document.getElementById("btnSlCancel").style.display = "none";
 }
 function shiftLogSaveEntry(){
   const date=document.getElementById("slDate").value;
@@ -918,7 +1032,7 @@ function shiftLogSaveEntry(){
   const ph=document.getElementById("slPH").checked;
   const reason=document.getElementById("slReason").value.trim();
   const notes=document.getElementById("slNotes").value.trim();
-  if (!date||!start||!end){ alert("Please fill date, start and end times."); return; }
+  if (!date||!start||!end){ alert(t("Please fill date, start and end times.","Sila isi tarikh, masa mula dan tamat.")); return; }
   const wasEditing = !!slEditId;
   if (slEditId){
     const idx = shiftLogData.findIndex(e=>e.id===slEditId);
@@ -928,7 +1042,7 @@ function shiftLogSaveEntry(){
   }
   slSaveStorage(); slResetForm(); renderShiftLog();
   const total = (slHours(start,end)+ot).toFixed(2);
-  slToast((wasEditing?"✏️ Updated: ":"✅ Saved: ")+slISOtoDisplay(date)+" · "+total+"h");
+  slToast((wasEditing?t("✏️ Updated: ","✏️ Dikemaskini: "):t("✅ Saved: ","✅ Disimpan: "))+slISOtoDisplay(date)+" · "+total+"h");
 }
 function shiftLogEdit(id){
   const e = shiftLogData.find(x=>x.id===id); if (!e) return;
@@ -941,16 +1055,16 @@ function shiftLogEdit(id){
   document.getElementById("slPH").checked = !!e.ph;
   document.getElementById("slReason").value = e.reason||"";
   document.getElementById("slNotes").value = e.notes||"";
-  document.getElementById("btnCancelEdit").style.display = "block";
+  document.getElementById("btnSlCancel").style.display = "block";
   document.getElementById("shiftLogForm").scrollIntoView({behavior:"smooth",block:"center"});
 }
 function shiftLogCancelEdit(){ slResetForm(); }
 function shiftLogDelete(id){
-  if (!confirm("Delete this entry?")) return;
+  if (!confirm(t("Delete this entry?","Hapus entri ini?"))) return;
   const removed = shiftLogData.find(e=>e.id===id);
   shiftLogData = shiftLogData.filter(e=>e.id!==id);
   slSaveStorage(); renderShiftLog();
-  slToast("🗑️ Deleted: "+(removed?slISOtoDisplay(removed.date):"entry"), true);
+  slToast(t("🗑️ Deleted: ","🗑️ Dihapus: ")+(removed?slISOtoDisplay(removed.date):t("entry","entri")), true);
 }
 function renderShiftLog(){
   if (document.getElementById("shiftLogModal").style.display !== "flex") return;
@@ -959,18 +1073,18 @@ function renderShiftLog(){
   document.getElementById("shiftLogMonthLabel").textContent = M[month] + " " + year;
 
   document.getElementById("shiftLogThead").innerHTML = `<tr>
-    <th>Date</th><th>Day</th><th>Shift</th>
-    <th>Start</th><th>End</th>
-    <th style="text-align:right">Base Hrs</th>
-    <th style="text-align:right">OT Hrs</th>
-    <th style="text-align:right">Total</th>
-    <th>PH</th><th>Reason</th><th>Notes</th><th></th><th></th></tr>`;
+    <th>${t("Date","Tarikh")}</th><th>${t("Day","Hari")}</th><th>${t("Shift","Syif")}</th>
+    <th>${t("Start","Mula")}</th><th>${t("End","Tamat")}</th>
+    <th style="text-align:right">${t("Base Hrs","Jam Asas")}</th>
+    <th style="text-align:right">${t("OT Hrs","Jam OT")}</th>
+    <th style="text-align:right">${t("Total","Jumlah")}</th>
+    <th>${t("PH","Cuti")}</th><th>${t("Reason","Sebab")}</th><th>${t("Notes","Nota")}</th><th></th><th></th></tr>`;
 
   const tbody = document.getElementById("shiftLogTbody");
   const entries = slEntriesForMonth(year,month);
   tbody.innerHTML = "";
   if (entries.length===0) {
-    tbody.innerHTML = `<tr><td colspan="13" style="text-align:center;color:var(--muted);padding:20px">No entries this month. Fill the form above to add.</td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="13" style="text-align:center;color:var(--muted);padding:20px">${t("No entries this month. Fill the form above to add.","Tiada entri bulan ini. Isi borang di atas untuk tambah.")}</td></tr>`;
   } else {
     entries.forEach(e=>{
       const base = slHours(e.start,e.end), total = base + (e.ot||0);
@@ -979,7 +1093,7 @@ function renderShiftLog(){
       tr.innerHTML = `
         <td>${esc(slISOtoDisplay(e.date))}</td>
         <td>${esc(slDayName(e.date))}</td>
-        <td>${esc(e.type.charAt(0).toUpperCase()+e.type.slice(1))}</td>
+        <td>${esc(t(e.type.charAt(0).toUpperCase()+e.type.slice(1), e.type === 'morning' ? 'Pagi' : e.type === 'evening' ? 'Petang' : 'Adhoc'))}</td>
         <td>${esc(e.start)}</td>
         <td>${esc(e.end)}${overnight}</td>
         <td class="num">${base.toFixed(2)}</td>
@@ -1005,36 +1119,37 @@ function renderShiftLogSummary(entries){
   });
   const total = tBase+tOT, days = entries.length, avg = days? total/days : 0;
   const line = (l,v)=>`<div class="sl-summary-row"><span>${l}</span><span class="val">${v}</span></div>`;
-  let html = `<div style="font-weight:bold;margin-bottom:8px;color:var(--accent2)">Working days: ${days}</div>`;
-  if (mC) html += line("&nbsp;&nbsp;Morning", `${mC} shifts · ${mB.toFixed(2)}h · avg ${(mB/mC).toFixed(2)}`);
-  if (eC) html += line("&nbsp;&nbsp;Evening", `${eC} shifts · ${eB.toFixed(2)}h · avg ${(eB/eC).toFixed(2)}`);
-  if (aC) html += line("&nbsp;&nbsp;Adhoc", `${aC} shifts · ${aB.toFixed(2)}h · avg ${(aB/aC).toFixed(2)}`);
-  html += line("Total base hours", tBase.toFixed(2)+" h");
-  html += line("Total OT hours", tOT.toFixed(2)+" h");
-  html += `<div class="sl-summary-row total"><span>TOTAL HOURS</span><span class="val">${total.toFixed(2)} h</span></div>`;
-  html += line("Avg hrs / day", avg.toFixed(2)+" h");
-  html += line("Public Holiday shifts", phC);
+  let html = `<div style="font-weight:bold;margin-bottom:8px;color:var(--accent2)">${t("Working days:", "Hari bekerja:")} ${days}</div>`;
+  if (mC) html += line(t("&nbsp;&nbsp;Morning","&nbsp;&nbsp;Pagi"), `${mC} ${t("shifts","syif")} · ${mB.toFixed(2)}h · ${t("avg","purata")} ${(mB/mC).toFixed(2)}`);
+  if (eC) html += line(t("&nbsp;&nbsp;Evening","&nbsp;&nbsp;Petang"), `${eC} ${t("shifts","syif")} · ${eB.toFixed(2)}h · ${t("avg","purata")} ${(eB/eC).toFixed(2)}`);
+  if (aC) html += line(t("&nbsp;&nbsp;Adhoc","&nbsp;&nbsp;Adhoc"), `${aC} ${t("shifts","syif")} · ${aB.toFixed(2)}h · ${t("avg","purata")} ${(aB/aC).toFixed(2)}`);
+  html += line(t("Total base hours","Jumlah jam asas"), tBase.toFixed(2)+" h");
+  html += line(t("Total OT hours","Jumlah jam OT"), tOT.toFixed(2)+" h");
+  html += `<div class="sl-summary-row total"><span>${t("TOTAL HOURS","JUMLAH JAM")}</span><span class="val">${total.toFixed(2)} h</span></div>`;
+  html += line(t("Avg hrs / day","Purata jam / hari"), avg.toFixed(2)+" h");
+  html += line(t("Public Holiday shifts","Syif Cuti Umum"), phC);
   let ytdS=0, ytdH=0;
   shiftLogData.forEach(e=>{
     if (parseInt(e.date.slice(0,4),10)===slViewDate.getFullYear()){ ytdS++; ytdH+=slHours(e.start,e.end)+(e.ot||0); }
   });
-  html += `<div style="margin-top:10px;font-size:.75rem;color:var(--muted);text-align:center">YTD ${slViewDate.getFullYear()}: ${ytdH.toFixed(1)}h · ${ytdS} shifts</div>`;
+  html += `<div style="margin-top:10px;font-size:.75rem;color:var(--muted);text-align:center">YTD ${slViewDate.getFullYear()}: ${ytdH.toFixed(1)}h · ${ytdS} ${t("shifts","syif")}</div>`;
   document.getElementById("shiftLogSummary").innerHTML = html;
 }
 function shiftLogCSV(){
   const y=slViewDate.getFullYear(), m=slViewDate.getMonth();
   const entries = slEntriesForMonth(y,m);
-  if (entries.length===0){ alert("No entries this month."); return; }
-  const rows = [["Date","Day","Shift","Start","End","Base Hrs","OT Hrs","Total","PH","Reason","Notes"]];
+  if (entries.length===0){ alert(t("No entries this month.","Tiada entri bulan ini.")); return; }
+  const rows = [[t("Date","Tarikh"),t("Day","Hari"),t("Shift","Syif"),t("Start","Mula"),t("End","Tamat"),t("Base Hrs","Jam Asas"),t("OT Hrs","Jam OT"),t("Total","Jumlah"),t("PH","Cuti"),t("Reason","Sebab"),t("Notes","Nota")]];
   entries.forEach(e=>{
     const b = slHours(e.start,e.end);
-    rows.push([slISOtoDisplay(e.date),slDayName(e.date),e.type,e.start,e.end,
-      b.toFixed(2),(e.ot||0).toFixed(2),(b+(e.ot||0)).toFixed(2),
+    rows.push([slISOtoDisplay(e.date),slDayName(e.date),
+      t(e.type.charAt(0).toUpperCase()+e.type.slice(1), e.type === 'morning' ? 'Pagi' : e.type === 'evening' ? 'Petang' : 'Adhoc'),
+      e.start,e.end, b.toFixed(2),(e.ot||0).toFixed(2),(b+(e.ot||0)).toFixed(2),
       e.ph?"PH":"",e.reason||"",e.notes||""]);
   });
   const sB = entries.reduce((a,e)=>a+slHours(e.start,e.end),0);
   const sO = entries.reduce((a,e)=>a+(e.ot||0),0);
-  rows.push(["","","","","TOTAL HOURS",sB.toFixed(2),sO.toFixed(2),(sB+sO).toFixed(2),"","",""]);
+  rows.push(["","","","","",sB.toFixed(2),sO.toFixed(2),(sB+sO).toFixed(2),"","",""]);
   const csv = rows.map(r=>r.map(c=>`"${String(c).replace(/"/g,'""')}"`).join(",")).join("\r\n");
   const blob = new Blob(["\uFEFF"+csv],{type:"text/csv;charset=utf-8"});
   const url = URL.createObjectURL(blob), a = document.createElement("a");
@@ -1069,7 +1184,7 @@ function backupJSON(){
   const url = URL.createObjectURL(blob), a = document.createElement("a");
   a.href=url; a.download=`NojaMasjid_Backup_${new Date().toISOString().slice(0,10)}.json`;
   a.click(); URL.revokeObjectURL(url);
-  alert("Backup downloaded successfully.");
+  alert(t("Backup downloaded successfully.","Backup berjaya dimuat turun."));
 }
 function restoreJSON(input){
   const file = input.files[0]; if (!file) return;
@@ -1079,9 +1194,9 @@ function restoreJSON(input){
       const d = JSON.parse(e.target.result);
       if (!d.tasksMorning || !d.tasksEvening) throw new Error("invalid");
       applyStatePayload(d);
-      alert("Data restored. Page will reload.");
+      alert(t("Data restored. Page will reload.","Data dipulihkan. Halaman akan dimuat semula."));
       location.reload();
-    } catch { alert("Invalid backup file."); }
+    } catch { alert(t("Invalid backup file.","Fail backup tidak sah.")); }
   };
   reader.readAsText(file); input.value="";
 }
@@ -1091,22 +1206,37 @@ function restoreJSON(input){
 // ==========================================
 function tick(){
   const now = new Date();
-  document.getElementById("dateDisplay").textContent =
-    now.toLocaleDateString("en-GB",{weekday:"long",year:"numeric",month:"long",day:"numeric"});
+  
+  const dayNames = [
+    {en:"Sunday", bm:"Ahad"}, {en:"Monday", bm:"Isnin"}, {en:"Tuesday", bm:"Selasa"}, 
+    {en:"Wednesday", bm:"Rabu"}, {en:"Thursday", bm:"Khamis"}, {en:"Friday", bm:"Jumaat"}, {en:"Saturday", bm:"Sabtu"}
+  ];
+  const monthNames = [
+    {en:"January", bm:"Januari"}, {en:"February", bm:"Februari"}, {en:"March", bm:"Mac"},
+    {en:"April", bm:"April"}, {en:"May", bm:"Mei"}, {en:"June", bm:"Jun"},
+    {en:"July", bm:"Julai"}, {en:"August", bm:"Ogos"}, {en:"September", bm:"September"},
+    {en:"October", bm:"Oktober"}, {en:"November", bm:"November"}, {en:"December", bm:"Disember"}
+  ];
+
+  const dayName = t(dayNames[now.getDay()].en, dayNames[now.getDay()].bm);
+  const monthName = t(monthNames[now.getMonth()].en, monthNames[now.getMonth()].bm);
+  const dayNum = now.getDate();
+  const yearNum = now.getFullYear();
+
+  document.getElementById("dateDisplay").textContent = `${dayName}, ${dayNum} ${monthName} ${yearNum}`;
   document.getElementById("clock").textContent = now.toLocaleTimeString("en-GB",{hour12:false});
   
-  // Ramadhan Countdown (8 Feb 2027)
   const ramadhanDate = new Date("2027-02-08T00:00:00");
   const diffTime = ramadhanDate - now;
   const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
   
   const el = document.getElementById("ramadhanDays");
   if (diffDays > 0) {
-    el.innerHTML = `${diffDays} <span>days left</span>`;
+    el.innerHTML = t(`${diffDays} <span>days left</span>`, `${diffDays} <span>hari lagi</span>`);
   } else if (diffDays === 0) {
-    el.innerHTML = `Alhamdulillah, Ramadhan is here!`;
+    el.innerHTML = t(`Alhamdulillah, Ramadhan is here!`, `Alhamdulillah, Ramadhan tiba!`);
   } else {
-    el.innerHTML = `Ramadhan Mubarak`;
+    el.innerHTML = t(`Ramadhan Mubarak`, `Ramadhan Mubarak`);
   }
 }
 setInterval(tick,1000);
@@ -1115,7 +1245,12 @@ setInterval(tick,1000);
 // INIT
 // ==========================================
 async function init(){
+  // Set language buttons correctly
+  document.getElementById("btnLangEN").className = currentLang === "en" ? "active" : "";
+  document.getElementById("btnLangBM").className = currentLang === "bm" ? "active" : "";
+
   document.getElementById("mainNotes").value = notesData;
+  translateUI();
   renderTexts(); renderTasks(); renderAdhoc(); tick();
   initSupabase();
   if (sbReady) await pullFromCloud(false);
