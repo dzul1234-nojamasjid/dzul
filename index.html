@@ -22,7 +22,6 @@
   .btn-gallery{background:#8b5cf6;color:#fff}
   .btn-log{background:#f97316;color:#fff}
   .btn-sync{background:var(--accent);color:#0f172a}
-  .btn-settings{background:#64748b;color:#fff}
 
   .shift-toggle{display:flex;gap:10px;margin-bottom:12px;justify-content:center}
   .shift-btn{background:var(--card);border:2px solid var(--border);color:var(--text);
@@ -182,7 +181,6 @@
     <button class="btn-tool" onclick="backupJSON()" title="Backup JSON">📥</button>
     <button class="btn-tool" onclick="document.getElementById('restoreFile').click()" title="Restore JSON">📤</button>
     <button class="btn-tool" onclick="window.print()" title="Print / PDF">🖨️</button>
-    <button class="btn-tool btn-settings" onclick="openSettings()" title="Settings">⚙️</button>
   </div>
   <input type="file" id="restoreFile" accept=".json" style="display:none" onchange="restoreJSON(this)">
 </div>
@@ -243,32 +241,6 @@
 <div id="imgModal" class="modal" style="justify-content:center;align-items:center;background:rgba(0,0,0,.95)"
   onclick="if(event.target===this) this.style.display='none'">
   <img id="imgModalSrc" style="max-width:100%;max-height:100%;object-fit:contain">
-</div>
-
-<!-- Settings Modal -->
-<div id="settingsModal" class="modal">
-  <div class="modal-header">
-    <h2>⚙️ Supabase Settings</h2>
-    <button class="btn-close" onclick="closeSettings()">✖</button>
-  </div>
-  <div class="modal-body">
-    <p style="color:var(--muted);font-size:.85rem">
-      Enter your Supabase Project URL and Anon Key. These are saved locally in this browser only.
-    </p>
-    <label style="font-size:.8rem;color:var(--muted)">Project URL</label>
-    <input type="text" id="cfgUrl" class="edit-input" placeholder="https://xxxx.supabase.co">
-    <label style="font-size:.8rem;color:var(--muted)">Anon Key</label>
-    <input type="text" id="cfgKey" class="edit-input" placeholder="eyJhbGciOi...">
-    <div style="display:flex;gap:8px;margin-top:12px">
-      <button class="btn-tool btn-sync" style="flex:1;padding:10px" onclick="saveSettings()">💾 Save</button>
-      <button class="btn-tool" style="flex:1;padding:10px" onclick="clearSettings()">🗑️ Clear</button>
-    </div>
-    <div style="margin-top:16px;font-size:.8rem;color:var(--muted)">
-      Status: <span id="cfgStatus">-</span><br>
-      Data stored in table <code>noja_state</code> (row id: <code>main</code>).<br>
-      Images stored in bucket <code>gallery</code>.
-    </div>
-  </div>
 </div>
 
 <!-- Shift Log Modal -->
@@ -344,9 +316,11 @@
 
 <script>
 // ==========================================
-// CLOUDFLARE WORKER PROXY (Supabase Config)
+// CLOUDFLARE WORKER PROXY
 // ==========================================
+// GANTIKAN URL DI BAWAH INI DENGAN URL CLOUDFLARE WORKER TUAN
 const WORKER_URL = "https://dzul.dzul1234.workers.dev"; 
+
 let sbReady = false;
 let pushTimer = null;
 
@@ -366,11 +340,39 @@ function setSyncStatus(cls, text) {
   el.textContent = text;
 }
 
+function buildStatePayload() {
+  return {
+    tasksMorning, tasksEvening, checks: checksData, adhoc: adhocData,
+    notes: notesData, gallery: galleryData, shiftLog: shiftLogData,
+    _savedAt: new Date().toISOString()
+  };
+}
+
+function applyStatePayload(d) {
+  if (!d) return;
+  if (Array.isArray(d.tasksMorning)) tasksMorning = d.tasksMorning;
+  if (Array.isArray(d.tasksEvening)) tasksEvening = d.tasksEvening;
+  if (d.checks) checksData = d.checks;
+  if (d.adhoc) adhocData = d.adhoc;
+  if (typeof d.notes === "string") notesData = d.notes;
+  if (Array.isArray(d.gallery)) galleryData = d.gallery;
+  if (Array.isArray(d.shiftLog)) shiftLogData = d.shiftLog;
+
+  localStorage.setItem(K_TASKS_M, JSON.stringify(tasksMorning));
+  localStorage.setItem(K_TASKS_E, JSON.stringify(tasksEvening));
+  localStorage.setItem(K_CHECKS, JSON.stringify(checksData));
+  localStorage.setItem(K_ADHOC, JSON.stringify(adhocData));
+  localStorage.setItem(K_NOTES, notesData);
+  localStorage.setItem(K_GALLERY, JSON.stringify(galleryData));
+  localStorage.setItem(K_SHIFTLOG, JSON.stringify(shiftLogData));
+}
+
 async function pullFromCloud(showToast) {
   if (!sbReady) { if (showToast) slToast("Cloud not configured", true); return false; }
   try {
     setSyncStatus("", "syncing…");
-    const res = await fetch(WORKER_URL, { method: "GET" });
+    // Add a cache-buster to prevent browser caching
+    const res = await fetch(WORKER_URL + "?t=" + Date.now(), { method: "GET" });
     if (!res.ok) throw new Error("Network error");
     const data = await res.json();
     
@@ -425,7 +427,7 @@ function schedulePush() {
 }
 
 // ==========================================
-// DEFAULT DATA (English)
+// DEFAULT DATA
 // ==========================================
 const defaultMorningData = [
   { time:"4:30 – 4:45", title:"Unlock & Safety", tasks:[
@@ -755,21 +757,6 @@ function triggerGalleryUpload(useCamera){
         galleryData.push(newItem);
         localStorage.setItem(K_GALLERY, JSON.stringify(galleryData));
         renderGallery();
-
-        if (sbReady) {
-          try {
-            const blob = await (await fetch(base64)).blob();
-            const path = `${newItem.id}.jpg`;
-            const { error } = await sbClient.storage.from("gallery")
-              .upload(path, blob, { contentType: "image/jpeg", upsert: true });
-            if (!error) {
-              const { data: urlData } = sbClient.storage.from("gallery").getPublicUrl(path);
-              newItem.url = urlData.publicUrl;
-              localStorage.setItem(K_GALLERY, JSON.stringify(galleryData));
-              renderGallery();
-            }
-          } catch (err) { console.warn("Storage upload fail:", err); }
-        }
         schedulePush();
       };
       img.src = ev.target.result;
@@ -794,11 +781,6 @@ function editGalleryTitle(id){
 }
 function deleteGalleryImg(id){
   if (!confirm("Delete this image from gallery?")) return;
-  const item = galleryData.find(g=>g.id===id);
-  if (item && item.url && sbReady) {
-    const path = item.url.split("/").pop();
-    sbClient.storage.from("gallery").remove([path]).catch(()=>{});
-  }
   galleryData = galleryData.filter(g=>g.id!==id);
   localStorage.setItem(K_GALLERY, JSON.stringify(galleryData));
   renderGallery(); schedulePush();
