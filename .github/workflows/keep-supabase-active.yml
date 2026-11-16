@@ -15,4 +15,4 @@ jobs:
           curl -X POST "https://noja-dzul.dzul1234.workers.dev" \
             -H "Content-Type: application/json" \
             -H "x-master-key: master123" \
-            -d '{"id": "main", "data": {"ping": "active"}, "updated_at": "2026-11-16T00:00:00Z"}'
+            -d '{"id": "admin", "updated_at": "'$(date -u +%Y-%m-%dT%H:%M:%SZ)'"}'
