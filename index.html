@@ -513,21 +513,35 @@ async function pushToCloud(showToast) {
         data: buildStatePayload(),
         updated_at: new Date().toISOString()
     };
+    
+    // NEW: Add a 15-second timeout so mobile phones don't panic on heavy image uploads
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 15000); 
+    
     const res = await fetch(WORKER_URL, {
         method: "POST",
         headers: { 
             "Content-Type": "application/json",
             "x-user-pin": savedPin 
         },
-        body: JSON.stringify(payload)
+        body: JSON.stringify(payload),
+        signal: controller.signal // <--- Attach the timer
     });
+    
+    clearTimeout(timeoutId); // Stop the timer if the upload finishes fast
+    
     if (!res.ok) throw new Error("Network error");
     setSyncStatus("ok", "cloud ✓");
     if (showToast) slToast("✅ Data uploaded to Cloudflare");
   } catch (e) {
     console.error("Push fail:", e);
     setSyncStatus("err", "err");
-    if (showToast) slToast("❌ Push failed: " + e.message, true);
+    // If it was aborted due to timeout, give a nicer message
+    if (e.name === 'AbortError') {
+        if (showToast) slToast("❌ Upload timed out. Please check your internet.", true);
+    } else {
+        if (showToast) slToast("❌ Push failed: " + e.message, true);
+    }
   }
 }
 
