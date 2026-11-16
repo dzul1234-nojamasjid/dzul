@@ -14,15 +14,6 @@
   body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
     background:var(--bg);color:var(--text);padding:16px;padding-bottom:120px;line-height:1.5}
 
-  /* MOBILE UI FIX FOR TIME/DATE INPUTS */
-  input[type="date"], input[type="time"] { 
-    max-width: 100%; 
-    min-width: 0; 
-    font-family: inherit; 
-    font-size: 16px; 
-    box-sizing: border-box; 
-  }
-
   .top-bar{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px;flex-wrap:wrap;gap:10px}
   .btn-group{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
   
@@ -329,10 +320,21 @@
             <option value="evening" selected id="optEvening">Evening</option>
             <option value="adhoc" id="optAdhoc">Adhoc</option>
           </select></div>
-        <div><label id="lblSlStart" style="font-size:.75rem;color:var(--muted)">Start</label>
-          <input type="time" id="slStart" class="edit-input" style="margin-bottom:0" value="17:30"></div>
-        <div><label id="lblSlEnd" style="font-size:.75rem;color:var(--muted)">End</label>
-          <input type="time" id="slEnd" class="edit-input" style="margin-bottom:0" value="22:30"></div>
+          
+        <!-- NEW CUSTOM TIME PICKER (NO OVERLAY) -->
+        <div><label id="lblSlStart" style="font-size:.75rem;color:var(--muted)">Start Time</label>
+          <div style="display:flex; gap:4px;">
+            <select id="slStartH" class="edit-input" style="margin-bottom:0; padding:8px 2px;"></select>
+            <select id="slStartM" class="edit-input" style="margin-bottom:0; padding:8px 2px;"></select>
+          </div>
+        </div>
+        <div><label id="lblSlEnd" style="font-size:.75rem;color:var(--muted)">End Time</label>
+          <div style="display:flex; gap:4px;">
+            <select id="slEndH" class="edit-input" style="margin-bottom:0; padding:8px 2px;"></select>
+            <select id="slEndM" class="edit-input" style="margin-bottom:0; padding:8px 2px;"></select>
+          </div>
+        </div>
+        
         <div><label id="lblSlOT" style="font-size:.75rem;color:var(--muted)">OT (hrs)</label>
           <input type="number" id="slOT" class="edit-input" style="margin-bottom:0" min="0" step="0.25" value="0"></div>
         <div style="display:flex;align-items:flex-end;padding-bottom:4px">
@@ -651,17 +653,10 @@ async function adminAddUser() {
 
 async function adminEditUser(id) {
   const adminPin = localStorage.getItem("noja_user_pin");
-  // Find the user in the DOM to get current values (simplest way without passing whole object)
-  const rows = document.querySelectorAll('.admin-user-row');
-  let currentName = "";
-  let currentPin = "";
-  
-  // Quick visual trick: We use prompt for simplicity
   const newName = prompt("Enter new FULL NAME for " + id + ":");
-  if (newName === null) return; // Cancelled
-  
+  if (newName === null) return;
   const newPin = prompt("Enter new PIN for " + id + ":");
-  if (newPin === null) return; // Cancelled
+  if (newPin === null) return;
 
   if (!newName.trim() || !newPin.trim()) return alert("Name and PIN cannot be empty.");
 
@@ -957,8 +952,8 @@ function translateUI() {
   document.getElementById("optMorning").textContent = t("Morning", "Pagi");
   document.getElementById("optEvening").textContent = t("Evening", "Petang");
   document.getElementById("optAdhoc").textContent = t("Adhoc", "Adhoc");
-  document.getElementById("lblSlStart").textContent = t("Start", "Mula");
-  document.getElementById("lblSlEnd").textContent = t("End", "Tamat");
+  document.getElementById("lblSlStart").textContent = t("Start Time", "Masa Mula");
+  document.getElementById("lblSlEnd").textContent = t("End Time", "Masa Tamat");
   document.getElementById("lblSlOT").textContent = t("OT (hrs)", "OT (jam)");
   document.getElementById("lblSlPH").textContent = t("Public Holiday", "Cuti Umum");
   document.getElementById("lblSlReason").textContent = t("Reason", "Sebab");
@@ -1301,7 +1296,27 @@ function slEntriesForMonth(y,m){
   return shiftLogData.filter(e=>e.date.startsWith(ym))
     .sort((a,b)=> a.date===b.date ? a.start.localeCompare(b.start) : a.date.localeCompare(b.date));
 }
+
+// Helper to populate time dropdowns
+function populateTimeDropdowns() {
+  const hrs = ["00","01","02","03","04","05","06","07","08","09","10","11","12","13","14","15","16","17","18","19","20","21","22","23"];
+  const mins = ["00","05","10","15","20","25","30","35","40","45","50","55"];
+  
+  const fillSelect = (id, arr, def) => {
+    const el = document.getElementById(id);
+    if(!el) return;
+    el.innerHTML = arr.map(v => `<option value="${v}">${v}</option>`).join("");
+    el.value = def;
+  };
+  
+  fillSelect("slStartH", hrs, "17");
+  fillSelect("slStartM", mins, "30");
+  fillSelect("slEndH", hrs, "22");
+  fillSelect("slEndM", mins, "30");
+}
+
 function openShiftLog(){
+  populateTimeDropdowns();
   document.getElementById("shiftLogModal").style.display="flex";
   slViewDate = new Date(); slResetForm(); renderShiftLog();
 }
@@ -1310,10 +1325,18 @@ function shiftLogPrevMonth(){ slViewDate.setMonth(slViewDate.getMonth()-1); rend
 function shiftLogNextMonth(){ slViewDate.setMonth(slViewDate.getMonth()+1); renderShiftLog(); }
 function shiftLogOnTypeChange(){
   const type = document.getElementById("slType").value;
-  const s=document.getElementById("slStart"), e=document.getElementById("slEnd");
-  if (type==="morning"){ s.value="04:30"; e.value="09:00"; }
-  else if (type==="evening"){ s.value="17:30"; e.value="22:30"; }
-  else { s.value=""; e.value=""; }
+  if (type==="morning"){ 
+    document.getElementById("slStartH").value="04"; document.getElementById("slStartM").value="30";
+    document.getElementById("slEndH").value="09"; document.getElementById("slEndM").value="00";
+  }
+  else if (type==="evening"){ 
+    document.getElementById("slStartH").value="17"; document.getElementById("slStartM").value="30";
+    document.getElementById("slEndH").value="22"; document.getElementById("slEndM").value="30";
+  }
+  else { 
+    document.getElementById("slStartH").value="00"; document.getElementById("slStartM").value="00";
+    document.getElementById("slEndH").value="00"; document.getElementById("slEndM").value="00";
+  }
 }
 function slResetForm(){
   slEditId=null;
@@ -1329,8 +1352,8 @@ function slResetForm(){
 function shiftLogSaveEntry(){
   const date=document.getElementById("slDate").value;
   const type=document.getElementById("slType").value;
-  const start=document.getElementById("slStart").value;
-  const end=document.getElementById("slEnd").value;
+  const start = document.getElementById("slStartH").value + ":" + document.getElementById("slStartM").value;
+  const end = document.getElementById("slEndH").value + ":" + document.getElementById("slEndM").value;
   const ot=parseFloat(document.getElementById("slOT").value)||0;
   const ph=document.getElementById("slPH").checked;
   const reason=document.getElementById("slReason").value.trim();
@@ -1352,8 +1375,15 @@ function shiftLogEdit(id){
   slEditId = id;
   document.getElementById("slDate").value = e.date;
   document.getElementById("slType").value = e.type;
-  document.getElementById("slStart").value = e.start;
-  document.getElementById("slEnd").value = e.end;
+  
+  const [sh, sm] = (e.start || "00:00").split(":");
+  document.getElementById("slStartH").value = sh;
+  document.getElementById("slStartM").value = sm;
+  
+  const [eh, em] = (e.end || "00:00").split(":");
+  document.getElementById("slEndH").value = eh;
+  document.getElementById("slEndM").value = em;
+
   document.getElementById("slOT").value = e.ot||0;
   document.getElementById("slPH").checked = !!e.ph;
   document.getElementById("slReason").value = e.reason||"";
