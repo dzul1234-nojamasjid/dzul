@@ -40,28 +40,12 @@
   header h1{margin:0;font-size:1.4rem;letter-spacing:0.5px}
   
   .ramadhan-countdown {
-    margin-top: 15px;
-    padding: 12px;
-    background: #000000;
-    border-radius: 10px;
-    border: 1px solid rgba(239, 68, 68, 0.4);
-    color: var(--danger);
-    box-shadow: inset 0 0 15px rgba(239, 68, 68, 0.2);
+    margin-top: 15px; padding: 12px; background: #000000;
+    border-radius: 10px; border: 1px solid rgba(239, 68, 68, 0.4);
+    color: var(--danger); box-shadow: inset 0 0 15px rgba(239, 68, 68, 0.2);
   }
-  .ramadhan-countdown h3 {
-    margin: 0 0 6px 0;
-    font-size: 0.85rem;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    color: var(--danger);
-  }
-  .ramadhan-countdown .days {
-    font-size: 1.8rem;
-    font-weight: 900;
-    color: var(--danger);
-    text-shadow: 0 0 10px rgba(239, 68, 68, 0.8);
-    animation: slowBlinkRed 2.5s infinite ease-in-out;
-  }
+  .ramadhan-countdown h3 { margin: 0 0 6px 0; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1px; color: var(--danger); }
+  .ramadhan-countdown .days { font-size: 1.8rem; font-weight: 900; color: var(--danger); text-shadow: 0 0 10px rgba(239, 68, 68, 0.8); animation: slowBlinkRed 2.5s infinite ease-in-out; }
   .ramadhan-countdown .days span { font-size: 0.9rem; font-weight: 600; }
   
   @keyframes slowBlinkRed {
@@ -74,15 +58,12 @@
 
   .progress-wrap{position:sticky;top:0;z-index:10;background:var(--bg);padding:10px 0;margin-bottom:8px}
   .progress-bar{height:10px;background:var(--border);border-radius:99px;overflow:hidden}
-  .progress-fill{height:100%;width:0%;background:linear-gradient(90deg,var(--accent),var(--accent2));
-    border-radius:99px;transition:width .3s}
+  .progress-fill{height:100%;width:0%;background:linear-gradient(90deg,var(--accent),var(--accent2)); border-radius:99px;transition:width .3s}
   .progress-text{text-align:center;font-size:0.8rem;color:var(--muted);margin-top:6px}
 
   .section{background:var(--card);border-radius:14px;margin-bottom:14px;overflow:hidden;border:1px solid var(--border)}
-  .section-head{display:flex;align-items:center;gap:10px;padding:14px 16px;cursor:pointer;
-    user-select:none;background:#243447;flex-wrap:wrap}
-  .section-head .time{background:var(--accent2);color:#0f172a;font-weight:700;font-size:0.72rem;
-    padding:3px 8px;border-radius:6px;white-space:nowrap}
+  .section-head{display:flex;align-items:center;gap:10px;padding:14px 16px;cursor:pointer; user-select:none;background:#243447;flex-wrap:wrap}
+  .section-head .time{background:var(--accent2);color:#0f172a;font-weight:700;font-size:0.72rem; padding:3px 8px;border-radius:6px;white-space:nowrap}
   .section-head h2{margin:0;font-size:0.95rem;flex:1}
   .section-head .arrow{transition:transform .25s;color:var(--muted)}
   .section.open .arrow{transform:rotate(90deg)}
@@ -91,60 +72,46 @@
 
   .task{display:flex;gap:10px;align-items:flex-start;padding:10px 0;border-bottom:1px solid #2d3b4f}
   .task:last-child{border-bottom:none}
-  .task input[type="checkbox"]{appearance:none;width:22px;height:22px;min-width:22px;
-    border:2px solid var(--muted);border-radius:6px;margin-top:2px;cursor:pointer;position:relative;transition:.2s}
+  .task input[type="checkbox"]{appearance:none;width:22px;height:22px;min-width:22px; border:2px solid var(--muted);border-radius:6px;margin-top:2px;cursor:pointer;position:relative;transition:.2s}
   .task input[type="checkbox"]:checked{background:var(--accent);border-color:var(--accent)}
-  .task input[type="checkbox"]:checked::after{content:"✓";position:absolute;color:#0f172a;
-    font-weight:900;font-size:15px;left:4px;top:-2px}
+  .task input[type="checkbox"]:checked::after{content:"✓";position:absolute;color:#0f172a; font-weight:900;font-size:15px;left:4px;top:-2px}
   .task label{flex:1;font-size:0.95rem;cursor:pointer}
   .task input:checked + label{color:var(--muted);text-decoration:line-through}
   .note{font-size:0.8rem;color:var(--warn);margin-top:4px;display:block}
 
-  .edit-input{width:100%;padding:8px;background:var(--input-bg);border:1px solid var(--border);
-    color:var(--text);border-radius:6px;font-family:inherit;margin-bottom:4px}
+  .edit-input{width:100%;padding:8px;background:var(--input-bg);border:1px solid var(--border); color:var(--text);border-radius:6px;font-family:inherit;margin-bottom:4px}
   .btn-sm{padding:6px 10px;font-size:0.75rem;border-radius:6px;cursor:pointer;border:none;font-weight:bold}
   .btn-delete{background:var(--danger);color:#fff;margin-left:8px}
   .btn-add{background:var(--accent);color:#0f172a;margin-top:10px;width:100%}
-  .btn-del-sec{background:transparent;color:var(--danger);border:1px solid var(--danger);
-    padding:2px 6px;border-radius:4px;font-size:0.7rem;margin-left:auto}
-  .btn-check-all{background:var(--accent2);color:#0f172a;margin-bottom:8px;width:100%;
-    padding:8px;border-radius:6px;font-weight:bold;border:none;cursor:pointer}
+  .btn-del-sec{background:transparent;color:var(--danger);border:1px solid var(--danger); padding:2px 6px;border-radius:4px;font-size:0.7rem;margin-left:auto}
+  .btn-check-all{background:var(--accent2);color:#0f172a;margin-bottom:8px;width:100%; padding:8px;border-radius:6px;font-weight:bold;border:none;cursor:pointer}
 
   .adhoc-section{margin-top:24px}
   .adhoc-section h3{margin-bottom:12px;font-size:1.05rem;color:var(--accent2)}
   .adhoc-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:12px}
   .adhoc-card{background:var(--card);padding:12px;border-radius:12px;border:1px solid var(--border)}
   .adhoc-card h4{margin:0 0 8px 0;font-size:0.95rem;color:var(--text)}
-  .adhoc-textarea{width:100%;min-height:80px;background:var(--input-bg);border:1px solid var(--border);
-    color:var(--text);border-radius:8px;padding:10px;font-family:inherit;resize:vertical}
+  .adhoc-textarea{width:100%;min-height:80px;background:var(--input-bg);border:1px solid var(--border); color:var(--text);border-radius:8px;padding:10px;font-family:inherit;resize:vertical}
   .notes-section{background:var(--card);padding:16px;border-radius:14px;border:1px solid var(--border);margin-top:24px}
   .notes-section h3{margin:0 0 10px 0;font-size:1.05rem;color:var(--accent2)}
-  .notes-textarea{width:100%;min-height:100px;background:var(--input-bg);border:1px solid var(--border);
-    color:var(--text);border-radius:8px;padding:12px;font-family:inherit;resize:vertical}
+  .notes-textarea{width:100%;min-height:100px;background:var(--input-bg);border:1px solid var(--border); color:var(--text);border-radius:8px;padding:12px;font-family:inherit;resize:vertical}
 
-  footer{position:fixed;bottom:0;left:0;right:0;background:#0b1220;padding:12px 16px;display:flex;
-    gap:10px;border-top:1px solid var(--border);z-index:20;flex-wrap:wrap}
-  button.main-btn{flex:1;padding:12px;border:none;border-radius:10px;font-weight:600;font-size:0.9rem;
-    cursor:pointer;background:var(--border);color:var(--text);transition:.2s}
+  footer{position:fixed;bottom:0;left:0;right:0;background:#0b1220;padding:12px 16px;display:flex; gap:10px;border-top:1px solid var(--border);z-index:20;flex-wrap:wrap}
+  button.main-btn{flex:1;padding:12px;border:none;border-radius:10px;font-weight:600;font-size:0.9rem; cursor:pointer;background:var(--border);color:var(--text);transition:.2s}
   button.main-btn:active{opacity:.8}
   .btn-primary{background:var(--accent2)!important;color:#0f172a!important}
   .btn-danger{background:var(--danger)!important;color:#fff!important}
-  .badge-done{font-size:0.7rem;background:var(--accent);color:#0f172a;padding:2px 6px;border-radius:5px;
-    font-weight:700;display:none}
+  .badge-done{font-size:0.7rem;background:var(--accent);color:#0f172a;padding:2px 6px;border-radius:5px; font-weight:700;display:none}
   .section.complete .badge-done{display:inline-block}
 
-  .modal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.9);
-    z-index:100;flex-direction:column}
-  .modal-header{display:flex;justify-content:space-between;align-items:center;padding:16px;
-    background:var(--card);border-bottom:1px solid var(--border)}
+  .modal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.9); z-index:100;flex-direction:column}
+  .modal-header{display:flex;justify-content:space-between;align-items:center;padding:16px; background:var(--card);border-bottom:1px solid var(--border)}
   .modal-header h2{margin:0;font-size:1.2rem}
   .modal-body{padding:16px;overflow-y:auto;flex:1}
-  .btn-close{background:var(--danger);color:#fff;border:none;padding:8px 12px;border-radius:6px;
-    font-weight:bold;cursor:pointer}
+  .btn-close{background:var(--danger);color:#fff;border:none;padding:8px 12px;border-radius:6px; font-weight:bold;cursor:pointer}
 
   .gallery-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:12px}
-  .gallery-item{background:var(--card);border-radius:10px;overflow:hidden;border:1px solid var(--border);
-    display:flex;flex-direction:column}
+  .gallery-item{background:var(--card);border-radius:10px;overflow:hidden;border:1px solid var(--border); display:flex;flex-direction:column}
   .gallery-item img{width:100%;height:120px;object-fit:cover;cursor:pointer}
   .gallery-item-info{padding:8px;flex:1;display:flex;flex-direction:column;justify-content:space-between}
   .gallery-item-title{font-size:0.85rem;font-weight:bold;margin-bottom:8px;word-wrap:break-word}
@@ -152,19 +119,15 @@
   .gallery-item-actions button{flex:1;font-size:0.7rem;padding:4px}
 
   #shiftLogTable{width:100%;border-collapse:collapse;font-size:0.82rem}
-  #shiftLogTable th,#shiftLogTable td{padding:8px 6px;border-bottom:1px solid var(--border);
-    text-align:left;vertical-align:top;white-space:nowrap}
-  #shiftLogTable th{background:#243447;font-size:0.72rem;color:var(--muted);
-    text-transform:uppercase;letter-spacing:.03em}
+  #shiftLogTable th,#shiftLogTable td{padding:8px 6px;border-bottom:1px solid var(--border); text-align:left;vertical-align:top;white-space:nowrap}
+  #shiftLogTable th{background:#243447;font-size:0.72rem;color:var(--muted); text-transform:uppercase;letter-spacing:.03em}
   #shiftLogTable tr:hover td{background:#1a2538}
   #shiftLogTable td.notes-cell{white-space:normal;max-width:180px;font-size:0.78rem;color:var(--muted)}
   #shiftLogTable td.num{font-variant-numeric:tabular-nums;text-align:right}
-  .sl-ph-badge{display:inline-block;font-size:0.65rem;background:var(--warn);color:#0f172a;
-    padding:1px 5px;border-radius:4px;font-weight:700}
+  .sl-ph-badge{display:inline-block;font-size:0.65rem;background:var(--warn);color:#0f172a; padding:1px 5px;border-radius:4px;font-weight:700}
   .sl-overnight{color:var(--accent2);font-size:0.7rem}
   .sl-summary-row{display:flex;justify-content:space-between;padding:3px 0;font-size:0.88rem}
-  .sl-summary-row.total{border-top:1px solid var(--border);margin-top:8px;padding-top:8px;
-    font-weight:bold;color:var(--accent);font-size:1rem}
+  .sl-summary-row.total{border-top:1px solid var(--border);margin-top:8px;padding-top:8px; font-weight:bold;color:var(--accent);font-size:1rem}
   .sl-summary-row .val{font-variant-numeric:tabular-nums}
 
   @media print{
@@ -195,11 +158,7 @@
     @page{margin:12mm}
   }
   
-  #slToast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(20px);
-    background:var(--accent);color:#0f172a;padding:12px 20px;border-radius:10px;font-weight:700;
-    font-size:0.95rem;box-shadow:0 6px 20px rgba(0,0,0,.4);opacity:0;pointer-events:auto;
-    transition:opacity .25s,transform .25s;z-index:200;width:90%;max-width:600px;
-    text-align:left}
+  #slToast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(20px); background:var(--accent);color:#0f172a;padding:12px 20px;border-radius:10px;font-weight:700; font-size:0.95rem;box-shadow:0 6px 20px rgba(0,0,0,.4);opacity:0;pointer-events:auto; transition:opacity .25s,transform .25s;z-index:200;width:90%;max-width:600px; text-align:left}
   #slToast.show{opacity:1;transform:translateX(-50%) translateY(0)}
   #slToast.error{background:var(--danger);color:#fff}
 
@@ -207,38 +166,41 @@
   .sync-status.ok{background:var(--accent);color:#0f172a}
   .sync-status.err{background:var(--danger);color:#fff}
 
-  /* NEW: LOGIN OVERLAY CSS */
+  /* LOGIN OVERLAY CSS */
   #loginOverlay {
     position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-    background: rgba(15, 23, 42, 0.95);
-    backdrop-filter: blur(10px);
-    display: flex; justify-content: center; align-items: center;
-    z-index: 9999;
-    flex-direction: column;
+    background: rgba(15, 23, 42, 0.95); backdrop-filter: blur(10px);
+    display: flex; justify-content: center; align-items: center; z-index: 9999; flex-direction: column;
   }
   .login-box {
     background: var(--card); padding: 30px; border-radius: 16px;
     border: 1px solid var(--border); box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-    text-align: center; width: 90%; max-width: 350px;
-    animation: fadeIn 0.4s ease-out;
+    text-align: center; width: 90%; max-width: 350px; animation: fadeIn 0.4s ease-out;
   }
   .login-box h2 { margin-top: 0; color: var(--text); }
   .login-box input {
-    width: 100%; padding: 12px; margin: 15px 0;
-    background: var(--input-bg); border: 2px solid var(--border);
-    color: var(--text); border-radius: 8px; font-size: 1.1rem;
-    text-align: center; letter-spacing: 2px;
+    width: 100%; padding: 12px; margin: 15px 0; background: var(--input-bg); border: 2px solid var(--border);
+    color: var(--text); border-radius: 8px; font-size: 1.1rem; text-align: center; letter-spacing: 2px;
   }
   .login-box input:focus { border-color: var(--accent2); outline: none; }
   .login-box button {
-    width: 100%; padding: 12px; background: var(--accent);
-    color: #0f172a; border: none; border-radius: 8px;
+    width: 100%; padding: 12px; background: var(--accent); color: #0f172a; border: none; border-radius: 8px;
     font-weight: bold; font-size: 1rem; cursor: pointer; transition: 0.2s;
   }
   .login-box button:hover { background: #16a34a; }
   .login-error { color: var(--danger); font-size: 0.85rem; margin-top: 10px; display: none; }
   
   @keyframes fadeIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+
+  /* ADMIN DASHBOARD CSS */
+  #adminDashboardModal { z-index: 150; }
+  .admin-user-row {
+    display: flex; justify-content: space-between; align-items: center;
+    background: var(--input-bg); padding: 10px; border-radius: 8px;
+    border: 1px solid var(--border); margin-bottom: 8px;
+  }
+  .admin-user-row .name { font-weight: bold; color: var(--accent2); }
+  .admin-user-row .pin { font-family: monospace; color: var(--warn); }
 </style>
 </head>
 <body>
@@ -265,6 +227,7 @@
   
   <div class="btn-group">
     <span class="sync-status" id="syncStatus">local</span>
+    <button class="btn-tool" id="btnAdmin" style="display:none; background:var(--gold); color:#0f172a;" onclick="openAdminDashboard()">👑 Admin</button>
     <button class="btn-tool btn-log" id="btnShiftLog" onclick="openShiftLog()">📅 Shift Log</button>
     <button class="btn-tool btn-gallery" id="btnGallery" onclick="openGallery()">📸 Gallery</button>
     <button class="btn-tool btn-sync" onclick="pushToCloud(true)" title="Upload to Supabase">☁️ Sync</button>
@@ -324,18 +287,15 @@
   </div>
   <div class="modal-body">
     <div style="display:flex;gap:10px;margin-bottom:16px">
-      <button class="btn-tool btn-sync" id="btnGalCam" style="flex:1;padding:12px;font-size:.9rem"
-        onclick="triggerGalleryUpload(true)">📷 Camera</button>
-      <button class="btn-tool btn-sync" id="btnGalUpload" style="flex:1;padding:12px;font-size:.9rem"
-        onclick="triggerGalleryUpload(false)">🖼️ Gallery</button>
+      <button class="btn-tool btn-sync" id="btnGalCam" style="flex:1;padding:12px;font-size:.9rem" onclick="triggerGalleryUpload(true)">📷 Camera</button>
+      <button class="btn-tool btn-sync" id="btnGalUpload" style="flex:1;padding:12px;font-size:.9rem" onclick="triggerGalleryUpload(false)">🖼️ Gallery</button>
     </div>
     <div class="gallery-grid" id="galleryGrid"></div>
   </div>
 </div>
 
 <!-- Full Image Viewer -->
-<div id="imgModal" class="modal" style="justify-content:center;align-items:center;background:rgba(0,0,0,.95)"
-  onclick="if(event.target===this) this.style.display='none'">
+<div id="imgModal" class="modal" style="justify-content:center;align-items:center;background:rgba(0,0,0,.95)" onclick="if(event.target===this) this.style.display='none'">
   <img id="imgModalSrc" style="max-width:100%;max-height:100%;object-fit:contain">
 </div>
 
@@ -353,8 +313,7 @@
       <button class="btn-tool" onclick="shiftLogNextMonth()" style="font-size:1rem;padding:8px 14px">▶</button>
     </div>
 
-    <div id="shiftLogForm" style="background:var(--input-bg);border:1px solid var(--border);
-      border-radius:10px;padding:12px;margin-bottom:14px">
+    <div id="shiftLogForm" style="background:var(--input-bg);border:1px solid var(--border); border-radius:10px;padding:12px;margin-bottom:14px">
       <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px">
         <div><label id="lblSlDate" style="font-size:.75rem;color:var(--muted)">Date</label>
           <input type="date" id="slDate" class="edit-input" style="margin-bottom:0"></div>
@@ -385,10 +344,8 @@
         <input type="text" id="slNotes" class="edit-input" style="margin-bottom:0">
       </div>
       <div style="display:flex;gap:8px;margin-top:10px">
-        <button class="btn-sm" id="btnSlSave" style="flex:1;background:var(--accent);color:#0f172a;padding:10px;font-size:.9rem"
-          onclick="shiftLogSaveEntry()">💾 Save</button>
-        <button class="btn-sm" id="btnSlCancel" style="flex:1;background:var(--border);color:var(--text);padding:10px;
-          font-size:.9rem;display:none" onclick="shiftLogCancelEdit()">✖ Cancel</button>
+        <button class="btn-sm" id="btnSlSave" style="flex:1;background:var(--accent);color:#0f172a;padding:10px;font-size:.9rem" onclick="shiftLogSaveEntry()">💾 Save</button>
+        <button class="btn-sm" id="btnSlCancel" style="flex:1;background:var(--border);color:var(--text);padding:10px; font-size:.9rem;display:none" onclick="shiftLogCancelEdit()">✖ Cancel</button>
       </div>
     </div>
 
@@ -399,8 +356,7 @@
       </table>
     </div>
 
-    <div id="shiftLogSummary" style="background:var(--card);border:1px solid var(--border);
-      border-radius:10px;padding:14px;margin-bottom:14px"></div>
+    <div id="shiftLogSummary" style="background:var(--card);border:1px solid var(--border); border-radius:10px;padding:14px;margin-bottom:14px"></div>
 
     <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px">
       <button class="btn-tool btn-sync" id="btnSlPrint" style="flex:1;padding:10px" onclick="shiftLogPrint()">🖨️ Print / PDF</button>
@@ -419,6 +375,35 @@
         🗑️ Clean >3 Months Data
       </button>
     </div>
+  </div>
+</div>
+
+<!-- Admin Dashboard Modal -->
+<div id="adminDashboardModal" class="modal">
+  <div class="modal-header" style="background:#1e293b">
+    <h2 style="color:var(--gold)">👑 Admin Dashboard</h2>
+    <button class="btn-close" onclick="closeAdminDashboard()">✖</button>
+  </div>
+  <div class="modal-body" style="background:var(--bg)">
+    <h3 style="color:var(--accent2); margin-top:0;">User Management</h3>
+    <div id="adminUserList" style="margin-bottom: 20px;"></div>
+    
+    <div style="background:var(--card); padding:15px; border-radius:10px; border:1px solid var(--border); margin-bottom:20px;">
+      <h4 style="margin-top:0; color:var(--accent2)">➕ Add New User</h4>
+      <input type="text" id="newUserName" class="edit-input" placeholder="Full Name (e.g. Ahmad)">
+      <input type="text" id="newUserId" class="edit-input" placeholder="ID (e.g. ahmad)">
+      <input type="text" id="newUserPin" class="edit-input" placeholder="PIN (e.g. ahmad123)">
+      <select id="newUserRole" class="edit-input">
+        <option value="user">User (Staff)</option>
+        <option value="admin">Admin</option>
+      </select>
+      <button class="btn-sm btn-sync" style="width:100%; padding:10px; font-size:1rem;" onclick="adminAddUser()">Add User</button>
+    </div>
+
+    <h3 style="color:var(--gold)">Master Tools</h3>
+    <button class="btn-sm" style="width:100%; padding:15px; background:var(--warn); color:#0f172a; font-size:1rem; font-weight:bold;" onclick="adminMasterBackup()">
+      📥 Download Master Payroll Backup (All Staff)
+    </button>
   </div>
 </div>
 
@@ -482,14 +467,18 @@ async function pullFromCloud(showToast) {
     });
     if (res.status === 401) {
         localStorage.removeItem("noja_user_pin");
+        localStorage.removeItem("noja_user_role");
         document.getElementById("loginOverlay").style.display = "flex";
+        document.getElementById("btnAdmin").style.display = "none";
         throw new Error("Session expired");
     }
     if (!res.ok) throw new Error("Network error");
-    const data = await res.json();
     
-    if (data && data.length > 0 && data[0].data) {
-      applyStatePayload(data[0].data);
+    const payload = await res.json();
+    
+    // NEW: Read from appData object returned by Worker
+    if (payload && payload.appData && payload.appData.length > 0 && payload.appData[0].data) {
+      applyStatePayload(payload.appData[0].data);
       document.getElementById("mainNotes").value = notesData;
       renderTexts(); renderTasks(); renderAdhoc(); renderGallery();
       setSyncStatus("ok", "cloud ✓");
@@ -560,12 +549,20 @@ function attemptLogin() {
       if (res.status === 401) throw new Error("Invalid PIN");
       return res.json();
     })
-    .then(data => {
+    .then(payload => {
       localStorage.setItem("noja_user_pin", pin);
       document.getElementById("loginOverlay").style.display = "none";
       btn.textContent = "Login";
       btn.disabled = false;
       document.getElementById("loginPin").value = "";
+      
+      if (payload.userInfo && payload.userInfo.role === "admin") {
+          localStorage.setItem("noja_user_role", "admin");
+          document.getElementById("btnAdmin").style.display = "inline-block";
+      } else {
+          localStorage.removeItem("noja_user_role");
+          document.getElementById("btnAdmin").style.display = "none";
+      }
       
       pullFromCloud(true);
       slToast("✅ Logged in successfully");
@@ -576,6 +573,113 @@ function attemptLogin() {
       btn.disabled = false;
       document.getElementById("loginPin").value = "";
     });
+}
+
+// ==========================================
+// ADMIN DASHBOARD LOGIC
+// ==========================================
+function openAdminDashboard() {
+  document.getElementById("adminDashboardModal").style.display = "flex";
+  loadAdminUsers();
+}
+
+function closeAdminDashboard() {
+  document.getElementById("adminDashboardModal").style.display = "none";
+}
+
+async function loadAdminUsers() {
+  const pin = localStorage.getItem("noja_user_pin");
+  const list = document.getElementById("adminUserList");
+  list.innerHTML = "<p>Loading users...</p>";
+  
+  try {
+    const res = await fetch(WORKER_URL + "?adminUsers=true", { headers: { "x-user-pin": pin } });
+    const users = await res.json();
+    
+    list.innerHTML = "";
+    users.forEach(u => {
+      const div = document.createElement("div");
+      div.className = "admin-user-row";
+      div.innerHTML = `
+        <div>
+          <div class="name">${u.name} ${u.role === 'admin' ? '👑' : ''}</div>
+          <div style="font-size:0.8rem; color:var(--muted)">ID: ${u.id}</div>
+        </div>
+        <div class="pin">PIN: ${u.pin}</div>
+        ${u.id !== 'admin' ? `<button class="btn-sm btn-delete" onclick="adminDeleteUser('${u.id}')">🗑️</button>` : ''}
+      `;
+      list.appendChild(div);
+    });
+  } catch (e) {
+    list.innerHTML = "<p style='color:var(--danger)'>Error loading users.</p>";
+  }
+}
+
+async function adminAddUser() {
+  const name = document.getElementById("newUserName").value.trim();
+  const id = document.getElementById("newUserId").value.trim().toLowerCase();
+  const pin = document.getElementById("newUserPin").value.trim();
+  const role = document.getElementById("newUserRole").value;
+  
+  if (!name || !id || !pin) return alert("Please fill all fields");
+  
+  const adminPin = localStorage.getItem("noja_user_pin");
+  
+  try {
+    const res = await fetch(WORKER_URL + "?adminAddUser=true", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "x-user-pin": adminPin },
+      body: JSON.stringify({ id, name, pin, role })
+    });
+    if (!res.ok) throw new Error("Failed to add user");
+    
+    document.getElementById("newUserName").value = "";
+    document.getElementById("newUserId").value = "";
+    document.getElementById("newUserPin").value = "";
+    loadAdminUsers();
+    slToast("✅ User added successfully");
+  } catch (e) {
+    slToast("❌ Error adding user", true);
+  }
+}
+
+async function adminDeleteUser(id) {
+  if (!confirm(`Delete user ${id}? This cannot be undone.`)) return;
+  const adminPin = localStorage.getItem("noja_user_pin");
+  
+  try {
+    const res = await fetch(WORKER_URL + "?adminDeleteUser=" + id, {
+      method: "POST",
+      headers: { "x-user-pin": adminPin }
+    });
+    if (!res.ok) throw new Error("Failed to delete");
+    loadAdminUsers();
+    slToast("🗑️ User deleted");
+  } catch (e) {
+    slToast("❌ Error deleting user", true);
+  }
+}
+
+async function adminMasterBackup() {
+  const pin = localStorage.getItem("noja_user_pin");
+  slToast("⏳ Downloading master backup...");
+  
+  try {
+    const res = await fetch(WORKER_URL + "?masterBackup=true", { headers: { "x-user-pin": pin } });
+    const data = await res.json();
+    
+    const blob = new Blob([JSON.stringify(data, null, 2)], {type:"application/json"});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url; 
+    a.download = `Master_Payroll_Backup_${new Date().toISOString().slice(0,10)}.json`;
+    a.click(); 
+    URL.revokeObjectURL(url);
+    
+    slToast("✅ Master backup downloaded!");
+  } catch(e) {
+    slToast("❌ Backup failed", true);
+  }
 }
 
 // ==========================================
@@ -1452,9 +1556,11 @@ async function init(){
   renderTexts(); renderTasks(); renderAdhoc(); tick();
   initSupabase();
   
-  // Check if user is already logged in
   const savedPin = localStorage.getItem("noja_user_pin");
   if (savedPin) {
+    if (localStorage.getItem("noja_user_role") === "admin") {
+      document.getElementById("btnAdmin").style.display = "inline-block";
+    }
     document.getElementById("loginOverlay").style.display = "none";
     if (sbReady) {
       await pullFromCloud(false);
