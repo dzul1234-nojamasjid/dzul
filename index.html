@@ -514,9 +514,9 @@ async function pushToCloud(showToast) {
         updated_at: new Date().toISOString()
     };
     
-    // NEW: Add a 15-second timeout so mobile phones don't panic on heavy image uploads
+    // NEW: 15-second timeout to handle slow mobile networks
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 15000); 
+    const timeoutId = setTimeout(() => controller.abort(), 15000);
     
     const res = await fetch(WORKER_URL, {
         method: "POST",
@@ -525,10 +525,10 @@ async function pushToCloud(showToast) {
             "x-user-pin": savedPin 
         },
         body: JSON.stringify(payload),
-        signal: controller.signal // <--- Attach the timer
+        signal: controller.signal
     });
     
-    clearTimeout(timeoutId); // Stop the timer if the upload finishes fast
+    clearTimeout(timeoutId);
     
     if (!res.ok) throw new Error("Network error");
     setSyncStatus("ok", "cloud ✓");
@@ -536,9 +536,8 @@ async function pushToCloud(showToast) {
   } catch (e) {
     console.error("Push fail:", e);
     setSyncStatus("err", "err");
-    // If it was aborted due to timeout, give a nicer message
     if (e.name === 'AbortError') {
-        if (showToast) slToast("❌ Upload timed out. Please check your internet.", true);
+        if (showToast) slToast("❌ Upload timed out. Please check internet.", true);
     } else {
         if (showToast) slToast("❌ Push failed: " + e.message, true);
     }
