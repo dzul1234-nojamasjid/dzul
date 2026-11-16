@@ -472,6 +472,8 @@ async function pullFromCloud(showToast) {
         method: "GET",
         headers: { "x-user-pin": savedPin }
     });
+    
+    // THE FIX: ONLY logout on true 401 Unauthorized
     if (res.status === 401) {
         localStorage.removeItem("noja_user_pin");
         localStorage.removeItem("noja_user_role");
@@ -479,7 +481,9 @@ async function pullFromCloud(showToast) {
         document.getElementById("btnAdmin").style.display = "none";
         throw new Error("Session expired");
     }
-    if (!res.ok) throw new Error("HTTP " + res.status);
+    
+    // Any other error (like 413 or 500) just throws and keeps the user logged in
+    if (!res.ok) throw new Error(`Server error: ${res.status}`);
 
     const payload = await res.json();
 
@@ -503,9 +507,6 @@ async function pullFromCloud(showToast) {
   }
 }
 
-// ==========================================
-// PUSH TO CLOUD — HARDENED AGAINST LARGE PAYLOADS
-// ==========================================
 async function pushToCloud(showToast) {
   if (!sbReady) { if (showToast) slToast("Cloud not configured", true); return; }
   const savedPin = localStorage.getItem("noja_user_pin");
@@ -519,12 +520,10 @@ async function pushToCloud(showToast) {
   const payloadKB = (bodyStr.length / 1024).toFixed(1);
   const hasGallery = Array.isArray(payload.data.gallery) && payload.data.gallery.length > 0;
 
-  // Adaptive timeout: base 30s, +30s if gallery present, +10s per 500KB over 1MB
   let timeoutMs = 30000;
   if (hasGallery) timeoutMs += 30000;
   const sizeMB = bodyStr.length / (1024 * 1024);
   if (sizeMB > 1) timeoutMs += Math.ceil((sizeMB - 1) * 10000);
-  // Cap at 120s
   timeoutMs = Math.min(timeoutMs, 120000);
 
   console.log(`[pushToCloud] Payload: ${payloadKB} KB, timeout: ${timeoutMs/1000}s`);
@@ -549,7 +548,6 @@ async function pushToCloud(showToast) {
       clearTimeout(timeoutId);
 
       if (!res.ok) {
-        // Try to read the error body to surface the real cause
         let detail = "";
         try {
           const txt = await res.text();
@@ -571,7 +569,6 @@ async function pushToCloud(showToast) {
         e.message = `Upload timed out after ${timeoutMs/1000}s`;
       }
 
-      // Retry only on transient errors (network, 5xx, timeout), not on 4xx
       const isTransient = !e.status || e.status >= 500 || e.name === 'AbortError';
       const canRetry = isTransient && attemptNum < 3;
 
@@ -1285,9 +1282,6 @@ function renderGallery(){
   });
 }
 
-// ==========================================
-// GALLERY UPLOAD — HARDENED COMPRESSION
-// ==========================================
 function triggerGalleryUpload(useCamera){
   const input = document.createElement("input");
   input.type="file"; input.accept="image/*";
@@ -1302,8 +1296,6 @@ function triggerGalleryUpload(useCamera){
       const img = new Image();
       img.onload = async () => {
         const canvas = document.createElement("canvas");
-        // NEW: More aggressive compression — 800px max, 0.6 quality
-        // Reference photos don't need high resolution; this cuts payload ~60-70%
         const MAX = 800;
         const scale = Math.min(1, MAX / Math.max(img.width, img.height));
         canvas.width = Math.round(img.width * scale);
