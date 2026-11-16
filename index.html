@@ -1266,7 +1266,6 @@ function renderGallery(){
   
   grid.innerHTML = "";
   
-  // NEW: Calculate and show size limit indicator
   if (limitMsg) {
     let totalBytes = 0;
     galleryData.forEach(item => {
@@ -1312,10 +1311,14 @@ function renderGallery(){
 }
 
 function triggerGalleryUpload(useCamera){
-  // NEW: Block upload if limit of 10 is reached
   if (galleryData.length >= 10) {
     alert(t("Limit reached! You can only store up to 10 photos. Please delete old photos first.", "Had dicapai! Anda hanya boleh simpan maksimum 10 gambar. Sila padam gambar lama dahulu."));
     return;
+  }
+
+  // NEW: Notification for PC users
+  if (!useCamera && !/Mobi|Android/i.test(navigator.userAgent)) {
+     alert(t("You are on a PC. This will open your computer's file explorer to select an image.", "Anda menggunakan PC. Ini akan membuka file explorer komputer anda untuk memilih gambar."));
   }
 
   const input = document.createElement("input");
@@ -1331,9 +1334,6 @@ function triggerGalleryUpload(useCamera){
       const img = new Image();
       img.onload = async () => {
         const canvas = document.createElement("canvas");
-        
-        // NEW: Harder compression to ensure even 10 photos fit comfortably under the 1MB Supabase limit.
-        // 600px max width, 0.5 JPEG quality results in roughly 30-50KB per photo.
         const MAX = 600;
         const scale = Math.min(1, MAX / Math.max(img.width, img.height));
         canvas.width = Math.round(img.width * scale);
