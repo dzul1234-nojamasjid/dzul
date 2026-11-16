@@ -14,6 +14,9 @@
   body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
     background:var(--bg);color:var(--text);padding:16px;padding-bottom:120px;line-height:1.5}
 
+  /* MOBILE UI FIX FOR TIME/DATE INPUTS */
+  input[type="date"], input[type="time"] { max-width: 100%; min-width: 0; font-family: inherit; font-size: 16px; }
+
   .top-bar{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px;flex-wrap:wrap;gap:10px}
   .btn-group{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
   
@@ -36,7 +39,6 @@
     background:linear-gradient(135deg,#166534,#065f46);border-radius:16px;box-shadow:0 4px 15px rgba(0,0,0,0.3)}
   header h1{margin:0;font-size:1.4rem;letter-spacing:0.5px}
   
-  /* NEW: BLACK BACKGROUND & RED FONTS FOR COUNTDOWN */
   .ramadhan-countdown {
     margin-top: 15px;
     padding: 12px;
@@ -193,7 +195,6 @@
     @page{margin:12mm}
   }
   
-  /* UPDATED TOAST TO SUPPORT WRAPPING AND 10-SECOND TIMEOUT */
   #slToast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(20px);
     background:var(--accent);color:#0f172a;padding:12px 20px;border-radius:10px;font-weight:700;
     font-size:0.95rem;box-shadow:0 6px 20px rgba(0,0,0,.4);opacity:0;pointer-events:auto;
@@ -205,9 +206,53 @@
   .sync-status{font-size:0.7rem;padding:2px 8px;border-radius:10px;background:var(--border);color:var(--muted)}
   .sync-status.ok{background:var(--accent);color:#0f172a}
   .sync-status.err{background:var(--danger);color:#fff}
+
+  /* NEW: LOGIN OVERLAY CSS */
+  #loginOverlay {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(15, 23, 42, 0.95);
+    backdrop-filter: blur(10px);
+    display: flex; justify-content: center; align-items: center;
+    z-index: 9999;
+    flex-direction: column;
+  }
+  .login-box {
+    background: var(--card); padding: 30px; border-radius: 16px;
+    border: 1px solid var(--border); box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    text-align: center; width: 90%; max-width: 350px;
+    animation: fadeIn 0.4s ease-out;
+  }
+  .login-box h2 { margin-top: 0; color: var(--text); }
+  .login-box input {
+    width: 100%; padding: 12px; margin: 15px 0;
+    background: var(--input-bg); border: 2px solid var(--border);
+    color: var(--text); border-radius: 8px; font-size: 1.1rem;
+    text-align: center; letter-spacing: 2px;
+  }
+  .login-box input:focus { border-color: var(--accent2); outline: none; }
+  .login-box button {
+    width: 100%; padding: 12px; background: var(--accent);
+    color: #0f172a; border: none; border-radius: 8px;
+    font-weight: bold; font-size: 1rem; cursor: pointer; transition: 0.2s;
+  }
+  .login-box button:hover { background: #16a34a; }
+  .login-error { color: var(--danger); font-size: 0.85rem; margin-top: 10px; display: none; }
+  
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
 </style>
 </head>
 <body>
+
+<!-- LOGIN OVERLAY -->
+<div id="loginOverlay">
+  <div class="login-box">
+    <h2>🕌 Noja Masjid</h2>
+    <p style="color: var(--muted); font-size: 0.9rem; margin-bottom: 0;">Enter your PIN to continue</p>
+    <input type="password" id="loginPin" placeholder="••••" onkeypress="if(event.key === 'Enter') attemptLogin()">
+    <button id="btnLogin" onclick="attemptLogin()">Login</button>
+    <div id="loginError" class="login-error">❌ Invalid PIN. Please try again.</div>
+  </div>
+</div>
 
 <div class="top-bar">
   <div style="display:flex; flex-direction:column; gap:8px;">
@@ -363,14 +408,12 @@
       <button class="btn-tool" style="flex:1;padding:10px" onclick="shiftLogExportJSON()">📥 Export JSON</button>
     </div>
     
-    <!-- MANUAL DOWNLOAD BUTTON -->
     <div style="margin-top:10px; text-align:center;">
       <button class="btn-sm" id="btnSlManualBackup" style="background:var(--accent); color:#0f172a; padding:10px 12px; width:100%; font-weight:bold;" onclick="downloadLastMonthBackup()">
         📥 Download Last Month's Backup
       </button>
     </div>
     
-    <!-- Auto/Manual Cleanup Button -->
     <div style="margin-top:10px; text-align:center;">
       <button class="btn-sm" id="btnSlClean" style="background:transparent; color:var(--warn); border:1px solid var(--warn); padding:8px 12px; width:100%" onclick="shiftLogCleanOldData()">
         🗑️ Clean >3 Months Data
@@ -428,9 +471,20 @@ function applyStatePayload(d) {
 
 async function pullFromCloud(showToast) {
   if (!sbReady) { if (showToast) slToast("Cloud not configured", true); return false; }
+  const savedPin = localStorage.getItem("noja_user_pin");
+  if (!savedPin) return false;
+  
   try {
     setSyncStatus("", "syncing…");
-    const res = await fetch(WORKER_URL + "?t=" + Date.now(), { method: "GET" });
+    const res = await fetch(WORKER_URL + "?t=" + Date.now(), { 
+        method: "GET",
+        headers: { "x-user-pin": savedPin }
+    });
+    if (res.status === 401) {
+        localStorage.removeItem("noja_user_pin");
+        document.getElementById("loginOverlay").style.display = "flex";
+        throw new Error("Session expired");
+    }
     if (!res.ok) throw new Error("Network error");
     const data = await res.json();
     
@@ -456,16 +510,21 @@ async function pullFromCloud(showToast) {
 
 async function pushToCloud(showToast) {
   if (!sbReady) { if (showToast) slToast("Cloud not configured", true); return; }
+  const savedPin = localStorage.getItem("noja_user_pin");
+  if (!savedPin) return;
+  
   try {
     setSyncStatus("", "saving…");
     const payload = {
-        id: "main",
         data: buildStatePayload(),
         updated_at: new Date().toISOString()
     };
     const res = await fetch(WORKER_URL, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { 
+            "Content-Type": "application/json",
+            "x-user-pin": savedPin 
+        },
         body: JSON.stringify(payload)
     });
     if (!res.ok) throw new Error("Network error");
@@ -482,6 +541,41 @@ function schedulePush() {
   if (!sbReady) return;
   clearTimeout(pushTimer);
   pushTimer = setTimeout(() => pushToCloud(false), 1500);
+}
+
+// ==========================================
+// LOGIN SYSTEM
+// ==========================================
+function attemptLogin() {
+  const pin = document.getElementById("loginPin").value.trim();
+  if (!pin) return;
+
+  const btn = document.getElementById("btnLogin");
+  btn.textContent = "Checking...";
+  btn.disabled = true;
+  document.getElementById("loginError").style.display = "none";
+
+  fetch(WORKER_URL, { headers: { "x-user-pin": pin } })
+    .then(res => {
+      if (res.status === 401) throw new Error("Invalid PIN");
+      return res.json();
+    })
+    .then(data => {
+      localStorage.setItem("noja_user_pin", pin);
+      document.getElementById("loginOverlay").style.display = "none";
+      btn.textContent = "Login";
+      btn.disabled = false;
+      document.getElementById("loginPin").value = "";
+      
+      pullFromCloud(true);
+      slToast("✅ Logged in successfully");
+    })
+    .catch(err => {
+      document.getElementById("loginError").style.display = "block";
+      btn.textContent = "Login";
+      btn.disabled = false;
+      document.getElementById("loginPin").value = "";
+    });
 }
 
 // ==========================================
@@ -621,11 +715,9 @@ function runAutomations() {
   const currentMonthKey = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,"0")}`;
   const lastBackup = localStorage.getItem(K_LAST_BACKUP);
 
-  // 1. Auto-Backup Notification
   if (lastBackup !== currentMonthKey) {
     let prevMonthDate = new Date(now.getFullYear(), now.getMonth() - 1, 1);
     const prevMonthKey = `${prevMonthDate.getFullYear()}-${String(prevMonthDate.getMonth()+1).padStart(2,"0")}`;
-    
     const prevEntries = shiftLogData.filter(e => e.date.startsWith(prevMonthKey));
     
     if (prevEntries.length > 0) {
@@ -643,7 +735,6 @@ function runAutomations() {
           )}</span>
           <button onclick="document.getElementById('slToast').className=''" style="background:transparent; border:none; color:#fff; font-weight:bold; font-size:1.2rem; cursor:pointer; padding:0 5px;">✖</button>
         </div>`;
-        
         el.className = "show";
         clearTimeout(el._t);
         el._t = setTimeout(() => { el.className = ""; }, 10000);
@@ -652,11 +743,9 @@ function runAutomations() {
     localStorage.setItem(K_LAST_BACKUP, currentMonthKey);
   }
 
-  // 2. Auto-Cleanup (Deletes entries older than 90 days)
   const cutoffDate = new Date();
   cutoffDate.setDate(cutoffDate.getDate() - 90);
   const cutoffStr = cutoffDate.toISOString().slice(0,10);
-  
   const initialCount = shiftLogData.length;
   shiftLogData = shiftLogData.filter(e => e.date >= cutoffStr);
   
@@ -667,12 +756,10 @@ function runAutomations() {
   }
 }
 
-// NEW FUNCTION TO DOWNLOAD THE PREVIOUS MONTH
 function downloadLastMonthBackup() {
   const now = new Date();
   let prevMonthDate = new Date(now.getFullYear(), now.getMonth() - 1, 1);
   const prevMonthKey = `${prevMonthDate.getFullYear()}-${String(prevMonthDate.getMonth()+1).padStart(2,"0")}`;
-  
   const prevEntries = shiftLogData.filter(e => e.date.startsWith(prevMonthKey));
   
   if (prevEntries.length === 0) {
@@ -694,7 +781,6 @@ function shiftLogCleanOldData() {
   const cutoffDate = new Date();
   cutoffDate.setDate(cutoffDate.getDate() - 90);
   const cutoffStr = cutoffDate.toISOString().slice(0,10);
-  
   const initialCount = shiftLogData.length;
   shiftLogData = shiftLogData.filter(e => e.date >= cutoffStr);
   
@@ -711,29 +797,20 @@ function shiftLogCleanOldData() {
 // ==========================================
 function translateUI() {
   document.getElementById("appTitle").textContent = t("Noja Daily Checklist", "Senarai Semak Harian Noja");
-  
   document.getElementById("ramadhanTitle").textContent = t("🌙 Countdown to Ramadhan", "🌙 Detik Kehadiran Ramadhan");
   document.getElementById("ramadhanDate").textContent = t("Estimated: 8 Feb 2027", "Anggaran: 8 Feb 2027");
-
   document.getElementById("shiftMorningBtn").textContent = t("🌅 Morning Shift", "🌅 Syif Pagi");
   document.getElementById("shiftEveningBtn").textContent = t("🌙 Evening Shift", "🌙 Syif Petang");
-
   document.getElementById("lblWeeklyTasks").textContent = t("📌 Weekly Tasks", "📌 Tugasan Mingguan");
   document.getElementById("lblNotes").textContent = t("📝 Personal Notes", "📝 Nota Peribadi");
   document.getElementById("mainNotes").placeholder = t("Write notes here...", "Tulis nota di sini...");
-
-  document.getElementById("btnExpandAll").textContent = t(
-    isAllExpanded ? "Collapse All" : "Expand All", 
-    isAllExpanded ? "Tutup Semua" : "Buka Semua"
-  );
+  document.getElementById("btnExpandAll").textContent = t(isAllExpanded ? "Collapse All" : "Expand All", isAllExpanded ? "Tutup Semua" : "Buka Semua");
   document.getElementById("btnEdit").textContent = isEditMode ? t("💾 Save", "💾 Simpan") : t("✏️ Edit", "✏️ Edit");
   document.getElementById("btnReset").textContent = t("Reset", "Set Semula");
-
   document.getElementById("galTitle").textContent = t("📸 Reference Gallery", "📸 Galeri Rujukan");
   document.getElementById("btnGalClose").textContent = t("Close", "Tutup");
   document.getElementById("btnGalCam").textContent = t("📷 Camera", "📷 Kamera");
   document.getElementById("btnGalUpload").textContent = t("🖼️ Gallery", "🖼️ Galeri");
-
   document.getElementById("slTitle").textContent = t("📅 Shift Log", "📅 Log Syif");
   document.getElementById("lblSlDate").textContent = t("Date", "Tarikh");
   document.getElementById("lblSlType").textContent = t("Shift Type", "Jenis Syif");
@@ -756,10 +833,8 @@ function translateUI() {
 function setLang(lang) {
   currentLang = lang;
   localStorage.setItem("noja_lang", currentLang);
-  
   document.getElementById("btnLangEN").className = lang === "en" ? "active" : "";
   document.getElementById("btnLangBM").className = lang === "bm" ? "active" : "";
-  
   translateUI(); renderTexts(); renderTasks(); renderAdhoc(); 
   if(document.getElementById("shiftLogModal").style.display === "flex") renderShiftLog();
 }
@@ -785,7 +860,6 @@ function renderTasks() {
     div.className = "section"; div.id = "sec" + si;
     const head = document.createElement("div");
     head.className = "section-head";
-    
     const safeTitle = safeText(sec.title);
     
     head.innerHTML = `
@@ -865,7 +939,6 @@ function renderAdhoc() {
     {en:"Monday", bm:"Isnin"}, {en:"Tuesday", bm:"Selasa"}, {en:"Wednesday", bm:"Rabu"},
     {en:"Thursday", bm:"Khamis"}, {en:"Friday", bm:"Jumaat"}, {en:"Saturday", bm:"Sabtu"}, {en:"Sunday", bm:"Ahad"}
   ];
-  
   for (let i=0;i<7;i++) {
     const c = document.createElement("div");
     c.className="adhoc-card";
@@ -1016,7 +1089,6 @@ function triggerGalleryUpload(useCamera){
         canvas.height = img.height*scale;
         canvas.getContext("2d").drawImage(img,0,0,canvas.width,canvas.height);
         const base64 = canvas.toDataURL("image/jpeg",0.75);
-
         const newItem = { id: Date.now().toString(), title, base64 };
         galleryData.push(newItem);
         localStorage.setItem(K_GALLERY, JSON.stringify(galleryData));
@@ -1297,7 +1369,6 @@ function restoreJSON(input){
 // ==========================================
 function tick(){
   const now = new Date();
-  
   const dayNames = [
     {en:"Sunday", bm:"Ahad"}, {en:"Monday", bm:"Isnin"}, {en:"Tuesday", bm:"Selasa"}, 
     {en:"Wednesday", bm:"Rabu"}, {en:"Thursday", bm:"Khamis"}, {en:"Friday", bm:"Jumaat"}, {en:"Saturday", bm:"Sabtu"}
@@ -1317,8 +1388,6 @@ function tick(){
   document.getElementById("dateDisplay").textContent = `${dayName}, ${dayNum} ${monthName} ${yearNum}`;
   document.getElementById("clock").textContent = now.toLocaleTimeString("en-GB",{hour12:false});
   
-  // --- MULTI-YEAR SMART COUNTDOWN ---
-  // Estimated dates for Singapore (subject to official moon sighting)
   const islamicDates = [
     { ramadhan: "2027-02-08", syawal: "2027-03-10" },
     { ramadhan: "2028-01-28", syawal: "2028-02-26" },
@@ -1338,12 +1407,10 @@ function tick(){
   let targetDays = 0;
   let found = false;
 
-  // Loop through the list to find what to count down to
   for (let i = 0; i < islamicDates.length; i++) {
     const rDate = new Date(islamicDates[i].ramadhan + "T00:00:00");
     const sDate = new Date(islamicDates[i].syawal + "T00:00:00");
 
-    // Are we before this year's Ramadhan?
     if (now < rDate) {
       targetTitle = t("🌙 Countdown to Ramadhan", "🌙 Detik Kehadiran Ramadhan");
       targetDateStr = t(`Estimated: ${islamicDates[i].ramadhan}`, `Anggaran: ${islamicDates[i].ramadhan}`);
@@ -1352,7 +1419,6 @@ function tick(){
       break;
     }
     
-    // Are we between this year's Ramadhan and Syawal?
     if (now >= rDate && now < sDate) {
       targetTitle = t("✨ Countdown to Syawal (Hari Raya)", "✨ Detik Kehadiran Syawal (Hari Raya)");
       targetDateStr = t(`Estimated: ${islamicDates[i].syawal}`, `Anggaran: ${islamicDates[i].syawal}`);
@@ -1362,7 +1428,6 @@ function tick(){
     }
   }
 
-  // Fallback just in case we run out of dates in 10 years
   if (!found) {
     targetTitle = t("🌙 Countdown to Ramadhan", "🌙 Detik Kehadiran Ramadhan");
     targetDateStr = t("Please update Islamic dates.", "Sila kemaskini tarikh Islam.");
@@ -1374,6 +1439,7 @@ function tick(){
   document.getElementById("ramadhanDays").innerHTML = t(`${targetDays} <span>days left</span>`, `${targetDays} <span>hari lagi</span>`);
 }
 setInterval(tick,1000);
+
 // ==========================================
 // INIT
 // ==========================================
@@ -1386,9 +1452,14 @@ async function init(){
   renderTexts(); renderTasks(); renderAdhoc(); tick();
   initSupabase();
   
-  if (sbReady) {
-    await pullFromCloud(false);
-    runAutomations();
+  // Check if user is already logged in
+  const savedPin = localStorage.getItem("noja_user_pin");
+  if (savedPin) {
+    document.getElementById("loginOverlay").style.display = "none";
+    if (sbReady) {
+      await pullFromCloud(false);
+      runAutomations();
+    }
   }
   
   setInterval(()=>{ if (sbReady && !isEditMode) pullFromCloud(false); }, 60000);
