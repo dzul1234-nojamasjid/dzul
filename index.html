@@ -16,7 +16,7 @@
 
   .top-bar{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px;flex-wrap:wrap;gap:10px}
   .btn-group{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
-  
+
   .lang-switch { display: flex; background: var(--border); border-radius: 8px; overflow: hidden; }
   .lang-switch button { background: transparent; border: none; color: var(--muted); padding: 6px 12px; font-weight: bold; font-size: 0.8rem; cursor: pointer; transition: 0.2s; }
   .lang-switch button.active { background: var(--accent2); color: #0f172a; }
@@ -26,6 +26,7 @@
   .btn-gallery{background:#8b5cf6;color:#fff}
   .btn-log{background:#f97316;color:#fff}
   .btn-sync{background:var(--accent);color:#0f172a}
+  .btn-logout{background:var(--danger);color:#fff}
 
   .shift-toggle{display:flex;gap:10px;margin-bottom:12px;justify-content:center}
   .shift-btn{background:var(--card);border:2px solid var(--border);color:var(--text);
@@ -35,7 +36,7 @@
   header{text-align:center;margin-bottom:20px;padding:20px 16px;
     background:linear-gradient(135deg,#166534,#065f46);border-radius:16px;box-shadow:0 4px 15px rgba(0,0,0,0.3)}
   header h1{margin:0;font-size:1.4rem;letter-spacing:0.5px}
-  
+
   .ramadhan-countdown {
     margin-top: 15px; padding: 12px; background: #000000;
     border-radius: 10px; border: 1px solid rgba(239, 68, 68, 0.4);
@@ -44,7 +45,7 @@
   .ramadhan-countdown h3 { margin: 0 0 6px 0; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1px; color: var(--danger); }
   .ramadhan-countdown .days { font-size: 1.8rem; font-weight: 900; color: var(--danger); text-shadow: 0 0 10px rgba(239, 68, 68, 0.8); animation: slowBlinkRed 2.5s infinite ease-in-out; }
   .ramadhan-countdown .days span { font-size: 0.9rem; font-weight: 600; }
-  
+
   @keyframes slowBlinkRed {
     0%, 100% { opacity: 1; text-shadow: 0 0 15px rgba(239, 68, 68, 1); }
     50% { opacity: 0.6; text-shadow: 0 0 2px rgba(239, 68, 68, 0.2); }
@@ -154,7 +155,7 @@
     body.sl-printing #shiftLogTable td:nth-last-child(-n+2){display:none!important}
     @page{margin:12mm}
   }
-  
+
   #slToast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(20px); background:var(--accent);color:#0f172a;padding:12px 20px;border-radius:10px;font-weight:700; font-size:0.95rem;box-shadow:0 6px 20px rgba(0,0,0,.4);opacity:0;pointer-events:auto; transition:opacity .25s,transform .25s;z-index:200;width:90%;max-width:600px; text-align:left}
   #slToast.show{opacity:1;transform:translateX(-50%) translateY(0)}
   #slToast.error{background:var(--danger);color:#fff}
@@ -186,7 +187,7 @@
   }
   .login-box button:hover { background: #16a34a; }
   .login-error { color: var(--danger); font-size: 0.85rem; margin-top: 10px; display: none; }
-  
+
   @keyframes fadeIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
 
   /* ADMIN DASHBOARD CSS */
@@ -221,7 +222,7 @@
       <button id="btnLangBM" onclick="setLang('bm')">BM</button>
     </div>
   </div>
-  
+
   <div class="btn-group">
     <span class="sync-status" id="syncStatus">local</span>
     <button class="btn-tool" id="btnAdmin" style="display:none; background:var(--gold); color:#0f172a;" onclick="openAdminDashboard()">👑 Admin</button>
@@ -231,6 +232,7 @@
     <button class="btn-tool" onclick="backupJSON()" title="Backup JSON">📥</button>
     <button class="btn-tool" onclick="document.getElementById('restoreFile').click()" title="Restore JSON">📤</button>
     <button class="btn-tool" onclick="window.print()" title="Print / PDF">🖨️</button>
+    <button class="btn-tool btn-logout" id="btnLogout" onclick="logout()" title="Logout">🚪 Logout</button>
   </div>
   <input type="file" id="restoreFile" accept=".json" style="display:none" onchange="restoreJSON(this)">
 </div>
@@ -242,7 +244,7 @@
 
 <header>
   <h1 id="appTitle">Noja Daily Checklist</h1>
-  
+
   <div class="ramadhan-countdown">
     <h3 id="ramadhanTitle">🌙 Countdown to Ramadhan</h3>
     <div class="days" id="ramadhanDays">--</div>
@@ -320,8 +322,7 @@
             <option value="evening" selected id="optEvening">Evening</option>
             <option value="adhoc" id="optAdhoc">Adhoc</option>
           </select></div>
-          
-        <!-- NEW CUSTOM TIME PICKER (NO OVERLAY) -->
+
         <div><label id="lblSlStart" style="font-size:.75rem;color:var(--muted)">Start Time</label>
           <div style="display:flex; gap:4px;">
             <select id="slStartH" class="edit-input" style="margin-bottom:0; padding:8px 2px;"></select>
@@ -334,7 +335,7 @@
             <select id="slEndM" class="edit-input" style="margin-bottom:0; padding:8px 2px;"></select>
           </div>
         </div>
-        
+
         <div><label id="lblSlOT" style="font-size:.75rem;color:var(--muted)">OT (hrs)</label>
           <input type="number" id="slOT" class="edit-input" style="margin-bottom:0" min="0" step="0.25" value="0"></div>
         <div style="display:flex;align-items:flex-end;padding-bottom:4px">
@@ -371,13 +372,13 @@
       <button class="btn-tool" style="flex:1;padding:10px" onclick="shiftLogCSV()">📄 CSV</button>
       <button class="btn-tool" style="flex:1;padding:10px" onclick="shiftLogExportJSON()">📥 Export JSON</button>
     </div>
-    
+
     <div style="margin-top:10px; text-align:center;">
       <button class="btn-sm" id="btnSlManualBackup" style="background:var(--accent); color:#0f172a; padding:10px 12px; width:100%; font-weight:bold;" onclick="downloadLastMonthBackup()">
         📥 Download Last Month's Backup
       </button>
     </div>
-    
+
     <div style="margin-top:10px; text-align:center;">
       <button class="btn-sm" id="btnSlClean" style="background:transparent; color:var(--warn); border:1px solid var(--warn); padding:8px 12px; width:100%" onclick="shiftLogCleanOldData()">
         🗑️ Clean >3 Months Data
@@ -395,7 +396,7 @@
   <div class="modal-body" style="background:var(--bg)">
     <h3 style="color:var(--accent2); margin-top:0;">User Management</h3>
     <div id="adminUserList" style="margin-bottom: 20px;"></div>
-    
+
     <div style="background:var(--card); padding:15px; border-radius:10px; border:1px solid var(--border); margin-bottom:20px;">
       <h4 style="margin-top:0; color:var(--accent2)">➕ Add New User</h4>
       <input type="text" id="newUserName" class="edit-input" placeholder="Full Name (e.g. Ahmad)">
@@ -419,7 +420,7 @@
 // ==========================================
 // CLOUDFLARE WORKER PROXY
 // ==========================================
-const WORKER_URL = "https://noja-dzul.dzul1234.workers.dev"; 
+const WORKER_URL = "https://noja-dzul.dzul1234.workers.dev";
 
 let sbReady = true;
 let pushTimer = null;
@@ -464,10 +465,10 @@ async function pullFromCloud(showToast) {
   if (!sbReady) { if (showToast) slToast("Cloud not configured", true); return false; }
   const savedPin = localStorage.getItem("noja_user_pin");
   if (!savedPin) return false;
-  
+
   try {
     setSyncStatus("", "syncing…");
-    const res = await fetch(WORKER_URL + "?t=" + Date.now(), { 
+    const res = await fetch(WORKER_URL + "?t=" + Date.now(), {
         method: "GET",
         headers: { "x-user-pin": savedPin }
     });
@@ -478,10 +479,10 @@ async function pullFromCloud(showToast) {
         document.getElementById("btnAdmin").style.display = "none";
         throw new Error("Session expired");
     }
-    if (!res.ok) throw new Error("Network error");
-    
+    if (!res.ok) throw new Error("HTTP " + res.status);
+
     const payload = await res.json();
-    
+
     if (payload && payload.appData && payload.appData.length > 0 && payload.appData[0].data) {
       applyStatePayload(payload.appData[0].data);
       document.getElementById("mainNotes").value = notesData;
@@ -502,45 +503,101 @@ async function pullFromCloud(showToast) {
   }
 }
 
+// ==========================================
+// PUSH TO CLOUD — HARDENED AGAINST LARGE PAYLOADS
+// ==========================================
 async function pushToCloud(showToast) {
   if (!sbReady) { if (showToast) slToast("Cloud not configured", true); return; }
   const savedPin = localStorage.getItem("noja_user_pin");
   if (!savedPin) return;
-  
-  try {
-    setSyncStatus("", "saving…");
-    const payload = {
-        data: buildStatePayload(),
-        updated_at: new Date().toISOString()
-    };
-    
-    // NEW: 15-second timeout to handle slow mobile networks
+
+  const payload = {
+      data: buildStatePayload(),
+      updated_at: new Date().toISOString()
+  };
+  const bodyStr = JSON.stringify(payload);
+  const payloadKB = (bodyStr.length / 1024).toFixed(1);
+  const hasGallery = Array.isArray(payload.data.gallery) && payload.data.gallery.length > 0;
+
+  // Adaptive timeout: base 30s, +30s if gallery present, +10s per 500KB over 1MB
+  let timeoutMs = 30000;
+  if (hasGallery) timeoutMs += 30000;
+  const sizeMB = bodyStr.length / (1024 * 1024);
+  if (sizeMB > 1) timeoutMs += Math.ceil((sizeMB - 1) * 10000);
+  // Cap at 120s
+  timeoutMs = Math.min(timeoutMs, 120000);
+
+  console.log(`[pushToCloud] Payload: ${payloadKB} KB, timeout: ${timeoutMs/1000}s`);
+
+  const attemptPush = async (attemptNum) => {
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 15000);
-    
-    const res = await fetch(WORKER_URL, {
-        method: "POST",
-        headers: { 
-            "Content-Type": "application/json",
-            "x-user-pin": savedPin 
-        },
-        body: JSON.stringify(payload),
-        signal: controller.signal
-    });
-    
-    clearTimeout(timeoutId);
-    
-    if (!res.ok) throw new Error("Network error");
-    setSyncStatus("ok", "cloud ✓");
-    if (showToast) slToast("✅ Data uploaded to Cloudflare");
+    const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+
+    try {
+      setSyncStatus("", attemptNum > 1 ? `retry ${attemptNum}…` : "saving…");
+
+      const res = await fetch(WORKER_URL, {
+          method: "POST",
+          headers: {
+              "Content-Type": "application/json",
+              "x-user-pin": savedPin
+          },
+          body: bodyStr,
+          signal: controller.signal
+      });
+
+      clearTimeout(timeoutId);
+
+      if (!res.ok) {
+        // Try to read the error body to surface the real cause
+        let detail = "";
+        try {
+          const txt = await res.text();
+          detail = txt ? ` — ${txt.slice(0, 120)}` : "";
+        } catch (_) {}
+        const err = new Error(`HTTP ${res.status}${detail}`);
+        err.status = res.status;
+        throw err;
+      }
+
+      setSyncStatus("ok", "cloud ✓");
+      if (showToast) slToast(`✅ Data uploaded (${payloadKB} KB)`);
+      return true;
+
+    } catch (e) {
+      clearTimeout(timeoutId);
+
+      if (e.name === 'AbortError') {
+        e.message = `Upload timed out after ${timeoutMs/1000}s`;
+      }
+
+      // Retry only on transient errors (network, 5xx, timeout), not on 4xx
+      const isTransient = !e.status || e.status >= 500 || e.name === 'AbortError';
+      const canRetry = isTransient && attemptNum < 3;
+
+      if (canRetry) {
+        const backoff = 1500 * attemptNum;
+        console.warn(`[pushToCloud] Attempt ${attemptNum} failed: ${e.message}. Retrying in ${backoff}ms…`);
+        await new Promise(r => setTimeout(r, backoff));
+        return attemptPush(attemptNum + 1);
+      }
+      throw e;
+    }
+  };
+
+  try {
+    await attemptPush(1);
   } catch (e) {
     console.error("Push fail:", e);
     setSyncStatus("err", "err");
-    if (e.name === 'AbortError') {
-        if (showToast) slToast("❌ Upload timed out. Please check internet.", true);
-    } else {
-        if (showToast) slToast("❌ Push failed: " + e.message, true);
-    }
+
+    let msg = "❌ Push failed: " + e.message;
+    if (e.status === 413) msg = "❌ Payload too large — try removing some gallery images";
+    else if (e.status === 401) msg = "❌ Session expired — please login again";
+    else if (e.name === 'AbortError') msg = `❌ Upload timed out (${timeoutMs/1000}s) — check internet`;
+    else if (!navigator.onLine) msg = "❌ You appear to be offline";
+
+    if (showToast) slToast(msg, true);
   }
 }
 
@@ -548,6 +605,16 @@ function schedulePush() {
   if (!sbReady) return;
   clearTimeout(pushTimer);
   pushTimer = setTimeout(() => pushToCloud(false), 1500);
+}
+
+// ==========================================
+// LOGOUT
+// ==========================================
+function logout() {
+  if (!confirm(t("Logout and return to login screen?", "Log keluar dan kembali ke skrin login?"))) return;
+  localStorage.removeItem("noja_user_pin");
+  localStorage.removeItem("noja_user_role");
+  location.reload();
 }
 
 // ==========================================
@@ -573,7 +640,7 @@ function attemptLogin() {
       btn.textContent = "Login";
       btn.disabled = false;
       document.getElementById("loginPin").value = "";
-      
+
       if (payload.userInfo && payload.userInfo.role === "admin") {
           localStorage.setItem("noja_user_role", "admin");
           document.getElementById("btnAdmin").style.display = "inline-block";
@@ -581,7 +648,7 @@ function attemptLogin() {
           localStorage.removeItem("noja_user_role");
           document.getElementById("btnAdmin").style.display = "none";
       }
-      
+
       pullFromCloud(true);
       slToast("✅ Logged in successfully");
     })
@@ -609,11 +676,11 @@ async function loadAdminUsers() {
   const pin = localStorage.getItem("noja_user_pin");
   const list = document.getElementById("adminUserList");
   list.innerHTML = "<p>Loading users...</p>";
-  
+
   try {
     const res = await fetch(WORKER_URL + "?adminUsers=true", { headers: { "x-user-pin": pin } });
     const users = await res.json();
-    
+
     list.innerHTML = "";
     users.forEach(u => {
       const div = document.createElement("div");
@@ -641,11 +708,11 @@ async function adminAddUser() {
   const id = document.getElementById("newUserId").value.trim().toLowerCase();
   const pin = document.getElementById("newUserPin").value.trim();
   const role = document.getElementById("newUserRole").value;
-  
+
   if (!name || !id || !pin) return alert("Please fill all fields");
-  
+
   const adminPin = localStorage.getItem("noja_user_pin");
-  
+
   try {
     const res = await fetch(WORKER_URL + "?adminAddUser=true", {
       method: "POST",
@@ -653,7 +720,7 @@ async function adminAddUser() {
       body: JSON.stringify({ id, name, pin, role })
     });
     if (!res.ok) throw new Error("Failed to add user");
-    
+
     document.getElementById("newUserName").value = "";
     document.getElementById("newUserId").value = "";
     document.getElementById("newUserPin").value = "";
@@ -690,7 +757,7 @@ async function adminEditUser(id) {
 async function adminDeleteUser(id) {
   if (!confirm(`Delete user ${id}? This cannot be undone.`)) return;
   const adminPin = localStorage.getItem("noja_user_pin");
-  
+
   try {
     const res = await fetch(WORKER_URL + "?adminDeleteUser=" + id, {
       method: "POST",
@@ -707,19 +774,19 @@ async function adminDeleteUser(id) {
 async function adminMasterBackup() {
   const pin = localStorage.getItem("noja_user_pin");
   slToast("⏳ Downloading master backup...");
-  
+
   try {
     const res = await fetch(WORKER_URL + "?masterBackup=true", { headers: { "x-user-pin": pin } });
     const data = await res.json();
-    
+
     const blob = new Blob([JSON.stringify(data, null, 2)], {type:"application/json"});
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
-    a.href = url; 
+    a.href = url;
     a.download = `Master_Payroll_Backup_${new Date().toISOString().slice(0,10)}.json`;
-    a.click(); 
+    a.click();
     URL.revokeObjectURL(url);
-    
+
     slToast("✅ Master backup downloaded!");
   } catch(e) {
     slToast("❌ Backup failed", true);
@@ -729,7 +796,7 @@ async function adminMasterBackup() {
 // ==========================================
 // BILINGUAL SUPPORT & SAFE TEXT
 // ==========================================
-let currentLang = localStorage.getItem("noja_lang") || "en"; 
+let currentLang = localStorage.getItem("noja_lang") || "en";
 
 function t(en, bm) { return currentLang === "en" ? en : bm; }
 
@@ -867,15 +934,15 @@ function runAutomations() {
     let prevMonthDate = new Date(now.getFullYear(), now.getMonth() - 1, 1);
     const prevMonthKey = `${prevMonthDate.getFullYear()}-${String(prevMonthDate.getMonth()+1).padStart(2,"0")}`;
     const prevEntries = shiftLogData.filter(e => e.date.startsWith(prevMonthKey));
-    
+
     if (prevEntries.length > 0) {
       const timeStr = now.toLocaleTimeString("en-GB", {hour12: false, hour: '2-digit', minute:'2-digit'});
       const dateStr = now.toLocaleDateString("en-GB", {day: '2-digit', month: 'short', year: 'numeric'});
-      
+
       setTimeout(() => {
         const el = document.getElementById("slToast");
         if (!el) return;
-        
+
         el.innerHTML = `<div style="display:flex; align-items:center; justify-content:space-between; gap:10px; width:100%;">
           <span>${t(
             `📁 End of month backup ready: ${dateStr} at ${timeStr}. Go to Shift Log to download.`,
@@ -896,7 +963,7 @@ function runAutomations() {
   const cutoffStr = cutoffDate.toISOString().slice(0,10);
   const initialCount = shiftLogData.length;
   shiftLogData = shiftLogData.filter(e => e.date >= cutoffStr);
-  
+
   if (shiftLogData.length < initialCount) {
     localStorage.setItem(K_SHIFTLOG, JSON.stringify(shiftLogData));
     schedulePush();
@@ -909,18 +976,18 @@ function downloadLastMonthBackup() {
   let prevMonthDate = new Date(now.getFullYear(), now.getMonth() - 1, 1);
   const prevMonthKey = `${prevMonthDate.getFullYear()}-${String(prevMonthDate.getMonth()+1).padStart(2,"0")}`;
   const prevEntries = shiftLogData.filter(e => e.date.startsWith(prevMonthKey));
-  
+
   if (prevEntries.length === 0) {
     alert(t("No data found for last month.", "Tiada data dijumpai untuk bulan lepas."));
     return;
   }
-  
+
   const backupData = JSON.stringify({month: prevMonthKey, entries: prevEntries}, null, 2);
   const blob = new Blob([backupData], {type:"application/json"});
   const url = URL.createObjectURL(blob), a = document.createElement("a");
   a.href = url; a.download = `AutoBackup_ShiftLog_${prevMonthKey}.json`;
   a.click(); URL.revokeObjectURL(url);
-  
+
   slToast(t("📥 Backup downloaded successfully!", "📥 Backup berjaya dimuat turun!"));
 }
 
@@ -931,7 +998,7 @@ function shiftLogCleanOldData() {
   const cutoffStr = cutoffDate.toISOString().slice(0,10);
   const initialCount = shiftLogData.length;
   shiftLogData = shiftLogData.filter(e => e.date >= cutoffStr);
-  
+
   if (shiftLogData.length < initialCount) {
     slSaveStorage(); renderShiftLog();
     slToast(t("🗑️ Cleared " + (initialCount - shiftLogData.length) + " old entries", "🗑️ Dipadam " + (initialCount - shiftLogData.length) + " entri lama"), true);
@@ -976,6 +1043,7 @@ function translateUI() {
   document.getElementById("btnSlPrint").textContent = t("🖨️ Print / PDF", "🖨️ Cetak / PDF");
   document.getElementById("btnSlClean").textContent = t("🗑️ Clean >3 Months Data", "🗑️ Padam Data >3 Bulan");
   document.getElementById("btnSlManualBackup").textContent = t("📥 Download Last Month's Backup", "📥 Muat Turun Backup Bulan Lepas");
+  document.getElementById("btnLogout").textContent = t("🚪 Logout", "🚪 Log Keluar");
 }
 
 function setLang(lang) {
@@ -983,7 +1051,7 @@ function setLang(lang) {
   localStorage.setItem("noja_lang", currentLang);
   document.getElementById("btnLangEN").className = lang === "en" ? "active" : "";
   document.getElementById("btnLangBM").className = lang === "bm" ? "active" : "";
-  translateUI(); renderTexts(); renderTasks(); renderAdhoc(); 
+  translateUI(); renderTexts(); renderTasks(); renderAdhoc();
   if(document.getElementById("shiftLogModal").style.display === "flex") renderShiftLog();
 }
 
@@ -1009,7 +1077,7 @@ function renderTasks() {
     const head = document.createElement("div");
     head.className = "section-head";
     const safeTitle = safeText(sec.title);
-    
+
     head.innerHTML = `
       <span class="time">${esc(sec.time)}</span>
       <h2>${esc(safeTitle)}</h2>
@@ -1034,10 +1102,10 @@ function renderTasks() {
       const key = `s${currentShift}_${si}_t${ti}`;
       const wrap = document.createElement("div");
       wrap.className = "task";
-      
+
       const safeTaskText = safeText(task.t);
       const safeTaskNote = safeText(task.n);
-      
+
       if (isEditMode) {
         wrap.style.flexDirection = "column";
         wrap.innerHTML = `
@@ -1180,7 +1248,7 @@ function toggleExpandAll() {
     s.classList.toggle("open", isAllExpanded);
   });
   document.getElementById("btnExpandAll").textContent = t(
-    isAllExpanded ? "Collapse All" : "Expand All", 
+    isAllExpanded ? "Collapse All" : "Expand All",
     isAllExpanded ? "Tutup Semua" : "Buka Semua"
   );
 }
@@ -1217,6 +1285,9 @@ function renderGallery(){
   });
 }
 
+// ==========================================
+// GALLERY UPLOAD — HARDENED COMPRESSION
+// ==========================================
 function triggerGalleryUpload(useCamera){
   const input = document.createElement("input");
   input.type="file"; input.accept="image/*";
@@ -1224,19 +1295,25 @@ function triggerGalleryUpload(useCamera){
   input.click();
   input.onchange = e => {
     const file = e.target.files[0]; if (!file) return;
-    const title = prompt(t("Enter image title (e.g: Daikin Aircon Panel):", "Masukkan tajuk gambar (cth: Panel Aircond Daikin):")); 
+    const title = prompt(t("Enter image title (e.g: Daikin Aircon Panel):", "Masukkan tajuk gambar (cth: Panel Aircond Daikin):"));
     if (!title) return;
     const reader = new FileReader();
     reader.onload = ev => {
       const img = new Image();
       img.onload = async () => {
         const canvas = document.createElement("canvas");
-        const MAX = 1000;
-        const scale = Math.min(1, MAX/img.width);
-        canvas.width = img.width*scale;
-        canvas.height = img.height*scale;
-        canvas.getContext("2d").drawImage(img,0,0,canvas.width,canvas.height);
-        const base64 = canvas.toDataURL("image/jpeg",0.75);
+        // NEW: More aggressive compression — 800px max, 0.6 quality
+        // Reference photos don't need high resolution; this cuts payload ~60-70%
+        const MAX = 800;
+        const scale = Math.min(1, MAX / Math.max(img.width, img.height));
+        canvas.width = Math.round(img.width * scale);
+        canvas.height = Math.round(img.height * scale);
+        canvas.getContext("2d").drawImage(img, 0, 0, canvas.width, canvas.height);
+        const base64 = canvas.toDataURL("image/jpeg", 0.6);
+
+        const sizeKB = (base64.length / 1024).toFixed(0);
+        console.log(`[Gallery] Compressed image: ${canvas.width}x${canvas.height}, ~${sizeKB} KB`);
+
         const newItem = { id: Date.now().toString(), title, base64 };
         galleryData.push(newItem);
         localStorage.setItem(K_GALLERY, JSON.stringify(galleryData));
@@ -1310,18 +1387,17 @@ function slEntriesForMonth(y,m){
     .sort((a,b)=> a.date===b.date ? a.start.localeCompare(b.start) : a.date.localeCompare(b.date));
 }
 
-// Helper to populate time dropdowns
 function populateTimeDropdowns() {
   const hrs = ["00","01","02","03","04","05","06","07","08","09","10","11","12","13","14","15","16","17","18","19","20","21","22","23"];
   const mins = ["00","05","10","15","20","25","30","35","40","45","50","55"];
-  
+
   const fillSelect = (id, arr, def) => {
     const el = document.getElementById(id);
     if(!el) return;
     el.innerHTML = arr.map(v => `<option value="${v}">${v}</option>`).join("");
     el.value = def;
   };
-  
+
   fillSelect("slStartH", hrs, "17");
   fillSelect("slStartM", mins, "30");
   fillSelect("slEndH", hrs, "22");
@@ -1338,15 +1414,15 @@ function shiftLogPrevMonth(){ slViewDate.setMonth(slViewDate.getMonth()-1); rend
 function shiftLogNextMonth(){ slViewDate.setMonth(slViewDate.getMonth()+1); renderShiftLog(); }
 function shiftLogOnTypeChange(){
   const type = document.getElementById("slType").value;
-  if (type==="morning"){ 
+  if (type==="morning"){
     document.getElementById("slStartH").value="04"; document.getElementById("slStartM").value="30";
     document.getElementById("slEndH").value="09"; document.getElementById("slEndM").value="00";
   }
-  else if (type==="evening"){ 
+  else if (type==="evening"){
     document.getElementById("slStartH").value="17"; document.getElementById("slStartM").value="30";
     document.getElementById("slEndH").value="22"; document.getElementById("slEndM").value="30";
   }
-  else { 
+  else {
     document.getElementById("slStartH").value="00"; document.getElementById("slStartM").value="00";
     document.getElementById("slEndH").value="00"; document.getElementById("slEndM").value="00";
   }
@@ -1388,11 +1464,11 @@ function shiftLogEdit(id){
   slEditId = id;
   document.getElementById("slDate").value = e.date;
   document.getElementById("slType").value = e.type;
-  
+
   const [sh, sm] = (e.start || "00:00").split(":");
   document.getElementById("slStartH").value = sh;
   document.getElementById("slStartM").value = sm;
-  
+
   const [eh, em] = (e.end || "00:00").split(":");
   document.getElementById("slEndH").value = eh;
   document.getElementById("slEndM").value = em;
@@ -1553,7 +1629,7 @@ function restoreJSON(input){
 function tick(){
   const now = new Date();
   const dayNames = [
-    {en:"Sunday", bm:"Ahad"}, {en:"Monday", bm:"Isnin"}, {en:"Tuesday", bm:"Selasa"}, 
+    {en:"Sunday", bm:"Ahad"}, {en:"Monday", bm:"Isnin"}, {en:"Tuesday", bm:"Selasa"},
     {en:"Wednesday", bm:"Rabu"}, {en:"Thursday", bm:"Khamis"}, {en:"Friday", bm:"Jumaat"}, {en:"Saturday", bm:"Sabtu"}
   ];
   const monthNames = [
@@ -1570,7 +1646,7 @@ function tick(){
 
   document.getElementById("dateDisplay").textContent = `${dayName}, ${dayNum} ${monthName} ${yearNum}`;
   document.getElementById("clock").textContent = now.toLocaleTimeString("en-GB",{hour12:false});
-  
+
   const islamicDates = [
     { ramadhan: "2027-02-08", syawal: "2027-03-10" },
     { ramadhan: "2028-01-28", syawal: "2028-02-26" },
@@ -1601,7 +1677,7 @@ function tick(){
       found = true;
       break;
     }
-    
+
     if (now >= rDate && now < sDate) {
       targetTitle = t("✨ Countdown to Syawal (Hari Raya)", "✨ Detik Kehadiran Syawal (Hari Raya)");
       targetDateStr = t(`Estimated: ${islamicDates[i].syawal}`, `Anggaran: ${islamicDates[i].syawal}`);
@@ -1634,7 +1710,7 @@ async function init(){
   translateUI();
   renderTexts(); renderTasks(); renderAdhoc(); tick();
   initSupabase();
-  
+
   const savedPin = localStorage.getItem("noja_user_pin");
   if (savedPin) {
     if (localStorage.getItem("noja_user_role") === "admin") {
@@ -1646,7 +1722,7 @@ async function init(){
       runAutomations();
     }
   }
-  
+
   setInterval(()=>{ if (sbReady && !isEditMode) pullFromCloud(false); }, 60000);
 }
 init();
