@@ -285,7 +285,6 @@
     <button class="btn-close" id="btnGalClose" onclick="closeGallery()">Close</button>
   </div>
   <div class="modal-body">
-    <!-- NEW: Gallery Size/Count Limit Indicator -->
     <div id="galleryLimitMsg" style="text-align:center; font-size:0.85rem; font-weight:bold; margin-bottom:12px; color:var(--warn);">
       <!-- Populated by JS -->
     </div>
@@ -477,7 +476,6 @@ async function pullFromCloud(showToast) {
         headers: { "x-user-pin": savedPin }
     });
     
-    // ONLY logout on true 401 Unauthorized
     if (res.status === 401) {
         localStorage.removeItem("noja_user_pin");
         localStorage.removeItem("noja_user_role");
@@ -486,7 +484,6 @@ async function pullFromCloud(showToast) {
         throw new Error("Session expired");
     }
     
-    // Any other error just throws and keeps the user logged in
     if (!res.ok) throw new Error(`Server error: ${res.status}`);
 
     const payload = await res.json();
@@ -522,19 +519,12 @@ async function pushToCloud(showToast) {
   };
   const bodyStr = JSON.stringify(payload);
   const payloadKB = (bodyStr.length / 1024).toFixed(1);
-  const hasGallery = Array.isArray(payload.data.gallery) && payload.data.gallery.length > 0;
 
-  let timeoutMs = 30000;
-  if (hasGallery) timeoutMs += 30000;
-  const sizeMB = bodyStr.length / (1024 * 1024);
-  if (sizeMB > 1) timeoutMs += Math.ceil((sizeMB - 1) * 10000);
-  timeoutMs = Math.min(timeoutMs, 120000);
-
-  console.log(`[pushToCloud] Payload: ${payloadKB} KB, timeout: ${timeoutMs/1000}s`);
+  console.log(`[pushToCloud] Payload: ${payloadKB} KB`);
 
   const attemptPush = async (attemptNum) => {
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+    const timeoutId = setTimeout(() => controller.abort(), 30000);
 
     try {
       setSyncStatus("", attemptNum > 1 ? `retry ${attemptNum}…` : "saving…");
@@ -568,17 +558,11 @@ async function pushToCloud(showToast) {
 
     } catch (e) {
       clearTimeout(timeoutId);
-
-      if (e.name === 'AbortError') {
-        e.message = `Upload timed out after ${timeoutMs/1000}s`;
-      }
-
       const isTransient = !e.status || e.status >= 500 || e.name === 'AbortError';
       const canRetry = isTransient && attemptNum < 3;
 
       if (canRetry) {
         const backoff = 1500 * attemptNum;
-        console.warn(`[pushToCloud] Attempt ${attemptNum} failed: ${e.message}. Retrying in ${backoff}ms…`);
         await new Promise(r => setTimeout(r, backoff));
         return attemptPush(attemptNum + 1);
       }
@@ -591,13 +575,9 @@ async function pushToCloud(showToast) {
   } catch (e) {
     console.error("Push fail:", e);
     setSyncStatus("err", "err");
-
     let msg = "❌ Push failed: " + e.message;
     if (e.status === 413) msg = "❌ Payload too large — try removing some gallery images";
     else if (e.status === 401) msg = "❌ Session expired — please login again";
-    else if (e.name === 'AbortError') msg = `❌ Upload timed out (${timeoutMs/1000}s) — check internet`;
-    else if (!navigator.onLine) msg = "❌ You appear to be offline";
-
     if (showToast) slToast(msg, true);
   }
 }
@@ -1255,7 +1235,7 @@ function toggleExpandAll() {
 }
 
 // ==========================================
-// GALLERY
+// GALLERY (UPDATED FOR SUPABASE STORAGE)
 // ==========================================
 function openGallery(){ document.getElementById("galleryModal").style.display="flex"; renderGallery(); }
 function closeGallery(){ document.getElementById("galleryModal").style.display="none"; }
@@ -1267,23 +1247,12 @@ function renderGallery(){
   grid.innerHTML = "";
   
   if (limitMsg) {
-    let totalBytes = 0;
-    galleryData.forEach(item => {
-      if (item.base64) totalBytes += item.base64.length;
-    });
-    const totalKB = (totalBytes / 1024).toFixed(0);
-    const isWarning = totalKB > 800;
-    const isLimit = galleryData.length >= 10;
-    
-    if (isLimit) {
+    if (galleryData.length >= 20) {
       limitMsg.style.color = "var(--danger)";
-      limitMsg.textContent = t(`⚠️ Limit reached (10/10). Delete old photos to upload more.`, `⚠️ Had reached (10/10). Padam gambar lama untuk muat naik lagi.`);
-    } else if (isWarning) {
-      limitMsg.style.color = "var(--warn)";
-      limitMsg.textContent = t(`Size: ${totalKB} KB / 1000 KB (Approaching limit!)`, `Saiz: ${totalKB} KB / 1000 KB (Hampir had!)`);
+      limitMsg.textContent = t(`⚠️ Limit reached (20/20). Delete old photos to upload more.`, `⚠️ Had reached (20/20). Padam gambar lama untuk muat naik lagi.`);
     } else {
       limitMsg.style.color = "var(--accent2)";
-      limitMsg.textContent = t(`Photos: ${galleryData.length} / 10 | Size: ${totalKB} KB / 1000 KB`, `Gambar: ${galleryData.length} / 10 | Saiz: ${totalKB} KB / 1000 KB`);
+      limitMsg.textContent = t(`Photos: ${galleryData.length} / 20 (Cloud Storage)`, `Gambar: ${galleryData.length} / 20 (Cloud Storage)`);
     }
   }
 
@@ -1294,7 +1263,7 @@ function renderGallery(){
   [...galleryData].reverse().forEach(item => {
     const card = document.createElement("div");
     card.className = "gallery-item";
-    const imgSrc = item.url || item.base64 || "";
+    const imgSrc = item.url || ""; // We only use URL now
     card.innerHTML = `
       <img src="${esc(imgSrc)}" onclick="viewImage('${esc(item.id)}')" alt="">
       <div class="gallery-item-info">
@@ -1311,12 +1280,11 @@ function renderGallery(){
 }
 
 function triggerGalleryUpload(useCamera){
-  if (galleryData.length >= 10) {
-    alert(t("Limit reached! You can only store up to 10 photos. Please delete old photos first.", "Had dicapai! Anda hanya boleh simpan maksimum 10 gambar. Sila padam gambar lama dahulu."));
+  if (galleryData.length >= 20) {
+    alert(t("Limit reached! You can only store up to 20 photos. Please delete old photos first.", "Had dicapai! Anda hanya boleh simpan maksimum 20 gambar. Sila padam gambar lama dahulu."));
     return;
   }
 
-  // NEW: Notification for PC users
   if (!useCamera && !/Mobi|Android/i.test(navigator.userAgent)) {
      alert(t("You are on a PC. This will open your computer's file explorer to select an image.", "Anda menggunakan PC. Ini akan membuka file explorer komputer anda untuk memilih gambar."));
   }
@@ -1325,40 +1293,57 @@ function triggerGalleryUpload(useCamera){
   input.type="file"; input.accept="image/*";
   if (useCamera) input.setAttribute("capture","environment");
   input.click();
-  input.onchange = e => {
+  
+  input.onchange = async e => {
     const file = e.target.files[0]; if (!file) return;
+    
+    // Optional: You can compress the file here before upload if you want, 
+    // but we can just upload the original file since Supabase Storage has a 50MB limit.
+    
     const title = prompt(t("Enter image title (e.g: Daikin Aircon Panel):", "Masukkan tajuk gambar (cth: Panel Aircond Daikin):"));
     if (!title) return;
-    const reader = new FileReader();
-    reader.onload = ev => {
-      const img = new Image();
-      img.onload = async () => {
-        const canvas = document.createElement("canvas");
-        const MAX = 600;
-        const scale = Math.min(1, MAX / Math.max(img.width, img.height));
-        canvas.width = Math.round(img.width * scale);
-        canvas.height = Math.round(img.height * scale);
-        canvas.getContext("2d").drawImage(img, 0, 0, canvas.width, canvas.height);
-        const base64 = canvas.toDataURL("image/jpeg", 0.5);
 
-        const sizeKB = (base64.length / 1024).toFixed(0);
-        console.log(`[Gallery] Compressed image: ${canvas.width}x${canvas.height}, ~${sizeKB} KB`);
+    // Show loading state
+    const limitMsg = document.getElementById("galleryLimitMsg");
+    if (limitMsg) limitMsg.innerHTML = `<span style="color:var(--warn)">⏳ Uploading to Cloud...</span>`;
 
-        const newItem = { id: Date.now().toString(), title, base64 };
-        galleryData.push(newItem);
-        localStorage.setItem(K_GALLERY, JSON.stringify(galleryData));
-        renderGallery();
-        schedulePush();
-      };
-      img.src = ev.target.result;
-    };
-    reader.readAsDataURL(file);
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+      formData.append("title", title);
+
+      const savedPin = localStorage.getItem("noja_user_pin");
+      const res = await fetch(WORKER_URL + "?upload=true", {
+        method: "POST",
+        headers: { "x-user-pin": savedPin },
+        body: formData
+      });
+
+      if (!res.ok) {
+        const errData = await res.text();
+        throw new Error(errData || "Upload failed");
+      }
+      
+      const data = await res.json();
+      
+      const newItem = { id: Date.now().toString(), title, url: data.url };
+      galleryData.push(newItem);
+      localStorage.setItem(K_GALLERY, JSON.stringify(galleryData));
+      renderGallery();
+      schedulePush();
+      slToast("✅ Image uploaded to Cloud!");
+      
+    } catch (err) {
+      console.error(err);
+      alert(t("Failed to upload image. Check internet or try again.", "Gagal memuat naik gambar. Periksa internet atau cuba lagi."));
+      renderGallery(); // Revert limit msg
+    }
   };
 }
 
 function viewImage(id){
   const item = galleryData.find(g=>g.id===id); if (!item) return;
-  document.getElementById("imgModalSrc").src = item.url || item.base64;
+  document.getElementById("imgModalSrc").src = item.url || "";
   document.getElementById("imgModal").style.display="flex";
 }
 function editGalleryTitle(id){
